@@ -2,9 +2,6 @@ library(future.p2p)
 
 ## Authenticate with Google Drive (preset or via web browser)
 googledrive::drive_auth()
-# googledrive::drive_mkdir("p2p-todo", path = "~/")
-# googledrive::drive_mkdir("p2p-done", path = "~/")
-# googledrive::drive_mkdir("p2p-checked-out", path = "~/")
 
 
 ## -------------------------------------------
@@ -19,7 +16,7 @@ if (user == "alice") {
   res <- push_future(f)
   print(res)
   
-  ## Wait for it to be process by a peer
+  ## Wait for results to appear og P2P Google Drive
   f <- get_result(f)
   print(f)
   
@@ -34,10 +31,11 @@ if (user == "bob") {
   ## Pop a future from P2P Google Drive
   f <- pop_future()
   print(f)
-  
-  r <- result(f)
-  print(r)
-  
+
+  ## Process future
+  f <- resolve(f)
+
+  ## Push results to P2P Google Drive
   res <- push_result(f)
   print(res)
 }

@@ -23,6 +23,8 @@ drive_basename <- function(path) {
 #' @importFrom googledrive local_drive_quiet drive_get drive_ls drive_mkdir
 #' @export
 drive_makedir <- function(path = "~/futureverse/future.p2p/") {
+  local_drive_quiet()
+  
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     message("drive_makedir() ...")
@@ -30,8 +32,6 @@ drive_makedir <- function(path = "~/futureverse/future.p2p/") {
     on.exit(message("drive_makedir() ... done"))
   }
 
-  local_drive_quiet()
-  
   parts <- drive_parts(path)
   stopifnot(length(parts) >= 2)
   stopifnot(parts[1] == "~")
@@ -98,34 +98,41 @@ drive_p2p_dirs <- local({
 
 
 drive_todo <- function() {
+  name <- NULL ## To please R CMD check
   ids <- drive_p2p_dirs()
   subset(ids, name == "todo")
 }
 
 drive_running <- function() {
+  name <- NULL ## To please R CMD check
   ids <- drive_p2p_dirs()
   subset(ids, name == "running")
 }
 
 drive_done <- function() {
+  name <- NULL ## To please R CMD check
   ids <- drive_p2p_dirs()
   subset(ids, name == "done")
 }
 
 
 list_todo <- function() {
+  local_drive_quiet()
   drive_ls(path = drive_todo())
 }
 
 list_running <- function() {
+  local_drive_quiet()
   drive_ls(path = drive_running())
 }
 
 list_done <- function() {
+  local_drive_quiet()
   drive_ls(path = drive_done())
 }
 
 list_all <- function() {
+  local_drive_quiet()
   ids <- drive_p2p_dirs()
   files <- vector("list", length = nrow(ids))
   for (kk in seq_along(ids)) {
@@ -136,6 +143,8 @@ list_all <- function() {
 }
 
 drive_find_file <- function(file) {
+  name <- NULL ## To please R CMD check
+  local_drive_quiet()
   ids <- drive_p2p_dirs()
   for (kk in seq_len(nrow(ids))) {
     id <- ids[kk, ]
@@ -154,6 +163,7 @@ drive_find_file <- function(file) {
 #' @importFrom googledrive drive_upload
 #' @export
 push_future <- function(future) {
+  local_drive_quiet()
   stopifnot(
     inherits(future, "Future"),
     isTRUE(future[["lazy"]])
@@ -181,9 +191,22 @@ push_future <- function(future) {
 #' @importFrom googledrive drive_mv drive_upload
 #' @export
 pop_future <- function() {
+  local_drive_quiet()
   files <- drive_ls(path = drive_todo())
   stopifnot(nrow(files) > 0L)
-  file_id <- files[1, ]
+
+  ## Sort by timestamps
+  if (length(files) == 1L) {
+    file_id <- files[1, ]
+  } else {
+    timestamps <- vapply(files[["drive_resource"]], FUN = function(r) {
+      r[["createdTime"]]
+    }, FUN.VALUE = NA_character_)
+    timestamps <- sub("T", " ", timestamps)
+    timestamps <- as.POSIXct(timestamps)
+    oldest <- order(timestamps)[1]
+    file_id <- files[oldest, ]
+  }
   
   tf <- tempfile(fileext = ".rds")
   on.exit(unlink(tf))
@@ -197,6 +220,7 @@ pop_future <- function() {
 #' @export
 push_result <- function(future) {
   name <- NULL ## To please R CMD check
+  local_drive_quiet()
   
   stopifnot(
     inherits(future, "Future")
@@ -230,8 +254,10 @@ push_result <- function(future) {
 
 
 #' @importFrom googledrive as_id drive_ls drive_rm drive_download
+#' @export
 get_result <- function(future) {
   name <- NULL ## To please R CMD check
+  local_drive_quiet()
   
   stopifnot(
     inherits(future, "Future"),

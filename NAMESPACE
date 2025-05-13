@@ -2,6 +2,7 @@
 
 export(drive_makedir)
 export(drive_p2p_dirs)
+export(get_result)
 export(pop_future)
 export(push_future)
 export(push_result)
