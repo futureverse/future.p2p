@@ -1,0 +1,14 @@
+Package: future.p2p
+Title: Use Shared Peer-to-Peer Compute Resources via Futureverse
+Version: 0.0.0.9000
+Description: Implementation of the 'Future' API <doi:10.32614/RJ-2021-048> that resolves futures on a peer-to-peer ('P2P') compute environment. By using this future backend, you and your friends can share your spare compute resources with each other.
+Imports:
+  future,
+  googledrive
+Authors@R: c(
+   person("Henrik", "Bengtsson", role=c("aut", "cre", "cph"),
+          email = "henrikb@braju.com"))
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
