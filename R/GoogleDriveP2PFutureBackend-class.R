@@ -115,6 +115,8 @@ nbrOfFreeWorkers.GoogleDriveP2PFutureBackend <- function(evaluator = NULL, backg
 #' @keywords internal
 #' @export
 resolved.GoogleDriveP2PFuture <- function(x, .signalEarly = TRUE, ...) {
+  future <- x
+  
   debug <- isTRUE(getOption("future.debug"))
   if (debug) {
     mdebugf_push("resolved() for %s ...", class(x)[1])
@@ -124,9 +126,8 @@ resolved.GoogleDriveP2PFuture <- function(x, .signalEarly = TRUE, ...) {
   resolved <- NextMethod()
   if (resolved) return(TRUE)
 
-  ## To be implemented (block for now)
-  x <- get_result(x)
-  resolved <- TRUE
+  future <- get_result(future, block = FALSE)
+  resolved <- !is.null(future)
   
   resolved
 }

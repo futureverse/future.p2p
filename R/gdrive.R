@@ -276,7 +276,7 @@ push_result <- function(future) {
 
 #' @importFrom googledrive as_id drive_ls drive_rm drive_download
 #' @export
-get_result <- function(future) {
+get_result <- function(future, block = TRUE) {
   name <- NULL ## To please R CMD check
   local_drive_quiet()
   
@@ -292,7 +292,8 @@ get_result <- function(future) {
     results <- drive_ls(path = drive_done())
     result <- subset(results, name == file)
     if (nrow(result) == 1L) break
-    Sys.sleep(1.0)
+    if (nrow(result) == 0L && !block) return(NULL)
+    Sys.sleep(5.0)
   })
   id <- as_id(result)
   
