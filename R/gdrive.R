@@ -160,6 +160,16 @@ drive_find_file <- function(file) {
 }  
 
 
+#' @importFrom future Future reset
+clone_future <- function(future) {
+  future2 <- Future()
+  for (name in names(future2)) {
+    assign(name, value = future[[name]], envir = future2, inherits = TRUE)
+  }
+  future2 <- reset(future2)
+  future2
+}
+
 #' @importFrom googledrive drive_upload
 #' @export
 push_future <- function(future) {
@@ -188,11 +198,16 @@ push_future <- function(future) {
 
 
 
+#' @importFrom future Future
 #' @importFrom googledrive drive_mv drive_upload
 #' @export
-pop_future <- function() {
+pop_future <- function(sleep = 5.0) {
   local_drive_quiet()
-  files <- drive_ls(path = drive_todo())
+  files <- data.frame()
+  while (nrow(files) == 0L) {
+    files <- drive_ls(path = drive_todo())
+    Sys.sleep(sleep)
+  }
   stopifnot(nrow(files) > 0L)
 
   ## Sort by timestamps
@@ -212,7 +227,13 @@ pop_future <- function() {
   on.exit(unlink(tf))
   id <- drive_mv(file_id, path = drive_running())
   res <- drive_download(id, path = tf, overwrite = TRUE)
-  readRDS(tf)
+  future <- readRDS(tf)
+  stopifnot(inherits(future, "Future"))
+  
+  dummy <- Future()
+  future[["owner"]] <- dummy[["owner"]]
+
+  future
 } ## pop_future()
 
 
@@ -260,8 +281,7 @@ get_result <- function(future) {
   local_drive_quiet()
   
   stopifnot(
-    inherits(future, "Future"),
-    isTRUE(future[["lazy"]])
+    inherits(future, "Future")
   )
 
   uuid <- paste(future[["uuid"]], collapse = "-")

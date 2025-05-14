@@ -8,6 +8,8 @@ googledrive::drive_auth()
 ## User 'alice'
 ## -------------------------------------------
 if (user == "alice") {
+  plan(future.p2p::google_drive_p2p, .init = FALSE)
+
   ## Create future
   a <- 42
   f <- future({ 2 * a }, lazy = TRUE)
@@ -18,9 +20,8 @@ if (user == "alice") {
   
   ## Wait for results to appear og P2P Google Drive
   f <- get_result(f)
-  print(f)
-  
-  value(f)
+  v <- value(f)
+  print(v)
 }
 
 
@@ -28,14 +29,23 @@ if (user == "alice") {
 ## User 'bob'
 ## -------------------------------------------
 if (user == "bob") {
-  ## Pop a future from P2P Google Drive
-  f <- pop_future()
-  print(f)
+  plan(sequential)
 
-  ## Process future
-  f <- resolve(f)
+  while (TRUE) {
+    message("Wait for future ...")
+    
+    ## Pop a future from P2P Google Drive
+    f <- pop_future()
+#    print(f)
+    message(sprintf("Future UUID: %s", paste(f[["uuid"]], collapse = "-")))
 
-  ## Push results to P2P Google Drive
-  res <- push_result(f)
-  print(res)
+    message("Process future ...")
+    ## Process future
+    f <- resolve(f)
+  
+    message("Push results ...")
+    ## Push results to P2P Google Drive
+    res <- push_result(f)
+    print(res)
+  }
 }
