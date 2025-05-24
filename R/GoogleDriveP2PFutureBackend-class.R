@@ -44,7 +44,7 @@ launchFuture.GoogleDriveP2PFutureBackend <- function(backend, future, ...) {
   }
 
   if (future[["state"]] != "created") {
-    label <- sQuoteLabel(future[["label"]])
+    label <- sQuoteLabel(future)
     msg <- sprintf("A future ('%s') can only be launched once", label)
     stop(FutureError(msg, future = future))
   }
