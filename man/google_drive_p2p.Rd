@@ -36,3 +36,21 @@ It may only be used with \code{\link[future:plan]{future::plan()}}}
 A google_drive_p2p future is an asynchronous multiprocess
 future that will be evaluated in a background R session.
 }
+\examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+googledrive::drive_auth()
+
+## Futures are pushed to P2P Google Drive and 
+## results are collected from there
+plan(future.p2p::google_drive_p2p, .init = FALSE)
+
+## Create future
+a <- 42
+f <- future({ 2 * a })
+
+## Get results
+v <- value(f)
+print(v)
+
+\dontshow{\}) # examplesIf}
+}

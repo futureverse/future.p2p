@@ -7,6 +7,7 @@
 #'
 #' @return A GoogleDriveP2PFutureBackend object
 #'
+#'
 #' @importFrom future FutureBackend
 #' @keywords internal
 #' @export
@@ -194,6 +195,23 @@ result.GoogleDriveP2PFuture <- function(future, ...) {
 #' @param \ldots Additional arguments passed to `Future()`.
 #'
 #' @return An object of class `GoogleDriveP2PFuture`.
+#'
+#'
+#' @examplesIf interactive()
+#' googledrive::drive_auth()
+#' 
+#' ## Futures are pushed to P2P Google Drive and 
+#' ## results are collected from there
+#' plan(future.p2p::google_drive_p2p, .init = FALSE)
+#' 
+#' ## Create future
+#' a <- 42
+#' f <- future({ 2 * a })
+#' 
+#' ## Get results
+#' v <- value(f)
+#' print(v)
+#'
 #'
 #' @importFrom future future
 #' @export
