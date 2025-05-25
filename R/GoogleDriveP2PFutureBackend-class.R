@@ -196,6 +196,21 @@ result.GoogleDriveP2PFuture <- function(future, ...) {
 #'
 #' @return An object of class `GoogleDriveP2PFuture`.
 #'
+#' @details
+#' The Google Drive P2P future backend relies on Google Drive to
+#' distribute futures among a peer-to-peer (P2P) network of R workers.
+#' Users with a Google Drive account can join the P2P network by
+#' being invited to a shared folder.
+#'
+#' Users who wish to share contribute the compute power of their
+#' computer should call [google_drive_p2p()].
+#'
+#' Users who wish to take advantage of the compute power of the
+#' P2P network should use `plan(google_drive_p2p)`.
+#'
+#' The Google Drive folder used for orchestrating futures to be processed,
+#' currently processed, and return results is currently hardcoded to
+#' `~/futureverse/future.p2p/`.
 #'
 #' @examplesIf interactive()
 #' googledrive::drive_auth()
@@ -212,6 +227,9 @@ result.GoogleDriveP2PFuture <- function(future, ...) {
 #' v <- value(f)
 #' print(v)
 #'
+#' @seealso
+#' Users who wish to share contribute the compute power of their computer
+#' should call [google_drive_p2p_worker()].
 #'
 #' @importFrom future future
 #' @export

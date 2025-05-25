@@ -35,6 +35,21 @@ It may only be used with \code{\link[future:plan]{future::plan()}}}
 \details{
 A google_drive_p2p future is an asynchronous multiprocess
 future that will be evaluated in a background R session.
+
+The Google Drive P2P future backend relies on Google Drive to
+distribute futures among a peer-to-peer (P2P) network of R workers.
+Users with a Google Drive account can join the P2P network by
+being invited to a shared folder.
+
+Users who wish to share contribute the compute power of their
+computer should call \code{\link[=google_drive_p2p]{google_drive_p2p()}}.
+
+Users who wish to take advantage of the compute power of the
+P2P network should use \code{plan(google_drive_p2p)}.
+
+The Google Drive folder used for orchestrating futures to be processed,
+currently processed, and return results is currently hardcoded to
+\verb{~/futureverse/future.p2p/}.
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -51,6 +66,9 @@ f <- future({ 2 * a })
 ## Get results
 v <- value(f)
 print(v)
-
 \dontshow{\}) # examplesIf}
+}
+\seealso{
+Users who wish to share contribute the compute power of their computer
+should call \code{\link[=google_drive_p2p_worker]{google_drive_p2p_worker()}}.
 }
