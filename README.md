@@ -1,13 +1,19 @@
 # future.p2p - Use Shared Peer-to-Peer Compute Resources via Futureverse
 
+
 ```r
 library(future)
 
-## Resolve future on hosts in your private P2P network
-plan(future.p2p::p2p_gdrive, endpoint = "https://drive.google.com/drive/u/0/folders/11a2qLFer-etq0O")
+googledrive::drive_auth()
+  
+## Resolve future via your P2P network of friends
+plan(future.p2p::google_drive_p2p, .init = FALSE)
 
+## Create future
+a <- 42
 f <- future(Sys.info())
+  
+## Get results
 v <- value(f)
 print(v)
 ```
-
