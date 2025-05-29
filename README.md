@@ -26,5 +26,5 @@ print(v)
 
 ```r
 googledrive::drive_auth()
-google_drive_p2p_worker()
+future.p2p::google_drive_p2p_worker()
 ```
