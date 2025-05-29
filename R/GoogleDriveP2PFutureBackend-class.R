@@ -233,8 +233,8 @@ result.GoogleDriveP2PFuture <- function(future, ...) {
 #'
 #' @importFrom future future
 #' @export
-google_drive_p2p <- function(..., workers = availableGoogleDriveP2PWorkers(), envir = parent.frame()) {
-  stop("INTERNAL ERROR: The future.google_drive_p2p::google_drive_p2p() must never be called directly")
+google_drive_p2p <- function(..., workers = future.p2p::availableGoogleDriveP2PWorkers(), envir = parent.frame()) {
+  stop("INTERNAL ERROR: The future.p2p::google_drive_p2p() must never be called directly")
 }
 class(google_drive_p2p) <- c("google_drive_p2p", "multiprocess", "future", "function")
 attr(google_drive_p2p, "init") <- TRUE

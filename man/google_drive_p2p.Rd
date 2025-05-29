@@ -7,7 +7,7 @@
 \usage{
 google_drive_p2p(
   ...,
-  workers = availableGoogleDriveP2PWorkers(),
+  workers = future.p2p::availableGoogleDriveP2PWorkers(),
   envir = parent.frame()
 )
 
