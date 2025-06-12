@@ -4,7 +4,7 @@
 #' googledrive::drive_auth()
 #' google_drive_p2p_worker()
 #'
-#' @importFrom future resolve plan sequential with
+#' @importFrom future resolve plan sequential
 #' @export
 google_drive_p2p_worker <- function() {
   with(plan(sequential), local = TRUE)
