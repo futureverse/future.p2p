@@ -96,14 +96,19 @@ pico_take_on_future <- function(p, to, future, duration = 60, from = p$user, ...
   pico_send_message_dataframe(p, m)
 }
 
+via_channel <- function() {
+  digits <- sample.int(16L, size = 17L, replace = TRUE) %% 16
+  digits[1:4] <- digits[1:4] %% 10
+  digits <- as.hexmode(digits)
+  digits <- as.character(digits)
+  digits[5] <- "-"
+  paste(digits, collapse = "")
+}
 
 #' @export
-pico_send_future <- function(p, future, to, via = NULL, duration = 60, from = p$user, ...) {
+pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, from = p$user, ...) {
   stopifnot(inherits(future, "Future"))
   stopifnot(length(to) == 1L, is.character(to), nzchar(to))
-  if (is.null(via)) {
-    via <- digest::digest(stats::rnorm(n = 1))
-  }
   stopifnot(length(via) == 1L, is.character(via), nzchar(via))
   stopifnot(length(from) == 1L, is.character(from), nzchar(from))
 
