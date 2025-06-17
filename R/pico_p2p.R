@@ -57,7 +57,7 @@ pico_wait_for_offer <- function(p, futures, delay = 0.1, ...) {
 
 
 #' @export
-pico_have_future <- function(p, future, from = p$user, ...) {
+pico_have_future <- function(p, future, duration = 60, from = p$user, ...) {
   stopifnot(inherits(future, "Future"))
   stopifnot(length(from) == 1L, is.character(from), nzchar(from))
   
@@ -68,6 +68,7 @@ pico_have_future <- function(p, future, from = p$user, ...) {
 
   m <- data.frame(
     when = now_str(),
+    expires = now_str(Sys.time() + duration),
     type = "request",
     from = from,
     future = future_id(future),
@@ -78,13 +79,14 @@ pico_have_future <- function(p, future, from = p$user, ...) {
 }
 
 #' @export
-pico_take_on_future <- function(p, to, future, from = p$user, ...) {
+pico_take_on_future <- function(p, to, future, duration = 60, from = p$user, ...) {
   stopifnot(length(future) == 1L, is.character(future), nzchar(future))
   stopifnot(length(to) == 1L, is.character(to), nzchar(to))
   stopifnot(length(from) == 1L, is.character(from), nzchar(from))
 
   m <- data.frame(
     when = now_str(),
+    expires = now_str(Sys.time() + duration),
     type = "offer",
     from = from,
     to = to,
@@ -96,7 +98,7 @@ pico_take_on_future <- function(p, to, future, from = p$user, ...) {
 
 
 #' @export
-pico_send_future <- function(p, future, to, via = NULL, from = p$user, ...) {
+pico_send_future <- function(p, future, to, via = NULL, duration = 60, from = p$user, ...) {
   stopifnot(inherits(future, "Future"))
   stopifnot(length(to) == 1L, is.character(to), nzchar(to))
   if (is.null(via)) {
@@ -107,6 +109,7 @@ pico_send_future <- function(p, future, to, via = NULL, from = p$user, ...) {
 
   m <- data.frame(
     when = now_str(),
+    expires = now_str(Sys.time() + duration),
     type = "accept",
     from = from,
     to = to,
