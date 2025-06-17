@@ -5,6 +5,7 @@ Description: Implementation of the 'Future' API <doi:10.32614/RJ-2021-048> that 
 Depends:
   future
 Imports:
+    digest,
     processx,
     googledrive
 Authors@R: c(
