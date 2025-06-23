@@ -7,6 +7,8 @@
 wormhole_send(file, code = via_channel(), ...)
 }
 \arguments{
+\item{file}{(character string) Path to a readable file.}
+
 \item{code}{(character string) Secret wormhole code.}
 
 \item{...}{Not used.}

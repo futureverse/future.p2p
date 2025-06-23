@@ -134,28 +134,42 @@ pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, 
 
 
 #' @export
-pico_receive_future <- function(p, future, to, via = via_channel(), duration = 60, from = p$user, ...) {
-  stopifnot(inherits(future, "Future"))
-  stopifnot(length(to) == 1L, is.character(to), nzchar(to))
-  stopifnot(length(via) == 1L, is.character(via), nzchar(via))
-  stopifnot(length(from) == 1L, is.character(from), nzchar(from))
-
-  m <- data.frame(
-    when = now_str(),
-    expires = now_str(Sys.time() + duration),
-    type = "accept",
-    from = from,
-    to = to,
-    future = future_id(future),
+pico_receive_future <- function(p, future, via) {
+  stopifnot(length(future) == 1, is.character(future), !is.na(future), nzchar(future))
+  stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
+  file <- sprintf("%s-Future.rds", future)
+  code <- sprintf("%s-f", via)
+  res <- wormhole_receive(code)
+  f <- readRDS(file)
+  list(
+    future = f,
     via = via
   )
+}  
 
-  tf <- file.path(tempdir(), sprintf("%s-Future.rds", m$future))
-  saveRDS(future, file = tf)
-  on.exit(file.remove(tf))
-  
-  m_res <- pico_send_message_dataframe(p, m)
-  code <- sprintf("%s-f", m$via)
-  w_res <- wormhole_send(tf, code = code)
-  invisible(w_res)
+
+#' @importFrom future result
+#' @export
+pico_send_result <- function(p, future, via) {
+  file <- file.path(tempdir(), sprintf("%s-FutureResult.rds", future_id(future)))
+  r <- result(future)
+  saveRDS(r, file = file)
+  code <- sprintf("%s-r", via)
+  res <- wormhole_send(file, code = code)
+  invisible(res)
+}
+
+
+#' @export
+pico_receive_result <- function(p, future, via) {
+  stopifnot(inherits(future, "Future"))
+  stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
+  code <- sprintf("%s-r", via)
+  res <- wormhole_receive(code)
+  file <- sprintf("%s-FutureResult.rds", future_id(future))
+  r <- readRDS(file)
+  stopifnot(inherits(r, "FutureResult"))
+  stopifnot(identical(r[["uuid"]], future[["uuid"]]))
+  future[["result"]] <- r
+  future
 }

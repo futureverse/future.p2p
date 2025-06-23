@@ -1,5 +1,7 @@
 #' Send and Receive Files via Wormhole
 #'
+#' @param file (character string) Path to a readable file.
+#'
 #' @param code (character string) Secret wormhole code.
 #'
 #' @param ... Not used.

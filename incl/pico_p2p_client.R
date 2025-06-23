@@ -24,26 +24,7 @@ message("[client] send future to worker")
 m3 <- pico_send_future(p, future = f, to = m2$from)
 print(m3)
 
-
 message(sprintf("[client] receive future results via %s", m3$via))
-code <- sprintf("%s-r", m3$via)
-res <- wormhole_receive(code)
-print(res)
-
-message(sprintf("[worker] read future"))
-file <- sprintf("%s-FutureResult.rds", future_id(f))
-print(file.info(file))
-r <- readRDS(file)
-print(r)
-
-stopifnot(inherits(r, "FutureResult"))
-
-if (inherits(r, "FutureResult")) {
-  stopifnot(identical(r[["uuid"]], f[["uuid"]]))
-  f$result <- r
-}
-
-print(f)
-
+f <- pico_receive_result(p, future = f, via = m3$via)
 v <- value(f)
 print(v)
