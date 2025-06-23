@@ -4,7 +4,12 @@
 \alias{PicoP2PFutureBackend}
 \title{A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole}
 \usage{
-PicoP2PFutureBackend(workers = availablePicoP2PWorkers(), ...)
+PicoP2PFutureBackend(
+  workers = availablePicoP2PWorkers(),
+  channel = "chat",
+  user = pico_user(),
+  ...
+)
 }
 \arguments{
 \item{workers}{(optional) The maximum number of workers the

@@ -5,11 +5,11 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_worker <- function() {
+pico_p2p_worker <- function(channel = "chat", user = pico_user()) {
   with(plan(sequential), local = TRUE)
 
   message("[worker] connect to pico message queue")
-  p <- pico_pipe("chat", user = "hb")
+  p <- pico_pipe(channel, user = user)
 
   message("[worker] hello")
   m <- pico_hello(p, type = "worker")
@@ -23,15 +23,17 @@ pico_p2p_worker <- function() {
 
     message("[worker] wait for accept")
     m <- pico_wait_for(p, type = "accept", futures = m$future)
-
-    message("[worker] receive future from worker")
-    res <- pico_receive_future(p, via = m$via)
-    f <- res[["future"]]
-
-    message(sprintf("[worker] processing future"))
-    r <- tryCatch(result(f), error = identity)
-
-    message(sprintf("[worker] send future result"))
-    res <- pico_send_result(p, future = f, via = m$via)
+    str(m)
+    if (m[["to"]] == user) {
+      message("[worker] receive future from worker")
+      res <- pico_receive_future(p, via = m$via)
+      f <- res[["future"]]
+  
+      message(sprintf("[worker] processing future"))
+      r <- tryCatch(result(f), error = identity)
+  
+      message(sprintf("[worker] send future result"))
+      res <- pico_send_result(p, future = f, via = m$via)
+    }
  } ## repeat()
 } ## pico_p2p_worker()

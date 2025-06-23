@@ -2,6 +2,13 @@ now_str <- function(when = Sys.time()) {
   format(when, format = "%FT%T")
 }
 
+pico_user <- function() {
+  user <- Sys.info()[["user"]]
+  hostname <- Sys.info()[["nodename"]]
+  pid <- Sys.getpid()
+  sprintf("%s@%s:%d", user, hostname, pid)
+}
+
 pico_send_message_dataframe <- function(p, df) {
   msg <- unlist(df, use.names = TRUE)
   msg <- sprintf("%s=%s", names(msg), msg)

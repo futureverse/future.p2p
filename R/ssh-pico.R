@@ -41,7 +41,7 @@ pico_pipe <- function(topic = NULL, command = c("pipe", "pub", "sub", "ls", "hel
   if (nattrs > 0) {
     names <- names(attrs)
     if (is.null(names) || !all(nzchar(names))) {
-      stop("All argumnets must be named")
+      stop("All arguments must be named")
     }
   }
   

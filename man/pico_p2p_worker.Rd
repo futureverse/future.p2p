@@ -4,7 +4,7 @@
 \alias{pico_p2p_worker}
 \title{Launches a Pico P2P Worker}
 \usage{
-pico_p2p_worker()
+pico_p2p_worker(channel = "chat", user = pico_user())
 }
 \description{
 Launches a Pico P2P Worker

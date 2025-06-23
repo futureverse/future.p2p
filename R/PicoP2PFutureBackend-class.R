@@ -11,7 +11,7 @@
 #' @importFrom future FutureBackend
 #' @keywords internal
 #' @export
-PicoP2PFutureBackend <- function(workers = availablePicoP2PWorkers(), ...) {
+PicoP2PFutureBackend <- function(workers = availablePicoP2PWorkers(), channel = "chat", user = pico_user(), ...) {
   if (is.function(workers)) workers <- workers()
   stop_if_not(length(workers) == 1L)
   if (is.numeric(workers)) {
@@ -21,7 +21,7 @@ PicoP2PFutureBackend <- function(workers = availablePicoP2PWorkers(), ...) {
     stop("Argument 'workers' should be numeric: ", mode(workers))
   }
 
-  pico <- pico_pipe("chat", user = "hb")
+  pico <- pico_pipe(channel, user = user)
   m <- pico_hello(pico, type = "client")
 
   core <- FutureBackend(
@@ -79,7 +79,8 @@ launchFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
   local({
     if (debug) {
       mdebug_push("Submit future to Pico P2P cluster ...")
-      mdebug_pop()
+      mstr(m2)
+      on.exit(mdebug_pop())
     }
     m3 <- pico_send_future(pico, future = f, to = m2$from)
     future[["pico_via"]] <- m3$via
