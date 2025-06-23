@@ -4,7 +4,7 @@
 \alias{wormhole_send}
 \title{Send and Receive Files via Wormhole}
 \usage{
-wormhole_send(file, code, ...)
+wormhole_send(file, code = via_channel(), ...)
 }
 \arguments{
 \item{code}{(character string) Secret wormhole code.}

@@ -33,22 +33,22 @@ pico_next_message <- function(p, ...) {
 }
 
 #' @export
-pico_wait_for_request <- function(p, delay = 0.1, ...) {
-  repeat {
-    m <- pico_next_message(p)
-    if (!is.null(m) && m$type == "request") break
-    Sys.sleep(0.1)
-  }
-  m
+pico_hello <- function(p, from = p$user, type = c("worker", "client"), ...) {
+  type <- match.arg(type)
+  m <- data.frame(
+    when = now_str(),
+    type = type,
+    from = from
+  )
+  pico_send_message_dataframe(p, m)
 }
 
 #' @export
-pico_wait_for_offer <- function(p, futures, delay = 0.1, ...) {
-  stopifnot(length(futures) >= 1L, is.character(futures), all(nzchar(futures)))
+pico_wait_for <- function(p, type, futures = NULL, delay = 0.1, ...) {
   repeat {
     m <- pico_next_message(p)
-    if (!is.null(m) && m$type == "offer") {
-      if (m$future %in% futures) break
+    if (!is.null(m) && m$type == type) {
+      if (is.null(futures) || m$future %in% futures) break
     }
     Sys.sleep(0.1)
   }
@@ -105,6 +105,7 @@ via_channel <- function() {
   paste(digits, collapse = "")
 }
 
+
 #' @export
 pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, from = p$user, ...) {
   stopifnot(inherits(future, "Future"))
@@ -121,6 +122,40 @@ pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, 
     future = future_id(future),
     via = via
   )
+
+  tf <- file.path(tempdir(), sprintf("%s-Future.rds", m$future))
+  saveRDS(future, file = tf)
+  on.exit(file.remove(tf))
   
-  pico_send_message_dataframe(p, m)
+  m_res <- pico_send_message_dataframe(p, m)
+  w_res <- wormhole_send(tf, code = sprintf("%s-f", m$via))
+  m_res
+}
+
+
+#' @export
+pico_receive_future <- function(p, future, to, via = via_channel(), duration = 60, from = p$user, ...) {
+  stopifnot(inherits(future, "Future"))
+  stopifnot(length(to) == 1L, is.character(to), nzchar(to))
+  stopifnot(length(via) == 1L, is.character(via), nzchar(via))
+  stopifnot(length(from) == 1L, is.character(from), nzchar(from))
+
+  m <- data.frame(
+    when = now_str(),
+    expires = now_str(Sys.time() + duration),
+    type = "accept",
+    from = from,
+    to = to,
+    future = future_id(future),
+    via = via
+  )
+
+  tf <- file.path(tempdir(), sprintf("%s-Future.rds", m$future))
+  saveRDS(future, file = tf)
+  on.exit(file.remove(tf))
+  
+  m_res <- pico_send_message_dataframe(p, m)
+  code <- sprintf("%s-f", m$via)
+  w_res <- wormhole_send(tf, code = code)
+  invisible(w_res)
 }
