@@ -134,12 +134,10 @@ pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, 
 
 
 #' @export
-pico_receive_future <- function(p, future, via) {
-  stopifnot(length(future) == 1, is.character(future), !is.na(future), nzchar(future))
+pico_receive_future <- function(p, via) {
   stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
-  file <- sprintf("%s-Future.rds", future)
   code <- sprintf("%s-f", via)
-  res <- wormhole_receive(code)
+  file <- wormhole_receive(code)
   f <- readRDS(file)
   list(
     future = f,
@@ -165,8 +163,7 @@ pico_receive_result <- function(p, future, via) {
   stopifnot(inherits(future, "Future"))
   stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
   code <- sprintf("%s-r", via)
-  res <- wormhole_receive(code)
-  file <- sprintf("%s-FutureResult.rds", future_id(future))
+  file <- wormhole_receive(code)
   r <- readRDS(file)
   stopifnot(inherits(r, "FutureResult"))
   stopifnot(identical(r[["uuid"]], future[["uuid"]]))

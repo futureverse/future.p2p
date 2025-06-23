@@ -18,9 +18,15 @@ wormhole_send <- function(file, code = via_channel(), ...) {
 }
 
 #' @export
-wormhole_receive <- function(code, ...) {
-  res <- wormhole_call("receive", code, input = "y")
-  list(res = res, code = code)
+wormhole_receive <- function(code, path = tempdir(), ...) {
+  ## Switch to one-time temporary directory
+  dir <- tempfile(pattern = "dir", tmpdir = path)
+  dir.create(dir)
+  opwd <- setwd(dir)
+  on.exit(setwd(opwd))
+  out <- wormhole_call("receive", code, input = "y")
+  files <- dir(path = dir, all.files = TRUE, full.names = TRUE, no.. = TRUE)
+  files
 }
 
 #' @export
@@ -47,8 +53,15 @@ wormhole_call <- function(command = c("send", "receive"), ..., input = NULL) {
   
   bin <- find_wormhole()
   args <- c(command, ...)
-  str(list(args = args))
-  res <- system2(bin, args = args, input = input)
-  str(res)
-  res
+  out <- system2(bin, args = args, stdout = TRUE, stderr = TRUE, input = input)
+  status <- attr(out, "status")
+  if (!is.null(status)) {
+    msg <- sprintf("wormhole_call(): System call returned with exit code %s", status)
+    errmsg <- attr(out, "errmsg")
+    if (!is.null(errmsg)) {
+      msg <- sprintf("%s with error message %s", sQuote(errmsg))
+    }
+    stop(msg)
+  }
+  invisible(out)
 }

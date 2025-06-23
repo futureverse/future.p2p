@@ -24,7 +24,7 @@ m <- pico_wait_for(p, type = "accept", futures = m$future)
 print(m)
 
 message("[client] receive future from worker")
-res <- pico_receive_future(p, future = m$future, via = m$via)
+res <- pico_receive_future(p, via = m$via)
 f <- res$future
 print(f)
 
