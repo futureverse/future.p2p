@@ -45,6 +45,16 @@ pico_hello <- function(p, from = p$user, type = c("worker", "client"), ...) {
 
 #' @export
 pico_wait_for <- function(p, type, futures = NULL, delay = 0.1, ...) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebugf_push("pico_wait_for(type = '%s') ...", type)
+    mdebugf("Pooling frequency: %g seconds", delay)
+    mdebugf("Waiting for futures: [n=%d] %s", length(futures), commaq(futures))
+    on.exit({
+      mdebug_pop()
+    })
+  }
+  
   repeat {
     m <- pico_next_message(p)
     if (!is.null(m) && m$type == type) {
@@ -58,6 +68,16 @@ pico_wait_for <- function(p, type, futures = NULL, delay = 0.1, ...) {
 
 #' @export
 pico_have_future <- function(p, future, duration = 60, from = p$user, ...) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_have_future() ...")
+    mdebugf("Future: %s", future_id(future))
+    mdebugf("Duration: %g seconds", duration)
+    on.exit({
+      mdebug_pop()
+    })
+  }
+  
   stopifnot(inherits(future, "Future"))
   stopifnot(length(from) == 1L, is.character(from), nzchar(from))
   
@@ -65,7 +85,8 @@ pico_have_future <- function(p, future, duration = 60, from = p$user, ...) {
   on.exit(file.remove(tf))
   saveRDS(future, file = tf)
   size <- file.size(tf)
-
+  if (debug) mdebugf("Size: %g bytes", size)
+  
   m <- data.frame(
     when = now_str(),
     expires = now_str(Sys.time() + duration),
@@ -80,6 +101,16 @@ pico_have_future <- function(p, future, duration = 60, from = p$user, ...) {
 
 #' @export
 pico_take_on_future <- function(p, to, future, duration = 60, from = p$user, ...) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_take_on_future() ...")
+    mdebugf("Future: %s", future)
+    mdebugf("Duration: %g seconds", duration)
+    on.exit({
+      mdebug_pop()
+    })
+  }
+  
   stopifnot(length(future) == 1L, is.character(future), nzchar(future))
   stopifnot(length(to) == 1L, is.character(to), nzchar(to))
   stopifnot(length(from) == 1L, is.character(from), nzchar(from))
@@ -108,6 +139,18 @@ via_channel <- function() {
 
 #' @export
 pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, from = p$user, ...) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_send_future() ...")
+    mdebugf("Future: %s", future_id(future))
+    mdebugf("To: %s", to)
+    mdebugf("Via: %s", via)
+    mdebugf("Duration: %g seconds", duration)
+    on.exit({
+      mdebug_pop()
+    })
+  }
+  
   stopifnot(inherits(future, "Future"))
   stopifnot(length(to) == 1L, is.character(to), nzchar(to))
   stopifnot(length(via) == 1L, is.character(via), nzchar(via))
@@ -134,13 +177,24 @@ pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, 
 
 
 #' @export
-pico_receive_future <- function(p, via) {
+pico_receive_future <- function(p, via, duration = 60) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_receive_future() ...")
+    mdebugf("Via: %s", via)
+    mdebugf("Duration: %g seconds", duration)
+    on.exit({
+      mdebug_pop()
+    })
+  }
+  
   stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
   code <- sprintf("%s-f", via)
-  file <- wormhole_receive(code)
-  f <- readRDS(file)
+  tf <- wormhole_receive(code)
+  future <- readRDS(tf)
+  on.exit(file.remove(tf))
   list(
-    future = f,
+    future = future,
     via = via
   )
 }  
@@ -148,7 +202,18 @@ pico_receive_future <- function(p, via) {
 
 #' @importFrom future result
 #' @export
-pico_send_result <- function(p, future, via) {
+pico_send_result <- function(p, future, via, duration = 60) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_send_result() ...")
+    mdebugf("Future: %s", future_id(future))
+    mdebugf("Via: %s", via)
+    mdebugf("Duration: %g seconds", duration)
+    on.exit({
+      mdebug_pop()
+    })
+  }
+  
   file <- file.path(tempdir(), sprintf("%s-FutureResult.rds", future_id(future)))
   r <- result(future)
   saveRDS(r, file = file)
@@ -159,7 +224,17 @@ pico_send_result <- function(p, future, via) {
 
 
 #' @export
-pico_receive_result <- function(p, future, via) {
+pico_receive_result <- function(p, future, via, duration = 60) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_receive_result() ...")
+    mdebugf("Via: %s", via)
+    mdebugf("Duration: %g seconds", duration)
+    on.exit({
+      mdebug_pop()
+    })
+  }
+  
   stopifnot(inherits(future, "Future"))
   stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
   code <- sprintf("%s-r", via)
