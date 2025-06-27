@@ -4,13 +4,12 @@
 \alias{pico_p2p_worker}
 \title{Launches a P2P worker and adds it to a P2P cluster}
 \usage{
-pico_p2p_worker(cluster = "chat", name = pico_user())
+pico_p2p_worker(cluster = "chat", name = p2p_name())
 }
 \arguments{
 \item{cluster}{The p2p cluster to contribute to.}
 
-\item{name}{The name of the worker as publicized on the P2P cluster.
-The default name is \verb{\{username\}@\{hostname\}:\{pid\}}.}
+\item{name}{The name of the worker as publicized on the P2P cluster.}
 }
 \description{
 Launches a P2P worker and adds it to a P2P cluster

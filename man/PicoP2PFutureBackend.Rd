@@ -4,21 +4,12 @@
 \alias{PicoP2PFutureBackend}
 \title{A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole}
 \usage{
-PicoP2PFutureBackend(
-  workers = availablePicoP2PWorkers(),
-  cluster = "chat",
-  name = pico_user(),
-  ...
-)
+PicoP2PFutureBackend(cluster = "chat", name = p2p_name(), ...)
 }
 \arguments{
-\item{workers}{(optional) The maximum number of workers the
-backend may use at any time.}
-
 \item{cluster}{The p2p cluster to connect to.}
 
-\item{name}{The name of the client as publicized on the P2P cluster.
-The default name is \verb{\{username\}@\{hostname\}:\{pid\}}.}
+\item{name}{The name of the client as publicized on the P2P cluster.}
 
 \item{\ldots}{Additional arguments passed to \code{\link[future:FutureBackend]{future::FutureBackend()}}.}
 }

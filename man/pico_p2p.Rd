@@ -5,21 +5,16 @@
 \alias{availablePicoP2PWorkers}
 \title{pico_p2p futures}
 \usage{
-pico_p2p(
-  ...,
-  workers = future.p2p::availablePicoP2PWorkers(),
-  envir = parent.frame()
-)
+pico_p2p(cluster = "chat", name = p2p_name(), ...)
 
 availablePicoP2PWorkers()
 }
 \arguments{
-\item{workers}{The number of concurrent workers to use.}
+\item{cluster}{The p2p cluster to connect to.}
 
-\item{envir}{The \link{environment} from where global objects should be
-identified.}
+\item{name}{The name of the client as publicized on the P2P cluster.}
 
-\item{\ldots}{Additional arguments passed to \code{Future()}.}
+\item{\ldots}{Not used.}
 }
 \value{
 An object of class \code{PicoP2PFuture}.

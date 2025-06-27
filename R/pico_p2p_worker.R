@@ -3,7 +3,6 @@
 #' @param cluster The p2p cluster to contribute to.
 #'
 #' @param name The name of the worker as publicized on the P2P cluster.
-#' The default name is `{username}@{hostname}:{pid}`.
 #'
 #' @examplesIf interactive()
 #' pico_p2p_worker()
@@ -14,7 +13,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_worker <- function(cluster = "chat", name = pico_user()) {
+pico_p2p_worker <- function(cluster = "chat", name = p2p_name()) {
   old_opts <- options(parallelly.availableCores.fallback = 1L)
   on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)
