@@ -33,10 +33,26 @@ pico_next_message <- function(p, ...) {
 }
 
 #' @export
-pico_hello <- function(p, from = p$user, type = c("worker", "client"), ...) {
+pico_hello <- function(p, from = p$user, type = c("worker", "client"), expires = NULL, duration = 60*60, ...) {
   type <- match.arg(type)
+  
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_hello() ...")
+    mdebugf("Typo: %s", type)
+    mdebugf("Duration: %g seconds", duration)
+    on.exit({
+      mdebug_pop()
+    })
+  }
+
+  if (is.null(expires)) {
+    expires = now_str(Sys.time() + duration)
+  }
+  
   m <- data.frame(
     when = now_str(),
+    expires = expires,
     type = type,
     from = from
   )

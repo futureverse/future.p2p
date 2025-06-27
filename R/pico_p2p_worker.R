@@ -4,6 +4,8 @@
 #'
 #' @param name The name of the worker as publicized on the P2P cluster.
 #'
+#' @param duration Duration (in seconds) to offer working on futures.
+#'
 #' @examplesIf interactive()
 #' pico_p2p_worker()
 #'
@@ -13,18 +15,29 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name()) {
+pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), duration = 60*60) {
   old_opts <- options(parallelly.availableCores.fallback = 1L)
   on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)
 
-  message(sprintf("[worker] connect worker %s to p2p cluster %s", sQuote(name), sQuote(cluster)))
+  now <- Sys.time()
+  duration <- as.numeric(duration)
+  expires <- now + duration
+  duration <- difftime(duration, 0)
+
+  message(sprintf("[worker] connect worker %s to p2p cluster %s for %s until %s", sQuote(name), sQuote(cluster), format(duration), expires))
   p <- pico_pipe(cluster, user = name)
 
-  message("[worker] hello")
-  m <- pico_hello(p, type = "worker")
-
   repeat {
+    now <- Sys.time()
+    if (now > expires) {
+      message("[worker] times out")
+      break
+    }
+    
+    message("[worker] hello")
+    m <- pico_hello(p, type = "worker", expires = expires)
+  
     message("[worker] wait for request")
     m <- pico_wait_for(p, type = "request")
     client <- m$from
@@ -50,8 +63,9 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name()) {
       res <- pico_send_result(p, future = f, via = m$via)
     }
  } ## repeat()
+ message("[worker] exiting ...")
 } ## pico_p2p_worker()
 
 
 ## Expose function on the CLI
-cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)")
+cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(duration)=([[:digit:]]+)")
