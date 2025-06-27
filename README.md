@@ -53,7 +53,9 @@ Alternatively, launch it directly from the command line using:
 $ Rscript -e future.p2p::pico_p2p_worker --channel=alice/p2p
 ```
 
-You can launch more the same way to offer more compute power.
+This will contribute one parallel worker to the p2p cluster. You can
+contribute additional ones by repeating the same command one or more
+times.
 
 
 
