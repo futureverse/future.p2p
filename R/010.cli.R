@@ -26,7 +26,7 @@ parse_cmd_args <- function(patterns = character(0L), cmdargs = getOption("future
 `cli_fcn<-` <- function(x, value = character(0L)) {
   fcn <- x
   patterns <- value
-  stop_if_not(
+  stopifnot(
     is.function(fcn),
     is.character(patterns)
   )
@@ -53,7 +53,3 @@ print.cli_fcn <- function(x, ..., call = !interactive(), envir = parent.frame())
   # Return nothing
   invisible(return())
 }
-
-
-## Expose functions on the CLI
-cli_fcn(pico_p2p_worker) <- c("--(channel)=(.*)", "--(user)=(.*)")

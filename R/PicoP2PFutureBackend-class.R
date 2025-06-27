@@ -3,6 +3,11 @@
 #' @param workers (optional) The maximum number of workers the 
 #' backend may use at any time.
 #'
+#' @param cluster The p2p cluster to connect to.
+#'
+#' @param name The name of the client as publicized on the P2P cluster.
+#' The default name is `{username}@{hostname}:{pid}`.
+#'
 #' @param \ldots Additional arguments passed to [future::FutureBackend()].
 #'
 #' @return A PicoP2PFutureBackend object
@@ -11,7 +16,7 @@
 #' @importFrom future FutureBackend
 #' @keywords internal
 #' @export
-PicoP2PFutureBackend <- function(workers = availablePicoP2PWorkers(), channel = "chat", user = pico_user(), ...) {
+PicoP2PFutureBackend <- function(workers = availablePicoP2PWorkers(), cluster = "chat", name = pico_user(), ...) {
   if (is.function(workers)) workers <- workers()
   stop_if_not(length(workers) == 1L)
   if (is.numeric(workers)) {
@@ -21,7 +26,7 @@ PicoP2PFutureBackend <- function(workers = availablePicoP2PWorkers(), channel = 
     stop("Argument 'workers' should be numeric: ", mode(workers))
   }
 
-  pico <- pico_pipe(channel, user = user)
+  pico <- pico_pipe(cluster, user = name)
   m <- pico_hello(pico, type = "client")
 
   core <- FutureBackend(

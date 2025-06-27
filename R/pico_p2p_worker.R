@@ -1,8 +1,8 @@
 #' Launches a P2P worker and adds it to a P2P cluster
 #'
-#' @param channel The p2p cluster to contribute to.
+#' @param cluster The p2p cluster to contribute to.
 #'
-#' @param user The name of the worker as publicized on the P2P cluster.
+#' @param name The name of the worker as publicized on the P2P cluster.
 #' The default name is `{username}@{hostname}:{pid}`.
 #'
 #' @examplesIf interactive()
@@ -14,13 +14,13 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_worker <- function(channel = "chat", user = pico_user()) {
+pico_p2p_worker <- function(cluster = "chat", name = pico_user()) {
   old_opts <- options(parallelly.availableCores.fallback = 1L)
   on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)
 
-  message(sprintf("[worker] connect worker %s to p2p cluster %s", sQuote(user), sQuote(channel)))
-  p <- pico_pipe(channel, user = user)
+  message(sprintf("[worker] connect worker %s to p2p cluster %s", sQuote(name), sQuote(cluster)))
+  p <- pico_pipe(cluster, user = name)
 
   message("[worker] hello")
   m <- pico_hello(p, type = "worker")
@@ -35,7 +35,7 @@ pico_p2p_worker <- function(channel = "chat", user = pico_user()) {
     message("[worker] wait for accept")
     m <- pico_wait_for(p, type = "accept", futures = m$future)
 
-    if (m[["to"]] == user) {
+    if (m[["to"]] == name) {
       message("[worker] receive future from worker")
       res <- pico_receive_future(p, via = m$via)
       f <- res[["future"]]
@@ -48,3 +48,7 @@ pico_p2p_worker <- function(channel = "chat", user = pico_user()) {
     }
  } ## repeat()
 } ## pico_p2p_worker()
+
+
+## Expose function on the CLI
+cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)")

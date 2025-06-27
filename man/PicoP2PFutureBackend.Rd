@@ -6,14 +6,19 @@
 \usage{
 PicoP2PFutureBackend(
   workers = availablePicoP2PWorkers(),
-  channel = "chat",
-  user = pico_user(),
+  cluster = "chat",
+  name = pico_user(),
   ...
 )
 }
 \arguments{
 \item{workers}{(optional) The maximum number of workers the
 backend may use at any time.}
+
+\item{cluster}{The p2p cluster to connect to.}
+
+\item{name}{The name of the client as publicized on the P2P cluster.
+The default name is \verb{\{username\}@\{hostname\}:\{pid\}}.}
 
 \item{\ldots}{Additional arguments passed to \code{\link[future:FutureBackend]{future::FutureBackend()}}.}
 }
