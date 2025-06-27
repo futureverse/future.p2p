@@ -41,13 +41,19 @@ print(v)
 
 ## Share your compute power with your friends
 
-Launch a P2P worker that will take on tasks;
+To launch a P2P worker, call:
 
 ```r
-$ Rscript -e "future.p2p::pico_p2p_worker(channel = 'alice/p2p')"
+future.p2p::pico_p2p_worker(channel = "alice/p2p")
 ```
 
-Launch more to offer more compute power.
+Alternatively, launch it directly from the command line using:
+
+```sh
+$ Rscript -e future.p2p::pico_p2p_worker --channel=alice/p2p
+```
+
+You can launch more the same way to offer more compute power.
 
 
 
