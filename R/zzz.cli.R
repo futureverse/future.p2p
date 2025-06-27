@@ -21,8 +21,6 @@ parse_cmd_args <- function(cmdargs = getOption("future.p2p.tests.cmdargs", comma
     stop("Unknown future.p2p command-line arguments: ", paste(cmdargs, collapse = " "), call. = FALSE)
   }
 
-str(args)
-
   args
 } # parse_cmd_args()
 

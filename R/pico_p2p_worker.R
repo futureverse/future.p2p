@@ -1,14 +1,25 @@
-#' Launches a Pico P2P Worker
+#' Launches a P2P worker and adds it to a P2P cluster
+#'
+#' @param channel The p2p cluster to contribute to.
+#'
+#' @param user The name of the worker as publicized on the P2P cluster.
+#' The default name is `{username}@{hostname}:{pid}`.
 #'
 #' @examplesIf interactive()
 #' pico_p2p_worker()
 #'
+#' @section Sequential, single-core processing by default:
+#' A P2P worker runs sequentially (`plan(sequential)`) and is configured
+#' to with a single CPU core to prevent nested parallelization.
+#'
 #' @importFrom future resolve plan sequential
 #' @export
 pico_p2p_worker <- function(channel = "chat", user = pico_user()) {
+  old_opts <- options(parallelly.availableCores.fallback = 1L)
+  on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)
 
-  message("[worker] connect to pico message queue")
+  message(sprintf("[worker] connect worker %s to p2p cluster %s", sQuote(user), sQuote(channel)))
   p <- pico_pipe(channel, user = user)
 
   message("[worker] hello")
@@ -23,7 +34,7 @@ pico_p2p_worker <- function(channel = "chat", user = pico_user()) {
 
     message("[worker] wait for accept")
     m <- pico_wait_for(p, type = "accept", futures = m$future)
-    str(m)
+
     if (m[["to"]] == user) {
       message("[worker] receive future from worker")
       res <- pico_receive_future(p, via = m$via)

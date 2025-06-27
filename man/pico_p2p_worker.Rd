@@ -2,13 +2,25 @@
 % Please edit documentation in R/pico_p2p_worker.R
 \name{pico_p2p_worker}
 \alias{pico_p2p_worker}
-\title{Launches a Pico P2P Worker}
+\title{Launches a P2P worker and adds it to a P2P cluster}
 \usage{
 pico_p2p_worker(channel = "chat", user = pico_user())
 }
-\description{
-Launches a Pico P2P Worker
+\arguments{
+\item{channel}{The p2p cluster to contribute to.}
+
+\item{user}{The name of the worker as publicized on the P2P cluster.
+The default name is \verb{\{username\}@\{hostname\}:\{pid\}}.}
 }
+\description{
+Launches a P2P worker and adds it to a P2P cluster
+}
+\section{Sequential, single-core processing by default}{
+
+A P2P worker runs sequentially (\code{plan(sequential)}) and is configured
+to with a single CPU core to prevent nested parallelization.
+}
+
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 pico_p2p_worker()
