@@ -4,7 +4,7 @@
 \alias{pico_p2p_worker}
 \title{Launches a P2P worker and adds it to a P2P cluster}
 \usage{
-pico_p2p_worker(cluster = "chat", name = p2p_name())
+pico_p2p_worker(cluster = p2p_cluster(), name = p2p_name())
 }
 \arguments{
 \item{cluster}{The p2p cluster to contribute to.}

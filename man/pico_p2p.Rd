@@ -5,7 +5,7 @@
 \alias{availablePicoP2PWorkers}
 \title{pico_p2p futures}
 \usage{
-pico_p2p(cluster = "chat", name = p2p_name(), ...)
+pico_p2p(cluster = p2p_cluster(), name = p2p_name(), ...)
 
 availablePicoP2PWorkers()
 }
@@ -28,19 +28,19 @@ It will always return at least one worker, which is yourself.
 It may only be used with \code{\link[future:plan]{future::plan()}}}
 }
 \details{
-A pico_p2p future is an asynchronous multiprocess
+A 'pico_p2p' future is an asynchronous multiprocess
 future that will be evaluated in a background R session.
 
-The Pico P2P future backend relies on Pico to
-distribute futures among a peer-to-peer (P2P) network of R workers.
-Users with a Pico account can join the P2P network by
+The Pico P2P future backend relies on Pico (1) to
+distribute futures among a peer-to-peer (P2P) cluster of R workers.
+Users with a Pico account can join the P2P cluster by
 being invited to a shared folder.
 
-Users who wish to share contribute the compute power of their
-computer should call \code{\link[=pico_p2p]{pico_p2p()}}.
+Users who wish to contribute their compute power to the P2P cluster
+should call \code{\link[=pico_p2p_worker]{pico_p2p_worker()}}.
 
 Users who wish to take advantage of the compute power of the
-P2P network should use \code{plan(pico_p2p)}.
+P2P cluster should use \code{plan(pico_p2p)}.
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -57,7 +57,9 @@ v <- value(f)
 print(v)
 \dontshow{\}) # examplesIf}
 }
-\seealso{
-Users who wish to share contribute the compute power of their computer
-should call \code{\link[=pico_p2p_worker]{pico_p2p_worker()}}.
+\references{
+\enumerate{
+\item pico.sh, The ultimate ssh powered services for developers,
+\url{https://pico.sh/}.
+}
 }

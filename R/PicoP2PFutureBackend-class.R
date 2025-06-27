@@ -3,7 +3,7 @@
 #' _WARNING: This function must never be called.
 #'  It may only be used with [future::plan()]_
 #'
-#' A pico_p2p future is an asynchronous multiprocess
+#' A 'pico_p2p' future is an asynchronous multiprocess
 #' future that will be evaluated in a background R session.
 #'
 #' @param cluster The p2p cluster to connect to.
@@ -15,16 +15,16 @@
 #' @return An object of class `PicoP2PFuture`.
 #'
 #' @details
-#' The Pico P2P future backend relies on Pico to
-#' distribute futures among a peer-to-peer (P2P) network of R workers.
-#' Users with a Pico account can join the P2P network by
+#' The Pico P2P future backend relies on Pico (1) to
+#' distribute futures among a peer-to-peer (P2P) cluster of R workers.
+#' Users with a Pico account can join the P2P cluster by
 #' being invited to a shared folder.
 #'
-#' Users who wish to share contribute the compute power of their
-#' computer should call [pico_p2p()].
+#' Users who wish to contribute their compute power to the P2P cluster
+#' should call [pico_p2p_worker()].
 #'
 #' Users who wish to take advantage of the compute power of the
-#' P2P network should use `plan(pico_p2p)`.
+#' P2P cluster should use `plan(pico_p2p)`.
 #'
 #' @examplesIf interactive()
 #' ## Futures are pushed to the Pico P2P cluster and 
@@ -39,13 +39,13 @@
 #' v <- value(f)
 #' print(v)
 #'
-#' @seealso
-#' Users who wish to share contribute the compute power of their computer
-#' should call [pico_p2p_worker()].
+#' @references
+#' 1. pico.sh, The ultimate ssh powered services for developers,
+#' <https://pico.sh/>.
 #'
 #' @importFrom future future
 #' @export
-pico_p2p <- function(cluster = "chat", name = p2p_name(), ...) {
+pico_p2p <- function(cluster = p2p_cluster(), name = p2p_name(), ...) {
   stop("INTERNAL ERROR: The future.p2p::pico_p2p() must never be called directly")
 }
 class(pico_p2p) <- c("pico_p2p", "multiprocess", "future", "function")
@@ -64,7 +64,7 @@ attr(pico_p2p, "init") <- TRUE
 #' @importFrom future FutureBackend
 #' @keywords internal
 #' @export
-PicoP2PFutureBackend <- function(cluster = "chat", name = p2p_name(), ...) {
+PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), ...) {
   args <- list(...)
 
   ## Argument 'workers' will most likely be removed at some point
@@ -232,7 +232,7 @@ result.PicoP2PFuture <- function(future, ...) {
 
   result <- local({
     if (debug) {
-      mdebug_push("Polling P2P network for results ...")
+      mdebug_push("Polling P2P cluster for results ...")
       mdebugf("Future UUID: %s", paste(future[["uuid"]], collapse = "-"))
       on.exit(mdebugf_pop())
     }

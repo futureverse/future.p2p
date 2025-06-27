@@ -13,7 +13,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_worker <- function(cluster = "chat", name = p2p_name()) {
+pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name()) {
   old_opts <- options(parallelly.availableCores.fallback = 1L)
   on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)

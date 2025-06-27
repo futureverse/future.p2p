@@ -4,7 +4,7 @@
 \alias{PicoP2PFutureBackend}
 \title{A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole}
 \usage{
-PicoP2PFutureBackend(cluster = "chat", name = p2p_name(), ...)
+PicoP2PFutureBackend(cluster = p2p_cluster(), name = p2p_name(), ...)
 }
 \arguments{
 \item{cluster}{The p2p cluster to connect to.}
