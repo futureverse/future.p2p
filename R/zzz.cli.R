@@ -1,7 +1,5 @@
-parse_cmd_args <- function(cmdargs = getOption("future.p2p.tests.cmdargs", commandArgs(trailingOnly = TRUE))) {
-  patterns <- list(
-    "^--(channel)=(.*)$"
-  )
+parse_cmd_args <- function(patterns = character(0L), cmdargs = getOption("future.p2p.tests.cmdargs", commandArgs(trailingOnly = TRUE))) {
+  patterns <- sprintf("^%s$", patterns)
 
   args <- list()
   for (pattern in patterns) {
@@ -25,11 +23,16 @@ parse_cmd_args <- function(cmdargs = getOption("future.p2p.tests.cmdargs", comma
 } # parse_cmd_args()
 
 
-# From R.utils::CmdArgsFunction()
-cli_fcn <- function(fcn) {
-  stop_if_not(is.function(fcn))
+`cli_fcn<-` <- function(x, value = character(0L)) {
+  fcn <- x
+  patterns <- value
+  stop_if_not(
+    is.function(fcn),
+    is.character(patterns)
+  )
   class(fcn) <- c("cli_fcn", class(fcn))
-  fcn
+  attr(fcn, "patterns") <- patterns
+  invisible(fcn)
 }
 
 #' @export
@@ -37,7 +40,8 @@ print.cli_fcn <- function(x, ..., call = !interactive(), envir = parent.frame())
   if (!call) return(NextMethod())
   
   # Call function...
-  res <- withVisible(do.call(x, args = parse_cmd_args(), envir = envir))
+  patterns <- attr(x, "patterns")
+  res <- withVisible(do.call(x, args = parse_cmd_args(patterns = patterns), envir = envir))
 
   # Should the result be printed?
   if (res$visible) {
@@ -51,4 +55,5 @@ print.cli_fcn <- function(x, ..., call = !interactive(), envir = parent.frame())
 }
 
 
-pico_p2p_worker <- cli_fcn(pico_p2p_worker)
+## Expose functions on the CLI
+cli_fcn(pico_p2p_worker) <- c("--(channel)=(.*)", "--(user)=(.*)")
