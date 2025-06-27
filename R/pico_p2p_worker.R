@@ -27,22 +27,26 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name()) {
   repeat {
     message("[worker] wait for request")
     m <- pico_wait_for(p, type = "request")
+    client <- m$from
     
-    message("[worker] offer to work")
-    pico_take_on_future(p, to = m$from, future = m$future)
+    message(sprintf("[worker] offer to work for %s", sQuote(client)))
+    pico_take_on_future(p, to = client, future = m$future)
 
     message("[worker] wait for accept")
     m <- pico_wait_for(p, type = "accept", futures = m$future)
 
     if (m[["to"]] == name) {
-      message("[worker] receive future from worker")
+      message(sprintf("[worker] receive future from %s", sQuote(client)))
       res <- pico_receive_future(p, via = m$via)
       f <- res[["future"]]
   
-      message(sprintf("[worker] processing future"))
-      r <- tryCatch(result(f), error = identity)
-  
-      message(sprintf("[worker] send future result"))
+      message(sprintf("[worker] process future"))
+      dt <- system.time({
+        r <- tryCatch(result(f), error = identity)
+      })
+      dt <- difftime(dt[3], 0)
+
+      message(sprintf("[worker] send future result to %s after %s processing", sQuote(client), format(dt)))
       res <- pico_send_result(p, future = f, via = m$via)
     }
  } ## repeat()
