@@ -20,6 +20,8 @@ future_id <- function(future, ...) {
 #' @export
 pico_next_message <- function(p, ...) {
   msg <- pico_receive_message(p)
+  ## ignore messages not starting with 'when=...'
+  msg <- grep("^when=", msg, value = TRUE)
   if (length(msg) == 0) return(NULL)
   parts <- strsplit(msg, split = ",", fixed = TRUE)
   parts <- lapply(parts, FUN = function(x) {
