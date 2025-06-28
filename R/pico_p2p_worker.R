@@ -25,47 +25,56 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), duration
   expires <- now + duration
   duration <- difftime(duration, 0)
 
-  message(sprintf("[worker] connect worker %s to p2p cluster %s for %s until %s", sQuote(name), sQuote(cluster), format(duration), expires))
+  info("connect worker %s to p2p cluster %s for %s until %s", sQuote(name), sQuote(cluster), format(duration), expires)
   p <- pico_pipe(cluster, user = name)
 
   repeat {
     now <- Sys.time()
     if (now > expires) {
-      message("[worker] times out")
+      info("times out")
       break
     }
     
-    message("[worker] hello")
+    info("hello")
     m <- pico_hello(p, type = "worker", expires = expires)
   
-    message("[worker] wait for request")
+    info("wait for request")
     m <- pico_wait_for(p, type = "request")
     client <- m$from
     
-    message(sprintf("[worker] offer to work for %s", sQuote(client)))
+    info("offer to work for %s", sQuote(client))
     pico_take_on_future(p, to = client, future = m$future)
 
-    message("[worker] wait for accept")
+    info("wait for accept")
     m <- pico_wait_for(p, type = "accept", futures = m$future)
 
     if (m[["to"]] == name) {
-      message(sprintf("[worker] receive future from %s", sQuote(client)))
+      info("receive future from %s", sQuote(client))
       res <- pico_receive_future(p, via = m$via)
       f <- res[["future"]]
   
-      message(sprintf("[worker] process future %s:%s", sQuote(client), sQuoteLabel(f)))
+      info("process future %s:%s", sQuote(client), sQuoteLabel(f))
       dt <- system.time({
         r <- tryCatch(result(f), error = identity)
       })
       dt <- difftime(dt[3], 0)
 
-      message(sprintf("[worker] send future result to %s after %s processing", sQuote(client), format(dt)))
+      info("send future result to %s after %s processing", sQuote(client), format(dt))
       res <- pico_send_result(p, future = f, via = m$via)
     }
  } ## repeat()
- message("[worker] exiting ...")
+ info("exiting ...")
 } ## pico_p2p_worker()
 
 
 ## Expose function on the CLI
 cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(duration)=([[:digit:]]+)")
+
+
+info <- function(fmtstr, ..., time = Sys.time(), timefmt = "%T", from = c("worker", "client")) {
+  from <- match.arg(from)
+  msg <- sprintf(fmtstr, ...)
+  msg <- sprintf("%s [%s] %s", format(time, format = timefmt), from, msg)
+  message(msg)
+}
+
