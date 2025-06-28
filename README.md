@@ -9,7 +9,13 @@ Create a [pico.sh] account by calling:
 $ ssh pico.sh
 ```
 
-and then choose a username. That's it!
+and then choose a username. That's it! This will add your public SSH
+key to the pico.sh server, which is then used to identify you in all
+future interactions. If you have multiple computers, you can add your
+public SSH keys for those as well. This way, you can use your pico.sh
+account from multiple computer systems, which can be handy if you want
+to setup parallel workers on one system and harness their compute
+power from another.
 
 
 ## Setup P2P network
