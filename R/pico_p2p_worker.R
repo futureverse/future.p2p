@@ -53,7 +53,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), duration
       res <- pico_receive_future(p, via = m$via)
       f <- res[["future"]]
   
-      message(sprintf("[worker] process future"))
+      message(sprintf("[worker] process future %s:%s", sQuote(client), sQuoteLabel(f)))
       dt <- system.time({
         r <- tryCatch(result(f), error = identity)
       })
