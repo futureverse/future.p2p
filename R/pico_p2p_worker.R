@@ -20,9 +20,9 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), duration
   on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)
 
-  now <- Sys.time()
+  now <- pico_time()
   duration <- as.numeric(duration)
-  expires <- now + duration
+  expires <- pico_time(delta = duration)
   duration <- difftime(duration, 0)
 
   info("connect worker %s to p2p cluster %s for %s until %s", sQuote(name), sQuote(cluster), format(duration), expires)
@@ -38,19 +38,23 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), duration
     m <- pico_hello(p, type = "worker", expires = expires)
   
     info("wait for request")
-    m <- pico_wait_for(p, type = "request")
-    client <- m$from
-
-    if (Sys.time() > expires) {
+    m <- pico_wait_for(p, type = "request", expires = expires)
+    if (m[["type"]] == "expired") {
       info("time is out")
       break
     }
+    
+    client <- m$from
 
     info("offer to work for %s", sQuote(client))
     pico_take_on_future(p, to = client, future = m$future)
 
     info("wait for accept")
     m <- pico_wait_for(p, type = "accept", futures = m$future)
+    if (m[["type"]] == "expired") {
+      info("future request expired")
+      next
+    }
 
     if (m[["to"]] == name) {
       info("receive future from %s", sQuote(client))

@@ -1,4 +1,9 @@
-now_str <- function(when = Sys.time()) {
+pico_time <- function(time = Sys.time(), delta = 0) {
+  as.integer(time + delta)
+}
+
+now_str <- function(when = pico_time()) {
+  when <- as.POSIXct(when)
   format(when, format = "%FT%T")
 }
 
@@ -54,20 +59,32 @@ pico_hello <- function(p, from = p$user, type = c("worker", "client"), expires =
 
   m <- data.frame(
     when = now_str(),
-    expires = now_str(expires),
+    expires = pico_time(expires),
     type = type,
     from = from
   )
   pico_send_message_dataframe(p, m)
 }
 
+pico_expired <- function() {
+  data.frame(
+    when = now_str(),
+    type = "expired"
+  )
+}
+
 #' @export
-pico_wait_for <- function(p, type, futures = NULL, delay = 0.1, ...) {
+pico_wait_for <- function(p, type, futures = NULL, expires = NULL, duration = 60, delay = 0.1, ...) {
+  if (is.null(expires)) {
+    expires <- Sys.time() + duration
+  }
+  
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebugf_push("pico_wait_for(type = '%s') ...", type)
     mdebugf("Pooling frequency: %g seconds", delay)
     mdebugf("Waiting for futures: [n=%d] %s", length(futures), commaq(futures))
+    mdebugf("Expires: %s", now_str(expires))
     on.exit({
       mdebug_pop()
     })
@@ -75,17 +92,25 @@ pico_wait_for <- function(p, type, futures = NULL, delay = 0.1, ...) {
   
   repeat {
     m <- pico_next_message(p)
+    
+    ## Expired?
+    if (Sys.time() > expires) {
+      if (debug) mdebug("Times out")
+      return(pico_expired())
+    }
+    
     if (!is.null(m) && m$type == type) {
       if (is.null(futures) || m$future %in% futures) break
     }
     Sys.sleep(0.1)
   }
+  
   m
 }
 
 
 #' @export
-pico_have_future <- function(p, future, duration = 60, from = p$user, ...) {
+pico_have_future <- function(p, future, duration = getOption("future.p2p.duration.request", 60), from = p$user, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("pico_have_future() ...")
@@ -100,14 +125,14 @@ pico_have_future <- function(p, future, duration = 60, from = p$user, ...) {
   stopifnot(length(from) == 1L, is.character(from), nzchar(from))
   
   tf <- tempfile(fileext = ".rds")
-  on.exit(file.remove(tf))
+  on.exit(file.remove(tf), add = TRUE)
   saveRDS(future, file = tf)
   size <- file.size(tf)
   if (debug) mdebugf("Size: %g bytes", size)
   
   m <- data.frame(
     when = now_str(),
-    expires = now_str(Sys.time() + duration),
+    expires = pico_time(delta = duration),
     type = "request",
     from = from,
     future = future_id(future),
@@ -135,7 +160,7 @@ pico_take_on_future <- function(p, to, future, duration = 60, from = p$user, ...
 
   m <- data.frame(
     when = now_str(),
-    expires = now_str(Sys.time() + duration),
+    expires = pico_time(delta = duration),
     type = "offer",
     from = from,
     to = to,
@@ -176,7 +201,7 @@ pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, 
 
   m <- data.frame(
     when = now_str(),
-    expires = now_str(Sys.time() + duration),
+    expires = pico_time(delta = duration),
     type = "accept",
     from = from,
     to = to,

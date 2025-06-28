@@ -129,8 +129,12 @@ launchFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
   pico <- backend[["pico"]]
   f <- cloneFuture(future)
   f[["uuid"]] <- future[["uuid"]]
-  m <- pico_have_future(pico, future = f)
-  m2 <- pico_wait_for(pico, type = "offer", futures = m$future)
+
+  repeat {
+    m <- pico_have_future(pico, future = f)
+    m2 <- pico_wait_for(pico, type = "offer", futures = m$future, expires = m[["expires"]])
+    if (m2[["type"]] != "expired") break
+  }
 
   #workers <- backend[["workers"]]
   #waitForWorker(type = "workers-pico-p2p", workers = workers, debug = debug)
