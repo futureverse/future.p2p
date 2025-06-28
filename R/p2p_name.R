@@ -17,7 +17,7 @@ p2p_cluster <- function() {
 #'
 #' @return
 #' `p2p_name()` returns the client or worker name, if set, otherwise
-#' "{username}@{hostname}:{pid}"`.
+#' `"{username}@{hostname}:{pid}"`.
 #'
 #' @rdname p2p_cluster
 #' @export

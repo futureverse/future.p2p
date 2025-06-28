@@ -13,7 +13,7 @@ p2p_name()
 \code{p2p_cluster()} return the cluster name, if set, otherwise \code{"p2p"}.
 
 \code{p2p_name()} returns the client or worker name, if set, otherwise
-"{username}@{hostname}:{pid}"`.
+\code{"{username}@{hostname}:{pid}"}.
 }
 \description{
 Gets the default name of the P2P cluster
