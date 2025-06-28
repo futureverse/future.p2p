@@ -47,12 +47,12 @@ pico_hello <- function(p, from = p$user, type = c("worker", "client"), expires =
   }
 
   if (is.null(expires)) {
-    expires = now_str(Sys.time() + duration)
+    expires <- Sys.time() + duration
   }
-  
+
   m <- data.frame(
     when = now_str(),
-    expires = expires,
+    expires = now_str(expires),
     type = type,
     from = from
   )

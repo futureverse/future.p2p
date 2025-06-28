@@ -29,9 +29,8 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), duration
   p <- pico_pipe(cluster, user = name)
 
   repeat {
-    now <- Sys.time()
-    if (now > expires) {
-      info("times out")
+    if (Sys.time() > expires) {
+      info("time is out")
       break
     }
     
@@ -41,7 +40,12 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), duration
     info("wait for request")
     m <- pico_wait_for(p, type = "request")
     client <- m$from
-    
+
+    if (Sys.time() > expires) {
+      info("time is out")
+      break
+    }
+
     info("offer to work for %s", sQuote(client))
     pico_take_on_future(p, to = client, future = m$future)
 
