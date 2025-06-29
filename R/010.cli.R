@@ -11,6 +11,7 @@ parse_cmd_args <- function(patterns = character(0L), cmdargs = getOption("future
       if (length(cmdarg) > 1) cmdarg <- cmdarg[length(cmdarg)]
       name <- gsub(pattern, "\\1", cmdarg)
       value <- gsub(pattern, "\\2", cmdarg)
+      class(value) <- "cmd_arg"
       args[[name]] <- value
     }
   }

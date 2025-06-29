@@ -23,7 +23,16 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args
   with(plan(sequential), local = TRUE)
 
   now <- pico_time()
-  duration <- as.numeric(duration)
+
+  if (inherits(duration, "ssh_args")) {
+    ## e.g. ssh_args = "-J dt1"
+    ssh_args <- strsplit(ssh_args, split = " ", fixed = TRUE)[[1]]
+  }
+
+  if (inherits(duration, "cmd_arg")) {
+    duration <- as.numeric(duration)
+  }
+  
   expires <- pico_time(delta = duration)
   duration <- difftime(duration, 0)
 
@@ -78,7 +87,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args
 
 
 ## Expose function on the CLI
-cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(duration)=([[:digit:]]+)")
+cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
 
 
 info <- function(fmtstr, ..., time = Sys.time(), timefmt = "%T", from = c("worker", "client")) {
