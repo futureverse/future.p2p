@@ -285,24 +285,20 @@ pico_send_result <- function(p, future, via, duration = 60) {
 
 
 #' @export
-pico_receive_result <- function(p, future, via, duration = 60) {
+pico_receive_result <- function(p, via, duration = 60, path = tempdir()) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("pico_receive_result() ...")
     mdebugf("Via: %s", via)
     mdebugf("Duration: %g seconds", duration)
+    mdebugf("Path: %s", path)
     on.exit({
       mdebug_pop()
     })
   }
   
-  stopifnot(inherits(future, "Future"))
   stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
   code <- sprintf("%s-r", via)
-  file <- wormhole_receive(code)
-  r <- readRDS(file)
-  stopifnot(inherits(r, "FutureResult"))
-  stopifnot(identical(r[["uuid"]], future[["uuid"]]))
-  future[["result"]] <- r
-  future
+  file <- wormhole_receive(code, path = path)
+  file
 }

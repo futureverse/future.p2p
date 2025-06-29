@@ -27,8 +27,14 @@ wormhole_send <- function(file, code = via_channel(), ...) {
   list(res = res, file = file, code = code)
 }
 
+#' @importFrom utils file_test
 #' @export
 wormhole_receive <- function(code, path = tempdir(), ...) {
+  stopifnot(file_test("-d", path))
+  path <- tempfile(pattern = "dir", tmpdir = path)
+  dir.create(path)
+  stopifnot(file_test("-d", path))
+
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("wormhole_receive() ...")
@@ -40,14 +46,12 @@ wormhole_receive <- function(code, path = tempdir(), ...) {
     })
   }
   
-  ## Switch to one-time temporary directory
-  dir <- tempfile(pattern = "dir", tmpdir = path)
-  dir.create(dir)
-  opwd <- setwd(dir)
+  ## Switch to download directory
+  opwd <- setwd(path)
   on.exit(setwd(opwd), add = TRUE, after = FALSE)
   
   out <- wormhole_call("receive", code, input = "y")
-  files <- dir(path = dir, all.files = TRUE, full.names = TRUE, no.. = TRUE)
+  files <- dir(path = path, all.files = TRUE, full.names = TRUE, no.. = TRUE)
   files
 }
 

@@ -127,24 +127,12 @@ launchFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
   ## 1. Record backend for now
   future[["backend"]] <- backend
 
-  ## 1. Wait for an available worker
-  pico <- backend[["pico"]]
-  future[["file"]] <- saveFuture(future)
-
-  repeat {
-    m <- pico_have_future(pico, future = future[["file"]])
-    m2 <- pico_wait_for(pico, type = "offer", futures = m$future, expires = m[["expires"]])
-    if (m2[["type"]] != "expired") break
-  }
-  worker <- m2$from
-  stopifnot(is.character(worker), nzchar(worker))
-  
   ## 2. Allocate future to worker
   reg <- backend[["reg"]]
   FutureRegistry(reg, action = "add", future = future, earlySignal = FALSE)
 
   ## 3. Launch future, i.e. submit it to the Pico P2P cluster dispatcher
-  future <- dispatch_future(future, to = worker)
+  future <- dispatch_future(future)
 
   invisible(future)
 } ## launchFuture()
@@ -184,21 +172,22 @@ nbrOfFreeWorkers.PicoP2PFutureBackend <- function(evaluator = NULL, background =
 #' @export
 resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
   future <- x
+
+  resolved <- NA
   
   debug <- isTRUE(getOption("future.debug"))
   if (debug) {
     mdebugf_push("resolved() for %s ...", class(x)[1])
-    on.exit(mdebugf_pop())
+    on.exit({
+      mdebugf("Resolved: %s", resolved)
+      mdebugf_pop()
+    })
   }
-  
-  resolved <- NextMethod()
-  if (resolved) return(TRUE)
 
-  ## Blocking for now
-  r <- result(future)
-  
-#  future <- get_result(future, block = FALSE)
-  resolved <- TRUE
+  rx <- future[["rx"]]
+
+  ## Still running?
+  resolved <- !rx$is_alive()
   
   resolved
 }
@@ -210,6 +199,7 @@ result.PicoP2PFuture <- function(future, ...) {
   debug <- isTRUE(getOption("future.debug"))
   if (debug) {
     mdebugf_push("result() for %s ...", class(future)[1])
+    mdebugf("Future UUID: %s", paste(future[["uuid"]], collapse = "-"))
     on.exit(mdebugf_pop())
   }
   
@@ -223,18 +213,28 @@ result.PicoP2PFuture <- function(future, ...) {
     future <- run(future)
   }
 
+  rx <- future[["rx"]]
+  if (debug) mdebug("Waiting for dispatch process to finish")
+  rx$wait()
+  file <- rx$get_result()
+  future[["rx"]] <- NULL
+  if (debug) mdebugf("FutureResult file: %s [%g bytes]", sQuote(file), file.size(file))
+  if (!file_test("-f", file)) {
+    stop(FutureError(sprintf("FutureResult file not found: ", sQuote(file))), future = future)
+  }
+  
   result <- local({
     if (debug) {
-      mdebug_push("Polling P2P cluster for results ...")
-      mdebugf("Future UUID: %s", paste(future[["uuid"]], collapse = "-"))
-      on.exit(mdebugf_pop())
+      mdebug_push("Reading FutureResult from file")
+      mdebugf("FutureResult file: %s [%g bytes]", sQuote(file), file.size(file))
+      on.exit(mdebug_pop())
     }
-
-    pico <- future[["pico"]]
-    via <- future[["pico_via"]]
-    f <- pico_receive_result(pico, future = future, via = via)
-    f[["result"]]
+    result <- readRDS(file)
+    file.remove(file)
+    result
   })
+    
+  future[["result"]] <- result
   
   if (!inherits(result, "FutureResult")) {
     if (inherits(result, "FutureLaunchError")) {
@@ -271,17 +271,40 @@ waitForWorker <- function(...) {
 }
 
 
+#' @importFrom callr r_bg
 #' @importFrom utils file_test
-dispatch_future <- function(future, to) {
+dispatch_future <- function(future) {
+  send_future <- function(cluster, name, future_id, file, to, via, duration) {
+    ## 1. Connect to pico
+    pico <- future.p2p::pico_pipe(cluster, user = name)
+
+    ## 2. Announce future
+    repeat {
+      m1 <- future.p2p::pico_have_future(pico, future = file, duration = duration)
+      m2 <- future.p2p::pico_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
+      if (m2[["type"]] != "expired") break
+    }
+
+    ## 3. Send future to workers
+    worker <- m2[["from"]]
+    stopifnot(is.character(worker), nzchar(worker))
+    m3 <- future.p2p::pico_send_future(pico, future = file, to = worker, via = via)
+
+    ## 4. Remove temporary file
+    file.remove(file)
+
+    ## 5. Wait for and receive FutureResult file
+    path <- file.path(dirname(dirname(file)), "results")
+    file <- future.p2p::pico_receive_result(pico, via = via, path = path)
+
+    invisible(file)
+  }
+
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("dispatch_future()...")
     on.exit(mdebugf_pop())
   }
-  file <- future[["file"]]
-  stopifnot(is.character(file), nzchar(file), file_test("-f", file))
-  if (debug) mdebugf("File: %s", sQuote(file))
-  stopifnot(is.character(to), nzchar(to))
 
   ## Get backend
   backend <- future[["backend"]]
@@ -290,25 +313,36 @@ dispatch_future <- function(future, to) {
   cluster <- backend[["cluster"]]
   name <- backend[["name"]]
   via <- via_channel()
+  
+  ## 1. Put future on the dispatcher queue
+  void <- p2p_dir("results")
+  future[["file"]] <- saveFuture(future, path = p2p_dir("queued"))
+  
+  if (debug) mdebugf("File: %s", sQuote(future[["file"]]))
+  args <- list(
+    cluster = cluster,
+    name = name,
+    future_id = future_id(future),
+    file = future[["file"]],
+    via = via,
+    duration = getOption("future.p2p.duration.request", 10.0)
+  )
+  rx <- r_bg(send_future, args = args, supervise = TRUE)
+  future[["rx"]] <- rx
+
   future[["pico_via"]] <- via
-
-  send_future <- function(cluster, name, file, to, via) {
-    ## Connect to pico
-    pico <- pico_pipe(cluster, user = name)
-
-    ## Send future
-    m <- pico_send_future(pico, future = file, to = to, via = via)
-
-    ## Remove temporary file
-    file.remove(file)
-
-    invisible(m)
-  }
-
-  m <- send_future(cluster = cluster, name = name, file = file, to = to, via = via)
 
   ## Update future state
   future[["state"]] <- "running"
   
   invisible(future)
+}
+
+
+#' @importFrom utils file_test
+p2p_dir <- function(dir = c("queued", "running", "results")) {
+  dir <- match.arg(dir)
+  path <- file.path(tempdir(), dir)
+  if (!file_test("-d", path)) dir.create(path, recursive = TRUE)
+  path
 }
