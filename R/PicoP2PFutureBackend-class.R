@@ -127,35 +127,22 @@ launchFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
 
   ## 1. Wait for an available worker
   pico <- backend[["pico"]]
-  file <- saveFuture(future)
-  on.exit(file.remove(file), add = TRUE)
+  future[["file"]] <- saveFuture(future)
 
   repeat {
-    m <- pico_have_future(pico, future = file)
+    m <- pico_have_future(pico, future = future[["file"]])
     m2 <- pico_wait_for(pico, type = "offer", futures = m$future, expires = m[["expires"]])
     if (m2[["type"]] != "expired") break
   }
-
-  #workers <- backend[["workers"]]
-  #waitForWorker(type = "workers-pico-p2p", workers = workers, debug = debug)
-
+  worker <- m2$from
+  stopifnot(is.character(worker), nzchar(worker))
+  
   ## 2. Allocate future to worker
   reg <- backend[["reg"]]
   FutureRegistry(reg, action = "add", future = future, earlySignal = FALSE)
 
-  ## Launch future, i.e. submit it to the Pico P2P cluster
-  local({
-    if (debug) {
-      mdebug_push("Submit future to Pico P2P cluster ...")
-      mstr(m2)
-      on.exit(mdebug_pop())
-    }
-    m3 <- pico_send_future(pico, future = file, to = m2$from)
-    future[["pico_via"]] <- m3$via
-  })
-
-  ## 3. Running
-  future[["state"]] <- "running"
+  ## 3. Launch future, i.e. submit it to the Pico P2P cluster dispatcher
+  future <- dispatch_future(future, to = worker)
 
   invisible(future)
 } ## launchFuture()
@@ -279,4 +266,37 @@ availablePicoP2PWorkers <- function() {
 
 ## FIXME: To be implemented
 waitForWorker <- function(...) {
+}
+
+
+#' @importFrom utils file_test
+dispatch_future <- function(future, to) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("dispatch_future()...")
+    on.exit(mdebugf_pop())
+  }
+  file <- future[["file"]]
+  stopifnot(is.character(file), nzchar(file), file_test("-f", file))
+  if (debug) mdebugf("File: %s", sQuote(file))
+  stopifnot(is.character(to), nzchar(to))
+
+  ## Get backend
+  backend <- future[["backend"]]
+  stopifnot(inherits(backend, "FutureBackend"))
+
+  ## Get pico channel
+  pico <- backend[["pico"]]
+
+  ## Send future
+  m <- pico_send_future(pico, future = file, to = to)
+  future[["pico_via"]] <- m[["via"]]
+
+  ## Remove temporary file
+  file.remove(future[["file"]])
+
+  ## Update future state
+  future[["state"]] <- "running"
+  
+  invisible(future)
 }
