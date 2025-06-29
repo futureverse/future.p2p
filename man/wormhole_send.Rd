@@ -2,16 +2,24 @@
 % Please edit documentation in R/wormhole.R
 \name{wormhole_send}
 \alias{wormhole_send}
+\alias{wormhole_receive}
 \title{Send and Receive Files via Wormhole}
 \usage{
-wormhole_send(file, code = via_channel(), ...)
+wormhole_send(file, code = via_channel(), rsh = NULL, ...)
+
+wormhole_receive(code, path = tempdir(), ..., rsh = NULL)
 }
 \arguments{
 \item{file}{(character string) Path to a readable file.}
 
 \item{code}{(character string) Secret wormhole code.}
 
+\item{rsh}{(character vector; optional) Remote shell command with
+options for launching the \code{wormhole} executable on another host.}
+
 \item{...}{Not used.}
+
+\item{path}{(character string) Temporary working directory.}
 }
 \description{
 Send and Receive Files via Wormhole

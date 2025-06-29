@@ -6,12 +6,15 @@
 #'
 #' @param ... Not used.
 #'
+#' @param rsh (character vector; optional) Remote shell command with
+#' options for launching the `wormhole` executable on another host.
+#'
 #' @seealso
 #' This function relies on the <https://pico.sh> services.
 #'
 #' @importFrom utils file_test
 #' @export
-wormhole_send <- function(file, code = via_channel(), ...) {
+wormhole_send <- function(file, code = via_channel(), rsh = NULL, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("wormhole_send() ...")
@@ -23,13 +26,17 @@ wormhole_send <- function(file, code = via_channel(), ...) {
   }
   
   stopifnot(length(file) == 1L, is.character(file), !is.na(file), nzchar(file), file_test("-f", file))
-  res <- wormhole_call("send", sprintf("--code=%s", code), file)
+  res <- wormhole_call("send", sprintf("--code=%s", code), file, ..., rsh = rsh)
   list(res = res, file = file, code = code)
 }
 
+
+#' @param path (character string) Temporary working directory.
+#'
+#' @rdname wormhole_send
 #' @importFrom utils file_test
 #' @export
-wormhole_receive <- function(code, path = tempdir(), ...) {
+wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
   stopifnot(file_test("-d", path))
   path <- tempfile(pattern = "dir", tmpdir = path)
   dir.create(path)
@@ -50,7 +57,7 @@ wormhole_receive <- function(code, path = tempdir(), ...) {
   opwd <- setwd(path)
   on.exit(setwd(opwd), add = TRUE, after = FALSE)
   
-  out <- wormhole_call("receive", code, input = "y")
+  out <- wormhole_call("receive", code, input = "y", ..., rsh = rsh)
   files <- dir(path = path, all.files = TRUE, full.names = TRUE, no.. = TRUE)
   files
 }
@@ -80,8 +87,9 @@ find_wormhole <- local({
 })
 
 
+#' @importFrom utils file_test
 #' @export
-wormhole_call <- function(command = c("send", "receive"), ..., input = NULL) {
+wormhole_call <- function(command = c("send", "receive"), ..., input = NULL, rsh = NULL) {
   command <- match.arg(command)
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -100,6 +108,16 @@ wormhole_call <- function(command = c("send", "receive"), ..., input = NULL) {
   if (debug) {
     mdebugf("Command-line arguments: [n=%d] %s", length(args), paste(shQuote(args), collapse = " "))
   }
+  
+  if (!is.null(rsh)) {
+    cmd <- Sys.which(rsh[1])
+    if (!nzchar(cmd)) {
+      stop(sprintf("Argument 'rsh' specifies a non-existing executable: %s", sQuote(rsh)))
+    }
+    args <- c(rsh[-1], bin, args)
+    bin <- rsh[1]
+  }
+  
   out <- system2(bin, args = args, stdout = TRUE, stderr = TRUE, input = input)
   status <- attr(out, "status")
   if (!is.null(status)) {
