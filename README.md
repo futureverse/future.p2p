@@ -37,10 +37,11 @@ all of the listed members.
 ## Parallelize via friends P2P Network
 
 In order to distribute R tasks on a P2P cluster, the current machine
-must have:
+must:
 
-1. SSH access to pipe.pico.sh, and
-2. `wormhole` installed and support it
+1. have SSH access to pipe.pico.sh,
+2. have `wormhole` installed, and
+3. support the `ws://` protocol used by wormhole
 
 
 ```r
@@ -60,10 +61,11 @@ print(v)
 
 ## Share your compute power with your friends
 
-In order to share your compute resources on a machine, it must have:
+In order to share your compute resources on a machine, it must:
 
-1. SSH access to pipe.pico.sh, and
-2. `wormhole` installed and support it
+1. have SSH access to pipe.pico.sh,
+2. have `wormhole` installed, and
+3. support the `ws://` protocol used by wormhole
 
 To launch a P2P worker, call:
 
@@ -82,5 +84,16 @@ contribute additional ones by repeating the same command one or more
 times.
 
 
+## Appendix
+
+### Set up a worker to connect to pico.sh via a jumphost
+
+```r
+future.p2p::pico_p2p_worker(channel = "alice/p2p", ssh_args = c("-J", "somehost"))
+```
+
+```sh
+$ Rscript -e future.p2p::pico_p2p_worker --channel=alice/p2p --ssh_args="-J somehost"
+```
 
 [pico.sh]: https://pico.sh/
