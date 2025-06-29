@@ -17,7 +17,11 @@ pico_send_message_dataframe <- function(p, df) {
 
 #' @export
 future_id <- function(future, ...) {
-  id <- paste(future[["uuid"]], collapse = "-")
+  if (inherits(future, "Future")) {
+    id <- paste(future[["uuid"]], collapse = "-")
+  } else if (is.character(future)) {
+    id <- attr(future, "future_id")
+  }
   stopifnot(length(id) == 1L, is.character(id), nzchar(id))
   id
 }
@@ -109,6 +113,7 @@ pico_wait_for <- function(p, type, futures = NULL, expires = NULL, duration = 60
 }
 
 
+#' @importFrom utils file_test
 #' @export
 pico_have_future <- function(p, future, duration = getOption("future.p2p.duration.request", 60), from = p$user, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
@@ -121,13 +126,20 @@ pico_have_future <- function(p, future, duration = getOption("future.p2p.duratio
     })
   }
   
-  stopifnot(inherits(future, "Future"))
+  if (inherits(future, "Future")) {
+    file <- tempfile(fileext = ".rds")
+    on.exit(file.remove(file), add = TRUE)
+    saveRDS(future, file = file)
+  } else if (is.character(future)) {
+    stopifnot(file_test("-f", future))
+    file <- future
+  } else {
+    stop("Unknown type of argument 'future': ", sQuote(typeof(future)))
+  }
+
   stopifnot(length(from) == 1L, is.character(from), nzchar(from))
-  
-  tf <- tempfile(fileext = ".rds")
-  on.exit(file.remove(tf), add = TRUE)
-  saveRDS(future, file = tf)
-  size <- file.size(tf)
+
+  size <- file.size(file)
   if (debug) mdebugf("Size: %g bytes", size)
   
   m <- data.frame(
@@ -193,8 +205,18 @@ pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, 
       mdebug_pop()
     })
   }
-  
-  stopifnot(inherits(future, "Future"))
+
+  if (inherits(future, "Future")) {
+    file <- file.path(tempdir(), sprintf("%s-Future.rds", m$future))
+    saveRDS(future, file = file)
+    on.exit(file.remove(file))
+  } else if (is.character(future)) {
+    stopifnot(file_test("-f", future))
+    file <- future
+  } else {
+    stop("Unknown type of argument 'future': ", sQuote(typeof(future)))
+  }
+
   stopifnot(length(to) == 1L, is.character(to), nzchar(to))
   stopifnot(length(via) == 1L, is.character(via), nzchar(via))
   stopifnot(length(from) == 1L, is.character(from), nzchar(from))
@@ -209,12 +231,8 @@ pico_send_future <- function(p, future, to, via = via_channel(), duration = 60, 
     via = via
   )
 
-  tf <- file.path(tempdir(), sprintf("%s-Future.rds", m$future))
-  saveRDS(future, file = tf)
-  on.exit(file.remove(tf))
-  
   m_res <- pico_send_message_dataframe(p, m)
-  w_res <- wormhole_send(tf, code = sprintf("%s-f", m$via))
+  w_res <- wormhole_send(file, code = sprintf("%s-f", m$via))
   m_res
 }
 
