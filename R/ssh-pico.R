@@ -10,6 +10,8 @@
 #'
 #' @param host (character string) The hostname serving the pico service.
 #'
+#' @param ssh_args (character vector) Optional SSH arguments.
+#'
 #' @param p A `pico_pipe` object.
 #'
 #' @param message (character string) A message to send.
@@ -19,7 +21,7 @@
 #'
 #' @param n (integer) Number of messages to read.
 #'
-#' @param ... (character vector; optional) Named attributes that are recorded
+#' @param \ldots (character vector; optional) Named attributes that are recorded
 #' with the returned object.
 #'
 #' @return
@@ -30,7 +32,7 @@
 #'
 #' @importFrom processx process
 #' @export
-pico_pipe <- function(topic = NULL, command = c("pipe", "pub", "sub", "ls", "help"), args = c(), host = "pipe.pico.sh", ...) {
+pico_pipe <- function(topic = NULL, command = c("pipe", "pub", "sub", "ls", "help"), args = c(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   command <- match.arg(command)
   if (command %in% c("pipe", "pub", "sub")) {
     stopifnot(length(topic) == 1L, is.character(topic), !is.na(topic), nzchar(topic))
@@ -45,7 +47,7 @@ pico_pipe <- function(topic = NULL, command = c("pipe", "pub", "sub", "ls", "hel
     }
   }
   
-  args <- c(host, command, topic, args)
+  args <- c(ssh_args, host, command, topic, args)
   env <- new.env(parent = emptyenv())
   for (name in names) {
     env[[name]] <- attrs[[name]]

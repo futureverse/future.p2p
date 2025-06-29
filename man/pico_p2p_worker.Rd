@@ -4,12 +4,19 @@
 \alias{pico_p2p_worker}
 \title{Launches a P2P worker and adds it to a P2P cluster}
 \usage{
-pico_p2p_worker(cluster = p2p_cluster(), name = p2p_name(), duration = 60 * 60)
+pico_p2p_worker(
+  cluster = p2p_cluster(),
+  name = p2p_name(),
+  ssh_args = NULL,
+  duration = 60 * 60
+)
 }
 \arguments{
 \item{cluster}{The p2p cluster to contribute to.}
 
 \item{name}{The name of the worker as publicized on the P2P cluster.}
+
+\item{ssh_args}{(character vector) Optional SSH arguments.}
 
 \item{duration}{Duration (in seconds) to offer working on futures.}
 }

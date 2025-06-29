@@ -6,6 +6,8 @@
 #' A 'pico_p2p' future is an asynchronous multiprocess
 #' future that will be evaluated in a background R session.
 #'
+#' @inheritParams pico_pipe
+#'
 #' @param cluster The p2p cluster to connect to.
 #'
 #' @param name The name of the client as publicized on the P2P cluster.
@@ -45,7 +47,7 @@
 #'
 #' @importFrom future future
 #' @export
-pico_p2p <- function(cluster = p2p_cluster(), name = p2p_name(), ...) {
+pico_p2p <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args = NULL, ...) {
   stop("INTERNAL ERROR: The future.p2p::pico_p2p() must never be called directly")
 }
 class(pico_p2p) <- c("pico_p2p", "multiprocess", "future", "function")
@@ -64,7 +66,7 @@ attr(pico_p2p, "init") <- TRUE
 #' @importFrom future FutureBackend
 #' @keywords internal
 #' @export
-PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), ...) {
+PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args = NULL, ...) {
   args <- list(...)
 
   ## Argument 'workers' will most likely be removed at some point
@@ -85,15 +87,13 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), ...
   core <- FutureBackend(
     cluster = cluster,
     name = name,
+    ssh_args = ssh_args,
     reg = "workers-pico-p2p",
     workers = workers,
     ...
   )
   core[["futureClasses"]] <- c("PicoP2PFuture", core[["futureClasses"]])
   core <- structure(core, class = c("PicoP2PFutureBackend", "MultiprocessFutureBackend", "FutureBackend", class(core)))
-  
-  core[["pico"]] <- pico_pipe(core[["cluster"]], user = core[["name"]])
-  m <- pico_hello(core[["pico"]], type = "client")
   
   core
 }
@@ -274,9 +274,10 @@ waitForWorker <- function(...) {
 #' @importFrom callr r_bg
 #' @importFrom utils file_test
 dispatch_future <- function(future) {
-  send_future <- function(cluster, name, future_id, file, to, via, duration) {
-    ## 1. Connect to pico
-    pico <- future.p2p::pico_pipe(cluster, user = name)
+  send_future <- function(cluster, name, ssh_args = ssh_args, future_id, file, to, via, duration) {
+    ## 1. Connect to pico and say hello
+    pico <- future.p2p::pico_pipe(cluster, user = name, ssh_args = ssh_args)
+    m <- future.p2p::pico_hello(pico, type = "client")
 
     ## 2. Announce future
     repeat {
@@ -312,6 +313,7 @@ dispatch_future <- function(future) {
 
   cluster <- backend[["cluster"]]
   name <- backend[["name"]]
+  ssh_args <- backend[["ssh_args"]]
   via <- via_channel()
   
   ## 1. Put future on the dispatcher queue
@@ -322,6 +324,7 @@ dispatch_future <- function(future) {
   args <- list(
     cluster = cluster,
     name = name,
+    ssh_args = ssh_args,
     future_id = future_id(future),
     file = future[["file"]],
     via = via,

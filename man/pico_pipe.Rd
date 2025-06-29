@@ -12,6 +12,7 @@ pico_pipe(
   command = c("pipe", "pub", "sub", "ls", "help"),
   args = c(),
   host = "pipe.pico.sh",
+  ssh_args = NULL,
   ...
 )
 
@@ -32,8 +33,7 @@ e.g. \code{alice/topic}.}
 
 \item{host}{(character string) The hostname serving the pico service.}
 
-\item{...}{(character vector; optional) Named attributes that are recorded
-with the returned object.}
+\item{ssh_args}{(character vector) Optional SSH arguments.}
 
 \item{p}{A \code{pico_pipe} object.}
 
@@ -43,6 +43,9 @@ with the returned object.}
 to the message, otherwise not.}
 
 \item{n}{(integer) Number of messages to read.}
+
+\item{\ldots}{(character vector; optional) Named attributes that are recorded
+with the returned object.}
 }
 \value{
 A \link[processx:process]{processx::process} of clas \code{pico_pipe}.

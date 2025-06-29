@@ -4,12 +4,19 @@
 \alias{PicoP2PFutureBackend}
 \title{A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole}
 \usage{
-PicoP2PFutureBackend(cluster = p2p_cluster(), name = p2p_name(), ...)
+PicoP2PFutureBackend(
+  cluster = p2p_cluster(),
+  name = p2p_name(),
+  ssh_args = NULL,
+  ...
+)
 }
 \arguments{
 \item{cluster}{The p2p cluster to connect to.}
 
 \item{name}{The name of the client as publicized on the P2P cluster.}
+
+\item{ssh_args}{(character vector) Optional SSH arguments.}
 
 \item{\ldots}{Additional arguments passed to \code{\link[future:FutureBackend]{future::FutureBackend()}}.}
 }

@@ -1,5 +1,7 @@
 #' Launches a P2P worker and adds it to a P2P cluster
 #'
+#' @inheritParams pico_pipe
+#'
 #' @param cluster The p2p cluster to contribute to.
 #'
 #' @param name The name of the worker as publicized on the P2P cluster.
@@ -15,7 +17,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), duration = 60*60) {
+pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args = NULL, duration = 60*60) {
   old_opts <- options(parallelly.availableCores.fallback = 1L)
   on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)
@@ -26,7 +28,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), duration
   duration <- difftime(duration, 0)
 
   info("connect worker %s to p2p cluster %s for %s until %s", sQuote(name), sQuote(cluster), format(duration), expires)
-  p <- pico_pipe(cluster, user = name)
+  p <- pico_pipe(cluster, user = name, ssh_args = ssh_args)
 
   repeat {
     if (Sys.time() > expires) {
