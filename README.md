@@ -27,10 +27,11 @@ Pico.sh user 'alice' sets up a P2P cluster that pico.sh users 'bob',
 $ ssh pipe.pico.sh pipe p2p -a bob,carol,diana
 ```
 
-This will allow 'bob', 'carol', 'diana' and 'alice' themselves to
-connect to the P2P cluster named `alice/p2p`. As long as 'alice'
-maintains the above SSH connect, this cluster is available to all of
-the listed members.
+This can be done from anywhere in the world and it does not have to be
+where you run R. This will allow 'bob', 'carol', 'diana' and 'alice'
+themselves to connect to the P2P cluster named `alice/p2p`. As long as
+'alice' maintains the above SSH connect, this cluster is available to
+all of the listed members.
 
 
 ## Parallelize via friends P2P Network
