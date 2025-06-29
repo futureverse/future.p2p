@@ -287,15 +287,25 @@ dispatch_future <- function(future, to) {
   backend <- future[["backend"]]
   stopifnot(inherits(backend, "FutureBackend"))
 
-  ## Connect to pico
-  pico <- pico_pipe(backend[["cluster"]], user = backend[["name"]])
+  cluster <- backend[["cluster"]]
+  name <- backend[["name"]]
+  via <- via_channel()
+  future[["pico_via"]] <- via
 
-  ## Send future
-  m <- pico_send_future(pico, future = file, to = to)
-  future[["pico_via"]] <- m[["via"]]
+  send_future <- function(cluster, name, file, to, via) {
+    ## Connect to pico
+    pico <- pico_pipe(cluster, user = name)
 
-  ## Remove temporary file
-  file.remove(future[["file"]])
+    ## Send future
+    m <- pico_send_future(pico, future = file, to = to, via = via)
+
+    ## Remove temporary file
+    file.remove(file)
+
+    invisible(m)
+  }
+
+  m <- send_future(cluster = cluster, name = name, file = file, to = to, via = via)
 
   ## Update future state
   future[["state"]] <- "running"
