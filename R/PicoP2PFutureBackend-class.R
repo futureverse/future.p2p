@@ -127,8 +127,7 @@ launchFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
 
   ## 1. Wait for an available worker
   pico <- backend[["pico"]]
-  f <- cloneFuture(future)
-  f[["uuid"]] <- future[["uuid"]]
+  f <- cloneFuture(future, uuid = TRUE)
 
   repeat {
     m <- pico_have_future(pico, future = f)

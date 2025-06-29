@@ -255,18 +255,6 @@ availableGoogleDriveP2PWorkers <- function() {
   as.integer(nworkers)
 }
 
-
-#' @importFrom future Future reset
-cloneFuture <- function(future) {
-  future2 <- Future()
-  for (name in names(future2)) {
-    assign(name, value = future[[name]], envir = future2, inherits = TRUE)
-  }
-  future2 <- reset(future2)
-  future2
-}
-
-
 ## FIXME: To be implemented
 waitForWorker <- function(...) {
 }
