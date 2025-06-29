@@ -82,17 +82,19 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), ...
     stop("Argument 'workers' should be numeric: ", mode(workers))
   }
 
-  pico <- pico_pipe(cluster, user = name)
-  m <- pico_hello(pico, type = "client")
-
   core <- FutureBackend(
-    pico = pico,
+    cluster = cluster,
+    name = name,
     reg = "workers-pico-p2p",
     workers = workers,
     ...
   )
   core[["futureClasses"]] <- c("PicoP2PFuture", core[["futureClasses"]])
   core <- structure(core, class = c("PicoP2PFutureBackend", "MultiprocessFutureBackend", "FutureBackend", class(core)))
+  
+  core[["pico"]] <- pico_pipe(core[["cluster"]], user = core[["name"]])
+  m <- pico_hello(core[["pico"]], type = "client")
+  
   core
 }
 
@@ -285,8 +287,8 @@ dispatch_future <- function(future, to) {
   backend <- future[["backend"]]
   stopifnot(inherits(backend, "FutureBackend"))
 
-  ## Get pico channel
-  pico <- backend[["pico"]]
+  ## Connect to pico
+  pico <- pico_pipe(backend[["cluster"]], user = backend[["name"]])
 
   ## Send future
   m <- pico_send_future(pico, future = file, to = to)
