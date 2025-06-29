@@ -35,6 +35,13 @@ the listed members.
 
 ## Parallelize via friends P2P Network
 
+In order to distribute R tasks on a P2P cluster, the current machine
+must have:
+
+1. SSH access to pipe.pico.sh, and
+2. `wormhole` installed and support it
+
+
 ```r
 library(future)
 
@@ -51,6 +58,11 @@ print(v)
 
 
 ## Share your compute power with your friends
+
+In order to share your compute resources on a machine, it must have:
+
+1. SSH access to pipe.pico.sh, and
+2. `wormhole` installed and support it
 
 To launch a P2P worker, call:
 
