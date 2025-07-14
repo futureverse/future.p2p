@@ -37,7 +37,20 @@ pico_pipe <- function(topic = NULL, command = c("pipe", "pub", "sub", "ls", "hel
   if (command %in% c("pipe", "pub", "sub")) {
     stopifnot(length(topic) == 1L, is.character(topic), !is.na(topic), nzchar(topic))
   }
-
+  
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_pipe() ...")
+    mdebugf("Topic: %s", sQuote(topic))
+    mdebugf("Command: %s", sQuote(command))
+    mdebugf("Host: %s", sQuote(host))
+    mstr(list(args = args))
+    mstr(list(ssh_args = ssh_args))
+    on.exit({
+      mdebug_pop()
+    })
+  }
+  
   attrs <- list(...)
   nattrs <- length(attrs)
   if (nattrs > 0) {
@@ -52,6 +65,12 @@ pico_pipe <- function(topic = NULL, command = c("pipe", "pub", "sub", "ls", "hel
   for (name in names) {
     env[[name]] <- attrs[[name]]
   }
+
+  if (debug) {
+    mdebug("SSH call:")
+    mstr(list(args = args))
+  }
+
   env$process <- process$new("ssh", args = args, stdin = "|", stdout = "|", stderr = "|")
   class(env) <- c("pico_pipe", "pico", class(env))
   env
