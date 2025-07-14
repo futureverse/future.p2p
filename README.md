@@ -1,7 +1,7 @@
 # future.p2p - Use Shared Peer-to-Peer Compute Resources via Futureverse
 
 
-## Create P2P account (once)
+## Create P2P account (once; all users)
 
 Sign up on [pico.sh] by calling:
 
@@ -19,7 +19,7 @@ which can be handy if you want to setup parallel workers on one system
 and harness their compute power from another.
 
 
-## Setup P2P network
+## Setup P2P network (one user)
 
 Pico.sh user 'alice' sets up a P2P cluster that pico.sh users 'bob',
 'carol', and 'diana' have access to;
@@ -34,8 +34,9 @@ themselves to connect to the P2P cluster named `alice/p2p`. As long as
 'alice' maintains the above SSH connect, this cluster is available to
 all of the listed members.
 
-You can verify that your private `alice/p2p` cluster is available with
-the proper access list by calling:
+After they launched the above, they can verify that they are now
+operating a private P2P cluster `alice/p2p` that a select set of
+pico.sh users have access to;
 
 ```sh
 {alice}$ ssh pipe.pico.sh ls
@@ -46,13 +47,13 @@ Channel Information
     - 2c6483d6-9491-4cc8-9707-3e6bc85bc30b (alice@1.2.3.4:6543)
 ```
 
-If one of the authorized friends connect using:
+If one of their authorized friends connect using:
 
 ```sh
 {bob}$ ssh pipe.pico.sh pipe alice/p2p
 ```
 
-then alice can see this:
+then they can see this:
 
 ```sh
 {alice}$ ssh pipe.pico.sh ls
@@ -64,11 +65,14 @@ Channel Information
     - 747898a5-25fd-4547-b5a0-70f6ab92798b (bob@4.3.2.1:4694)
 ```
 
-This proves that both these users are connected to the same pico pipe
-cluster.
+This tells 'alice' that both are connected to the `alice/p2p` cluster.
+
+_Comment_: If 'bob' calls `ssh pipe.pico.sh ls`, they will _not_ see
+the above. This is because that command only lists cluster that the
+current user operates ("hosts").
 
 
-## Parallelize via friends P2P Network
+## Parallelize via private P2P Network (any user)
 
 In order to distribute R tasks on a P2P cluster, the current machine
 must:
@@ -93,7 +97,7 @@ print(v)
 ```
 
 
-## Share your compute power with your friends
+## Share your compute power with your friends (any user)
 
 In order to share your compute resources on a machine, it must:
 
