@@ -24,8 +24,8 @@ and harness their compute power from another.
 Pico.sh user 'alice' sets up a P2P cluster that pico.sh users 'bob',
 'carol', and 'diana' have access to;
 
-```r
-$ ssh pipe.pico.sh pipe p2p -a bob,carol,diana
+```sh
+{alice}$ ssh pipe.pico.sh pipe p2p -a bob,carol,diana
 ```
 
 This can be done from anywhere in the world and it does not have to be
@@ -33,6 +33,39 @@ where you run R. This will allow 'bob', 'carol', 'diana' and 'alice'
 themselves to connect to the P2P cluster named `alice/p2p`. As long as
 'alice' maintains the above SSH connect, this cluster is available to
 all of the listed members.
+
+You can verify that your private `alice/p2p` cluster is available with
+the proper access list by calling:
+
+```sh
+{alice}$ ssh pipe.pico.sh ls
+Channel Information
+- alice/p2p: (Access List: bob, carol, diana)
+  Clients:
+    Pipes:
+    - 2c6483d6-9491-4cc8-9707-3e6bc85bc30b (alice@1.2.3.4:6543)
+```
+
+If one of the authorized friends connect using:
+
+```sh
+{bob}$ ssh pipe.pico.sh pipe alice/p2p
+```
+
+then alice can see this:
+
+```sh
+{alice}$ ssh pipe.pico.sh ls
+Channel Information
+- alice/p2p: (Access List: alice, bob, carol, diana)
+  Clients:
+    Pipes:
+    - 2c6483d6-9491-4cc8-9707-3e6bc85bc30b (alice@1.2.3.4:6543)
+    - 747898a5-25fd-4547-b5a0-70f6ab92798b (bob@4.3.2.1:4694)
+```
+
+This proves that both these users are connected to the same pico pipe
+cluster.
 
 
 ## Parallelize via friends P2P Network
@@ -49,7 +82,7 @@ must:
 library(future)
 
 ## Resolve future via your friends' P2P cluster
-plan(future.p2p::pico_p2p, cluster = 'alice/p2p')
+plan(future.p2p::pico_p2p, cluster = "alice/p2p")
 
 ## Create future
 f <- future(Sys.getpid())
@@ -77,7 +110,7 @@ future.p2p::pico_p2p_worker(cluster = "alice/p2p")
 Alternatively, launch it directly from the command line using:
 
 ```sh
-$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p
+{bob}$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p
 ```
 
 This will contribute one parallel worker to the p2p cluster. You can
@@ -90,11 +123,11 @@ times.
 ### Set up a worker to connect to pico.sh via a jumphost
 
 ```r
-future.p2p::pico_p2p_worker(cluster = "alice/p2p", ssh_args = c("-J", "somehost"))
+> future.p2p::pico_p2p_worker(cluster = "alice/p2p", ssh_args = c("-J", "somehost"))
 ```
 
 ```sh
-$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p --ssh_args="-J somehost"
+{bob}$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p --ssh_args="-J somehost"
 ```
 
 [pico.sh]: https://pico.sh/
