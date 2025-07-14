@@ -9,14 +9,17 @@ Sign up on [pico.sh] by calling:
 $ ssh pico.sh
 ```
 
-and choose a username and click ENTER. That's it!
+and choose a username and click ENTER.  This will add your public SSH
+key to the pico.sh servers, which is then used to identify you in all
+future interactions.  Next, verify SSH access to `pipe.pico.sh`;
 
-This will add your public SSH key to the pico.sh server, which is then
-used to identify you in all future interactions. If you have multiple
-computers, you can add your public SSH keys for those as well. This
-way, you can use your pico.sh account from multiple computer systems,
-which can be handy if you want to setup parallel workers on one system
-and harness their compute power from another.
+```sh
+$ ssh pipe.pico.sh
+```
+
+_Important_: Make sure to accept the SSH fingerprint, otherwise you
+will not be able to connect to the P2P cluster from R.
+
 
 
 ## Setup P2P network (one user)
@@ -123,6 +126,17 @@ times.
 
 
 ## Appendix
+
+### Connecting to the same pico.sh account from different machines
+
+If you have multiple computers, you can add your public SSH keys for
+those as well by logging in again by calling `ssh pico.sh`. Then go to
+the `pubkeys` menu, where you have options to add additional public
+SSH keys of yours. This way, you can use your pico.sh account from
+multiple computer systems, which can be handy if you want to setup
+parallel workers on one system and harness their compute power from
+another.
+
 
 ### Set up a worker to connect to pico.sh via a jumphost
 
