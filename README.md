@@ -3,19 +3,20 @@
 
 ## Create P2P account (once)
 
-Create a [pico.sh] account by calling:
+Sign up on [pico.sh] by calling:
 
 ```sh
 $ ssh pico.sh
 ```
 
-and then choose a username. That's it! This will add your public SSH
-key to the pico.sh server, which is then used to identify you in all
-future interactions. If you have multiple computers, you can add your
-public SSH keys for those as well. This way, you can use your pico.sh
-account from multiple computer systems, which can be handy if you want
-to setup parallel workers on one system and harness their compute
-power from another.
+and choose a username and click ENTER. That's it!
+
+This will add your public SSH key to the pico.sh server, which is then
+used to identify you in all future interactions. If you have multiple
+computers, you can add your public SSH keys for those as well. This
+way, you can use your pico.sh account from multiple computer systems,
+which can be handy if you want to setup parallel workers on one system
+and harness their compute power from another.
 
 
 ## Setup P2P network
@@ -48,7 +49,7 @@ must:
 library(future)
 
 ## Resolve future via your friends' P2P cluster
-plan(future.p2p::pico_p2p, channel = 'alice/p2p')
+plan(future.p2p::pico_p2p, cluster = 'alice/p2p')
 
 ## Create future
 f <- future(Sys.getpid())
@@ -70,13 +71,13 @@ In order to share your compute resources on a machine, it must:
 To launch a P2P worker, call:
 
 ```r
-future.p2p::pico_p2p_worker(channel = "alice/p2p")
+future.p2p::pico_p2p_worker(cluster = "alice/p2p")
 ```
 
 Alternatively, launch it directly from the command line using:
 
 ```sh
-$ Rscript -e future.p2p::pico_p2p_worker --channel=alice/p2p
+$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p
 ```
 
 This will contribute one parallel worker to the p2p cluster. You can
@@ -89,11 +90,11 @@ times.
 ### Set up a worker to connect to pico.sh via a jumphost
 
 ```r
-future.p2p::pico_p2p_worker(channel = "alice/p2p", ssh_args = c("-J", "somehost"))
+future.p2p::pico_p2p_worker(cluster = "alice/p2p", ssh_args = c("-J", "somehost"))
 ```
 
 ```sh
-$ Rscript -e future.p2p::pico_p2p_worker --channel=alice/p2p --ssh_args="-J somehost"
+$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p --ssh_args="-J somehost"
 ```
 
 [pico.sh]: https://pico.sh/
