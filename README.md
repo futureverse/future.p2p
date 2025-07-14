@@ -68,8 +68,8 @@ Channel Information
 This tells 'alice' that both are connected to the `alice/p2p` cluster.
 
 _Comment_: If 'bob' calls `ssh pipe.pico.sh ls`, they will _not_ see
-the above. This is because that command only lists cluster that the
-current user operates ("hosts").
+the above. This is because that command only lists clusters that
+oneself operates ("hosts"), but not clusters one are connected to.
 
 
 ## Parallelize via private P2P Network (any user)
