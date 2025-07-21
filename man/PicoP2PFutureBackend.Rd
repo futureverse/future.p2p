@@ -18,7 +18,7 @@ PicoP2PFutureBackend(
 
 \item{ssh_args}{(character vector) Optional SSH arguments.}
 
-\item{\ldots}{Additional arguments passed to \code{\link[future:FutureBackend]{future::FutureBackend()}}.}
+\item{\ldots}{Additional arguments passed to \code{\link[future:FutureBackend-class]{future::FutureBackend()}}.}
 }
 \value{
 A PicoP2PFutureBackend object
