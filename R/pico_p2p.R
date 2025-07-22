@@ -73,6 +73,7 @@ pico_send_message_dataframe <- function(p, df) {
   msg <- sprintf("%s=%s", names(msg), msg)
   msg <- paste(msg, collapse = ",")
   pico_send_message(p, msg)
+  attr(df, "message") <- msg
   invisible(df)
 }
 
@@ -366,7 +367,7 @@ pico_receive_result <- function(p, via, duration = 60, path = tempdir()) {
 
 
 #' @export
-pico_hosted_channels <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
+pico_hosted_topics <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
   username <- pico_username()
   t_max <- proc.time()[3] + timeout
   pattern <- sprintf(".*[[:blank:]]%s/([^:]+):.*", username)
@@ -394,4 +395,13 @@ pico_hosted_channels <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout
     }
   })
   names
+}
+
+
+#' @export
+pico_hosted_clusters <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
+  clusters <- pico_hosted_topics(host, ssh_args = ssh_args, timeout = timeout)
+  clusters <- grep("/future.p2p$", clusters, value = TRUE)
+  clusters <- sub("/future.p2p$", "", clusters)
+  clusters
 }

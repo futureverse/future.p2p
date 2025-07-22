@@ -7,6 +7,7 @@
 pico_p2p_worker(
   cluster = p2p_cluster(),
   name = p2p_name(),
+  host = "pipe.pico.sh",
   ssh_args = NULL,
   duration = 60 * 60
 )
@@ -15,6 +16,8 @@ pico_p2p_worker(
 \item{cluster}{The p2p cluster to contribute to.}
 
 \item{name}{The name of the worker as publicized on the P2P cluster.}
+
+\item{host}{(character string) The hostname serving the pico service.}
 
 \item{ssh_args}{(character vector) Optional SSH arguments.}
 

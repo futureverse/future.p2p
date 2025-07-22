@@ -17,7 +17,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args = NULL, duration = 60*60) {
+pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument cluster must be of format '{owner}/{name}': %s", sQuote(cluster)))
@@ -41,6 +41,11 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args
   expires <- pico_time(delta = duration)
   duration <- difftime(duration, 0)
 
+  info("assert connection to p2p cluster %s", sQuote(cluster))
+  if (!p2p_can_connect(cluster, name = name, host = host, ssh_args = ssh_args)) {
+    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you access", sQuote(cluster)))
+  }
+
   info("connect worker %s to p2p cluster %s for %s until %s", sQuote(name), sQuote(cluster), format(duration), expires)
   cluster_owner <- dirname(cluster)
   if (cluster_owner == pico_username()) {
@@ -48,7 +53,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args
   } else {
     topic <- sprintf("%s/future.p2p", cluster)
   }
-  p <- pico_pipe(topic, user = name, ssh_args = ssh_args)
+  p <- pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
 
   repeat {
     if (Sys.time() > expires) {
@@ -98,7 +103,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args
 
 
 ## Expose function on the CLI
-cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
+cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
 
 
 info <- function(fmtstr, ..., time = Sys.time(), timefmt = "%T", from = c("worker", "client")) {

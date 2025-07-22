@@ -100,11 +100,13 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), hos
   )
   core[["futureClasses"]] <- c("PicoP2PFuture", core[["futureClasses"]])
   core <- structure(core, class = c("PicoP2PFutureBackend", "MultiprocessFutureBackend", "FutureBackend", class(core)))
-  
+
+  if (!p2p_can_connect(cluster, name = name, host = host, ssh_args = ssh_args)) {
+    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you access", sQuote(cluster)))
+  }
+
   core
 }
-
-
 attr(pico_p2p, "factory") <- PicoP2PFutureBackend
 
 
@@ -383,10 +385,50 @@ print.PicoP2PFutureBackend <- function(x, ...) {
   username <- pico_username(backend[["host"]], backend[["ssh_args"]])
   cat(sprintf("pico.sh username: %s\n", sQuote(username)))
   
-  clusters <- pico_hosted_channels(backend[["host"]], backend[["ssh_args"]])
-  clusters <- grep("/future.p2p$", clusters, value = TRUE)
-  clusters <- sub("/future.p2p$", "", clusters)
+  clusters <- pico_hosted_clusters(backend[["host"]], backend[["ssh_args"]])
   cat(sprintf("P2P clusters you are hosting: [n=%d] %s\n", length(clusters), commaq(clusters)))
   invisible(backend)
 }
+
+
+p2p_can_connect <- function(cluster, name = name, host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
+  cluster_owner <- dirname(cluster)
+  if (cluster_owner == pico_username()) {
+    topic <- sprintf("%s/future.p2p", basename(cluster))
+  } else {
+    topic <- sprintf("%s/future.p2p", cluster)
+  }
+
+  ## (1) Attempt to connect
+  before <- pico_hosted_clusters(host = host, ssh_args = ssh_args)
+  p_pipe <- pico_pipe(topic, args = "-r", user = name, host = host, ssh_args = ssh_args)
+  on.exit(pico_terminate(p_pipe))
+  p <- p_pipe$process
+  msg <- sprintf("msg=%s", topic)
+      
+  ## (2) Test connection
+  t_max <- proc.time()[3] + timeout
+  m <- future.p2p::pico_hello(p_pipe, type = "client")
+  msg <- attr(m, "message")
+  repeat {
+    bfr <- pico_receive_message(p_pipe)
+    if (length(bfr) > 0L) {
+      if (any(bfr == msg)) break
+    }
+    if (proc.time()[3] > t_max) {
+      stop("Failed to connect to pico.sh pipe - echo failed")
+    }
+    Sys.sleep(0.1)
+  }
+
+  ## (3) Check if we created our own cluster on-the-fly
+  after <- pico_hosted_clusters(host = host, ssh_args = ssh_args)
+  delta <- setdiff(after, before)
+  for (name in delta) {
+    parts <- strsplit(name, split = "/", fixed = TRUE)[[1]]
+    if (length(parts) > 1) return(FALSE)
+  }
   
+  TRUE
+}
+
