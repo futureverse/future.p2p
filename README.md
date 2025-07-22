@@ -33,7 +33,7 @@ will not be able to connect to the P2P cluster from R.
 
 
 
-## Launch a P2P cluster (one of the user)
+## Launch a P2P cluster (one of the users)
 
 Pico.sh user 'alice' sets up a P2P cluster named `alice/p2p` that
 pico.sh users 'bob', 'carol', and 'diana' have access to;
@@ -50,7 +50,7 @@ Alternatively, launch it directly from the command line using:
 
 After this, 'bob', 'carol', 'diana', and 'alice' can use and share
 their R compute resources.  This 'alice/p2p' cluster is available as
-long as the above R functions of 'alice' is running.
+long as the above R function of 'alice' is running.
 
 A future P2P cluster can be launched from anywhere in the world, and
 it does not have to on a machine where 'alice' runs their own R

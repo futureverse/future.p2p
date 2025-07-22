@@ -7,6 +7,8 @@
 #' @param users (character vector) Names of Pico users who should have access,
 #' in addition to the owner.
 #'
+#' @param name The name of the cluster owner as publicized on the P2P cluster.
+#'
 #' @param duration Duration (in seconds) to offer this cluster.
 #'
 #' @examplesIf interactive()

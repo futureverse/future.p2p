@@ -19,6 +19,8 @@ pico_p2p_cluster(
 \item{users}{(character vector) Names of Pico users who should have access,
 in addition to the owner.}
 
+\item{name}{The name of the cluster owner as publicized on the P2P cluster.}
+
 \item{host}{(character string) The hostname serving the pico service.}
 
 \item{ssh_args}{(character vector) Optional SSH arguments.}
