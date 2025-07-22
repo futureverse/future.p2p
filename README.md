@@ -1,4 +1,4 @@
-# future.p2p - Use Shared Peer-to-Peer Compute Resources via Futureverse
+# future.p2p - A Peer-to-Peer Compute Cluster via Futureverse
 
 
 ## Prerequisites
