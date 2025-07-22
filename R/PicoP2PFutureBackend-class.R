@@ -385,11 +385,14 @@ print.PicoP2PFutureBackend <- function(x, ...) {
   cat(sprintf("P2P cluster: %s\n", sQuote(backend[["cluster"]])))
   cat(sprintf("P2P client ID: %s\n", sQuote(backend[["name"]])))
 
-  username <- pico_username(backend[["host"]], backend[["ssh_args"]])
-  cat(sprintf("pico.sh username: %s\n", sQuote(username)))
-  
   clusters <- pico_hosted_clusters(backend[["host"]], backend[["ssh_args"]])
   cat(sprintf("P2P clusters you are hosting: [n=%d] %s\n", length(clusters), commaq(clusters)))
+
+  cat("Message board:\n")
+  cat(sprintf("- Server: %s\n", backend[["host"]]))
+  username <- pico_username(backend[["host"]], backend[["ssh_args"]])
+  cat(sprintf("- Username: %s\n", sQuote(username)))
+  
   invisible(backend)
 }
 
