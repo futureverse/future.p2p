@@ -20,7 +20,7 @@
 pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
-    stop(sprintf("Argument cluster must be of format '{owner}/{name}': %s", sQuote(cluster)))
+    stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
   }
   
   old_opts <- options(parallelly.availableCores.fallback = 1L)
@@ -97,8 +97,8 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
       info("send future result to %s after %s processing", sQuote(client), format(dt))
       res <- pico_send_result(p, future = f, via = m$via)
     }
- } ## repeat()
- info("exiting ...")
+  } ## repeat()
+  info("bye")
 } ## pico_p2p_worker()
 
 

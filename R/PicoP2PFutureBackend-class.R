@@ -69,7 +69,7 @@ attr(pico_p2p, "init") <- TRUE
 PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
-    stop(sprintf("Argument cluster must be of format '{owner}/{name}': %s", sQuote(cluster)))
+    stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
   }
 
   args <- list(...)

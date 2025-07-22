@@ -1,17 +1,28 @@
 # future.p2p - Use Shared Peer-to-Peer Compute Resources via Futureverse
 
 
-## Create P2P account (once; all users)
+## Prerequisites
 
-Sign up on [pico.sh] by calling:
+In order to join a future P2P cluster, you must:
+
+1. have a [pico.sh] account,
+2. have SSH access to pipe.pico.sh,
+3. have `wormhole` installed, and
+4. support the `ws://` protocol used by wormhole
+
+
+## Create a P2P account (once; all users)
+
+To create a [pico.sh] account, call:
 
 ```sh
 $ ssh pico.sh
 ```
 
-and choose a username and click ENTER.  This will add your public SSH
-key to the pico.sh servers, which is then used to identify you in all
-future interactions.  Next, verify SSH access to `pipe.pico.sh`;
+and choose a username and click <kbd>ENTER</kbd>.  This will add your
+public SSH key to the pico.sh servers, which is then used to identify
+you in all future interactions. Next, verify SSH access to
+`pipe.pico.sh`;
 
 ```sh
 $ ssh pipe.pico.sh
@@ -22,68 +33,36 @@ will not be able to connect to the P2P cluster from R.
 
 
 
-## Setup P2P network (one user)
+## Launch a P2P cluster (one of the user)
 
-Pico.sh user 'alice' sets up a P2P cluster that pico.sh users 'bob',
-'carol', and 'diana' have access to;
+Pico.sh user 'alice' sets up a P2P cluster named `alice/p2p` that
+pico.sh users 'bob', 'carol', and 'diana' have access to;
 
-```sh
-{alice}$ ssh pipe.pico.sh pipe p2p -a bob,carol,diana
+```r
+future.p2p::pico_p2p_cluster(cluster = "alice/p2p", users = c("bob", "carol", "diana"))
 ```
 
-This can be done from anywhere in the world and it does not have to be
-where you run R. This will allow 'bob', 'carol', 'diana' and 'alice'
-themselves to connect to the P2P cluster named `alice/p2p`. As long as
-'alice' maintains the above SSH connect, this cluster is available to
-all of the listed members.
-
-After they launched the above, they can verify that they are now
-operating a private P2P cluster `alice/p2p` that a select set of
-pico.sh users have access to;
+Alternatively, launch it directly from the command line using:
 
 ```sh
-{alice}$ ssh pipe.pico.sh ls
-Channel Information
-- alice/p2p: (Access List: bob, carol, diana)
-  Clients:
-    Pipes:
-    - 2c6483d6-9491-4cc8-9707-3e6bc85bc30b (alice@1.2.3.4:6543)
+{bob}$ Rscript -e future.p2p::pico_p2p_cluster --cluster=alice/p2p --users=bob,carol,diana
 ```
 
-If one of their authorized friends connect using:
+After this, 'bob', 'carol', 'diana', and 'alice' can use and share
+their R compute resources.  This 'alice/p2p' cluster is available as
+long as the above R functions of 'alice' is running.
 
-```sh
-{bob}$ ssh pipe.pico.sh pipe alice/p2p
-```
-
-then they can see this:
-
-```sh
-{alice}$ ssh pipe.pico.sh ls
-Channel Information
-- alice/p2p: (Access List: alice, bob, carol, diana)
-  Clients:
-    Pipes:
-    - 2c6483d6-9491-4cc8-9707-3e6bc85bc30b (alice@1.2.3.4:6543)
-    - 747898a5-25fd-4547-b5a0-70f6ab92798b (bob@4.3.2.1:4694)
-```
-
-This tells 'alice' that both are connected to the `alice/p2p` cluster.
-
-_Comment_: If 'bob' calls `ssh pipe.pico.sh ls`, they will _not_ see
-the above. This is because that command only lists clusters that
-oneself operates ("hosts"), but not clusters one are connected to.
+A future P2P cluster can be launched from anywhere in the world, and
+it does not have to on a machine where 'alice' runs their own R
+analysis.  Note that the `alice/` prefix is reserved for pico user
+`alice`.  This is why user `bob` can _not_ create a cluster named
+`alice/pop` - only one called `bob/{name}`.
 
 
-## Parallelize via private P2P Network (any user)
+## Parallelize via P2P cluster (any user)
 
-In order to distribute R tasks on a P2P cluster, the current machine
-must:
-
-1. have SSH access to pipe.pico.sh,
-2. have `wormhole` installed, and
-3. support the `ws://` protocol used by wormhole
-
+Any user with access to the 'alice/p2p' cluster can harness the
+collective compute power. For example,
 
 ```r
 library(future)
@@ -102,13 +81,8 @@ print(v)
 
 ## Share your compute power with your friends (any user)
 
-In order to share your compute resources on a machine, it must:
-
-1. have SSH access to pipe.pico.sh,
-2. have `wormhole` installed, and
-3. support the `ws://` protocol used by wormhole
-
-To launch a P2P worker, call:
+To contribute your R compute power to the `alice/p2p` cluster, launch
+a P2P worker as:
 
 ```r
 future.p2p::pico_p2p_worker(cluster = "alice/p2p")

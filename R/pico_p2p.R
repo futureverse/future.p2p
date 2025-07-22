@@ -106,13 +106,13 @@ pico_next_message <- function(p, ...) {
 }
 
 #' @export
-pico_hello <- function(p, from = p$user, type = c("worker", "client"), expires = NULL, duration = 60*60, ...) {
+pico_hello <- function(p, from = p$user, type = c("worker", "client", "cluster"), expires = NULL, duration = 60*60, ...) {
   type <- match.arg(type)
   
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("pico_hello() ...")
-    mdebugf("Typo: %s", type)
+    mdebugf("Type: %s", type)
     mdebugf("Duration: %g seconds", duration)
     on.exit({
       mdebug_pop()
