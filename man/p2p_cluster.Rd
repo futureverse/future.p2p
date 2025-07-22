@@ -10,9 +10,10 @@ p2p_cluster()
 p2p_name()
 }
 \value{
-\code{p2p_cluster()} return the cluster name, if set, otherwise \code{"p2p"}.
+\code{p2p_cluster()} return R option \code{future.p2p.cluster}, if set,
+otherwise \code{{pico_name}/mycluster}.
 
-\code{p2p_name()} returns the client or worker name, if set, otherwise
+\code{p2p_name()} returns the client or worker name of format
 \code{"{username}@{hostname}:{pid}"}.
 }
 \description{

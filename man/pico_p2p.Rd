@@ -5,7 +5,13 @@
 \alias{availablePicoP2PWorkers}
 \title{pico_p2p futures}
 \usage{
-pico_p2p(cluster = p2p_cluster(), name = p2p_name(), ssh_args = NULL, ...)
+pico_p2p(
+  cluster = p2p_cluster(),
+  name = p2p_name(),
+  host = "pipe.pico.sh",
+  ssh_args = NULL,
+  ...
+)
 
 availablePicoP2PWorkers()
 }
@@ -13,6 +19,8 @@ availablePicoP2PWorkers()
 \item{cluster}{The p2p cluster to connect to.}
 
 \item{name}{The name of the client as publicized on the P2P cluster.}
+
+\item{host}{(character string) The hostname serving the pico service.}
 
 \item{ssh_args}{(character vector) Optional SSH arguments.}
 

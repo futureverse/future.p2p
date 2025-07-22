@@ -18,6 +18,11 @@
 #' @importFrom future resolve plan sequential
 #' @export
 pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args = NULL, duration = 60*60) {
+  parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
+  if (length(parts) != 2L) {
+    stop(sprintf("Argument cluster must be of format '{owner}/{name}': %s", sQuote(cluster)))
+  }
+  
   old_opts <- options(parallelly.availableCores.fallback = 1L)
   on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)
@@ -37,7 +42,13 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), ssh_args
   duration <- difftime(duration, 0)
 
   info("connect worker %s to p2p cluster %s for %s until %s", sQuote(name), sQuote(cluster), format(duration), expires)
-  p <- pico_pipe(cluster, user = name, ssh_args = ssh_args)
+  cluster_owner <- dirname(cluster)
+  if (cluster_owner == pico_username()) {
+    topic <- sprintf("%s/future.p2p", basename(cluster))
+  } else {
+    topic <- sprintf("%s/future.p2p", cluster)
+  }
+  p <- pico_pipe(topic, user = name, ssh_args = ssh_args)
 
   repeat {
     if (Sys.time() > expires) {

@@ -53,19 +53,22 @@ pico_pipe <- function(topic = NULL, command = c("pipe", "pub", "sub", "ls", "hel
   
   attrs <- list(...)
   nattrs <- length(attrs)
+  names <- names(attrs)
   if (nattrs > 0) {
-    names <- names(attrs)
     if (is.null(names) || !all(nzchar(names))) {
       stop("All arguments must be named")
     }
   }
+
+  ssh_config <- list(options = ssh_args, host = host, command = command, topic = topic, args = args)
   
-  args <- c(ssh_args, host, command, topic, args)
   env <- new.env(parent = emptyenv())
   for (name in names) {
     env[[name]] <- attrs[[name]]
   }
 
+  args <- c(ssh_config[["options"]], ssh_config[["host"]], ssh_config[["command"]], ssh_config[["topic"]], ssh_config[["args"]])
+  
   if (debug) {
     mdebug("SSH call:")
     mstr(list(args = args))
