@@ -43,7 +43,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
 
   info("assert connection to p2p cluster %s", sQuote(cluster))
   if (!p2p_can_connect(cluster, name = name, host = host, ssh_args = ssh_args)) {
-    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you access", sQuote(cluster)))
+    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username())))
   }
 
   info("connect worker %s to p2p cluster %s for %s until %s", sQuote(name), sQuote(cluster), format(duration), expires)
