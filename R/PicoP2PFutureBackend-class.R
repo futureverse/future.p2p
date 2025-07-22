@@ -392,7 +392,10 @@ print.PicoP2PFutureBackend <- function(x, ...) {
   cat(sprintf("- Server: %s\n", backend[["host"]]))
   username <- pico_username(backend[["host"]], backend[["ssh_args"]])
   cat(sprintf("- Username: %s\n", sQuote(username)))
-  
+
+  cat("Data transfers:\n")
+  cat(sprintf("- Tool: %s\n", "wormhole"))
+
   invisible(backend)
 }
 
