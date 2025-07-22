@@ -192,9 +192,12 @@ resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
     })
   }
 
-  rx <- future[["rx"]]
-
+  ## Already collected?
+  result <- future[["result"]]
+  if (!is.null(result)) return(TRUE)
+  
   ## Still running?
+  rx <- future[["rx"]]
   resolved <- !rx$is_alive()
   
   resolved
