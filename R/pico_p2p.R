@@ -389,7 +389,7 @@ pico_hosted_topics <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout =
         }
       }
       if (proc.time()[3] > t_max) {
-        stop("Failed to identity pipe.pico.sh channels")
+        stop(sprintf("Failed to identity %s channels", host))
       }
       Sys.sleep(0.1)
     }
