@@ -408,7 +408,7 @@ p2p_can_connect <- function(cluster, name = name, host = "pipe.pico.sh", ssh_arg
       
   ## (2) Test connection
   t_max <- proc.time()[3] + timeout
-  m <- future.p2p::pico_hello(p_pipe, type = "client")
+  m <- pico_hello(p_pipe, type = "client")
   msg <- attr(m, "message")
   repeat {
     bfr <- pico_receive_message(p_pipe)
