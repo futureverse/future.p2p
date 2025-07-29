@@ -306,7 +306,11 @@ dispatch_future <- function(future) {
 
     ## 5. Wait for and receive FutureResult file
     path <- file.path(dirname(dirname(file)), "results")
-    file <- future.p2p::pico_receive_result(pico, via = via, path = path)
+    tryCatch({
+      file <- future.p2p::pico_receive_result(pico, via = via, path = path)
+    }, interrupt = function(int) {
+      cat(file = "foo.log", "interrupted\n")
+    })
 
     invisible(file)
   }
@@ -386,15 +390,19 @@ print.PicoP2PFutureBackend <- function(x, ...) {
   cat(sprintf("P2P client ID: %s\n", sQuote(backend[["name"]])))
 
   clusters <- pico_hosted_clusters(backend[["host"]], backend[["ssh_args"]])
-  cat(sprintf("P2P clusters you are hosting: [n=%d] %s\n", length(clusters), commaq(clusters)))
+  cat(sprintf("P2P clusters you are hosting: [n=%d]\n", nrow(clusters)))
+  for (kk in seq_len(nrow(clusters))) {
+    cluster <- clusters[kk, ]
+    cat(sprintf(" %2d. %s (%s)\n", kk, cluster$name, cluster$users))
+  }
 
   cat("Message board:\n")
-  cat(sprintf("- Server: %s\n", backend[["host"]]))
+  cat(sprintf(" - Server: %s\n", backend[["host"]]))
   username <- pico_username(backend[["host"]], backend[["ssh_args"]])
-  cat(sprintf("- Username: %s\n", sQuote(username)))
+  cat(sprintf(" - Username: %s\n", sQuote(username)))
 
-  cat("Data transfers:\n")
-  cat(sprintf("- Tool: %s\n", "wormhole"))
+  cat("Data transfer tools:\n")
+  cat(sprintf(" %2d. %s\n", 1L, "wormhole"))
 
   invisible(backend)
 }
@@ -432,7 +440,7 @@ p2p_can_connect <- function(cluster, name = name, host = "pipe.pico.sh", ssh_arg
 
   ## (3) Check if we created our own cluster on-the-fly
   after <- pico_hosted_clusters(host = host, ssh_args = ssh_args)
-  delta <- setdiff(after, before)
+  delta <- setdiff(after$name, before$name)
   for (name in delta) {
     parts <- strsplit(name, split = "/", fixed = TRUE)[[1]]
     if (length(parts) > 1) return(FALSE)

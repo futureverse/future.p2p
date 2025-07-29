@@ -45,7 +45,7 @@ pico_p2p_cluster <- function(cluster = "mycluster", users = character(0L), name 
   users <- unique(users)
 
   clusters <- pico_hosted_clusters(host = host, ssh_args = ssh_args)
-  if (cluster_name %in% clusters) {
+  if (cluster_name %in% clusters$name) {
     stop(sprintf("P2P cluster is already running: %s", sQuote(cluster)))
   }
 

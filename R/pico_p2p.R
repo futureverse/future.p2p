@@ -367,25 +367,28 @@ pico_receive_result <- function(p, via, duration = 60, path = tempdir()) {
 
 
 #' @export
-pico_hosted_topics <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
+pico_hosted_channels <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
   username <- pico_username()
   t_max <- proc.time()[3] + timeout
-  pattern <- sprintf(".*[[:blank:]]%s/([^:]+):.*", username)
-  names <- NULL
-  while (is.null(names)) local({
+  pattern <- sprintf(".*[[:blank:]]%s/([^:]+):[[:blank:]]+[(]Access List:[[:blank:]]+(.*)[)]", username)
+  channels <- NULL
+  while (is.null(channels)) local({
     p_ls <- pico_pipe(command = "ls", host = host, ssh_args = ssh_args)
     on.exit(tryCatch(pico_terminate(p_ls), error = identity))
     p <- p_ls$process
     bfr <- p$read_all_output_lines()
     if (length(bfr) >= 1L) {
       if (length(bfr) == 1L && bfr == "no pubsub channels found") {
-        names <<- character(0L)
-        return(names)
+        channels <<- data.frame(name = character(0L), users = character(0L))
+        return(channels)
       } else {
         lines <- grep(pattern, bfr, value = TRUE)
         if (length(lines) >= 1L) {
-          names <<- gsub(pattern, "\\1", lines)
-          return(names)
+          names <- gsub(pattern, "\\1", lines)
+          users <- gsub(pattern, "\\2", lines)
+          users <- gsub("[[:blank:]]+", "", users)
+          channels <<- data.frame(name = names, users = users)
+          return(channels)
         }
       }
       if (proc.time()[3] > t_max) {
@@ -394,14 +397,15 @@ pico_hosted_topics <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout =
       Sys.sleep(0.1)
     }
   })
-  names
+  channels
 }
 
 
 #' @export
 pico_hosted_clusters <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
-  clusters <- pico_hosted_topics(host, ssh_args = ssh_args, timeout = timeout)
-  clusters <- grep("/future.p2p$", clusters, value = TRUE)
-  clusters <- sub("/future.p2p$", "", clusters)
+  clusters <- pico_hosted_channels(host, ssh_args = ssh_args, timeout = timeout)
+  keep <- grep("/future.p2p$", clusters$name)
+  clusters <- clusters[keep, ]
+  clusters$name <- sub("/future.p2p$", "", clusters$name)
   clusters
 }
