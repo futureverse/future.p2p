@@ -155,7 +155,8 @@ pico_receive_message_dataframe <- function(p, ..., pattern = NULL) {
 pico_hosted_channels <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
   username <- pico_username()
   t_max <- proc.time()[3] + timeout
-  pattern <- sprintf(".*[[:blank:]]%s/([^:]+):[[:blank:]]+[(]Access List:[[:blank:]]+(.*)[)]", username)
+  pattern_1 <- sprintf(".*[[:blank:]]%s/([^:]+):", username)
+  pattern_2 <- sprintf(".*[[:blank:]]%s/([^:]+):[[:blank:]]+[(]Access List:[[:blank:]]+(.*)[)]", username)
   channels <- NULL
   while (is.null(channels)) local({
     p_ls <- pico_pipe(command = "ls", host = host, ssh_args = ssh_args)
@@ -167,13 +168,21 @@ pico_hosted_channels <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout
         channels <<- data.frame(name = character(0L), users = character(0L))
         return(channels)
       } else {
-        lines <- grep(pattern, bfr, value = TRUE)
+        lines <- grep(pattern_2, bfr, value = TRUE)
         if (length(lines) >= 1L) {
-          names <- gsub(pattern, "\\1", lines)
-          users <- gsub(pattern, "\\2", lines)
+          names <- gsub(pattern_2, "\\1", lines)
+          users <- gsub(pattern_2, "\\2", lines)
           users <- gsub("[[:blank:]]+", "", users)
           channels <<- data.frame(name = names, users = users)
           return(channels)
+        } else {
+          lines <- grep(pattern_1, bfr, value = TRUE)
+          if (length(lines) >= 1L) {
+            names <- gsub(pattern_1, "\\1", lines)
+            users <- ""
+            channels <<- data.frame(name = names, users = users)
+            return(channels)
+          }
         }
       }
       if (proc.time()[3] > t_max) {
