@@ -44,14 +44,14 @@ pico_p2p_cluster <- function(cluster = "mycluster", users = character(0L), name 
   users <- c(cluster_owner, users)
   users <- unique(users)
 
-  clusters <- pico_hosted_clusters(host = host, ssh_args = ssh_args)
+  clusters <- pico_p2p_hosted_clusters(host = host, ssh_args = ssh_args)
   if (cluster_name %in% clusters$name) {
     stop(sprintf("P2P cluster is already running: %s", sQuote(cluster)))
   }
 
-  now <- pico_time()
+  now <- pico_p2p_time()
 
-  expires <- pico_time(delta = duration)
+  expires <- pico_p2p_time(delta = duration)
   duration <- difftime(duration, 0)
 
   info("Launch p2p cluster %s for %d users (%s) until %s (%s)", sQuote(cluster), length(users), commaq(users), format(Sys.time() + duration), format(duration))
@@ -70,7 +70,7 @@ pico_p2p_cluster <- function(cluster = "mycluster", users = character(0L), name 
     }
     
     info("hello")
-    m <- pico_hello(p, type = "cluster", expires = expires)
+    m <- pico_p2p_hello(p, type = "cluster", expires = expires)
 
     info("access list")
     data <- data.frame(
@@ -81,7 +81,7 @@ pico_p2p_cluster <- function(cluster = "mycluster", users = character(0L), name 
     )
     m <- pico_send_message_dataframe(p, data)
 
-    lapse_time <- pico_time(delta = 2 * 60)
+    lapse_time <- pico_p2p_time(delta = 2 * 60)
     while (Sys.time() < lapse_time) {
       msg <- pico_receive_message(p, n = 1L)
       if (length(msg) > 0) {

@@ -196,19 +196,19 @@ waitForWorker <- function(...) {
 dispatch_future <- function(future) {
   send_future <- function(topic, name, host = host, ssh_args = ssh_args, future_id, file, to, via, duration) {
     pico <- future.p2p::pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
-    m <- future.p2p::pico_hello(pico, type = "client")
+    m <- future.p2p::pico_p2p_hello(pico, type = "client")
 
     ## 2. Announce future
     repeat {
-      m1 <- future.p2p::pico_have_future(pico, future = file, duration = duration)
-      m2 <- future.p2p::pico_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
+      m1 <- future.p2p::pico_p2p_have_future(pico, future = file, duration = duration)
+      m2 <- future.p2p::pico_p2p_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
       if (m2[["type"]] != "expired") break
     }
 
     ## 3. Send future to workers
     worker <- m2[["from"]]
     stopifnot(is.character(worker), nzchar(worker))
-    m3 <- future.p2p::pico_send_future(pico, future = file, to = worker, via = via)
+    m3 <- future.p2p::pico_p2p_send_future(pico, future = file, to = worker, via = via)
 
     ## 4. Remove temporary file
     file.remove(file)
@@ -216,7 +216,7 @@ dispatch_future <- function(future) {
     ## 5. Wait for and receive FutureResult file
     path <- file.path(dirname(dirname(file)), "results")
     tryCatch({
-      file <- future.p2p::pico_receive_result(pico, via = via, path = path)
+      file <- future.p2p::pico_p2p_receive_result(pico, via = via, path = path)
     }, interrupt = function(int) {
       cat(file = "foo.log", "interrupted\n")
     })
@@ -298,7 +298,7 @@ print.PicoP2PFutureBackend <- function(x, ...) {
   cat(sprintf("P2P cluster: %s\n", sQuote(backend[["cluster"]])))
   cat(sprintf("P2P client ID: %s\n", sQuote(backend[["name"]])))
 
-  clusters <- pico_hosted_clusters(backend[["host"]], backend[["ssh_args"]])
+  clusters <- pico_p2p_hosted_clusters(backend[["host"]], backend[["ssh_args"]])
   cat(sprintf("P2P clusters you are hosting: [n=%d]\n", nrow(clusters)))
   for (kk in seq_len(nrow(clusters))) {
     cluster <- clusters[kk, ]
@@ -326,7 +326,7 @@ p2p_can_connect <- function(cluster, name = name, host = "pipe.pico.sh", ssh_arg
   }
 
   ## (1) Attempt to connect
-  before <- pico_hosted_clusters(host = host, ssh_args = ssh_args)
+  before <- pico_p2p_hosted_clusters(host = host, ssh_args = ssh_args)
   p_pipe <- pico_pipe(topic, args = "-r", user = name, host = host, ssh_args = ssh_args)
   on.exit(pico_terminate(p_pipe))
   p <- p_pipe$process
@@ -334,7 +334,7 @@ p2p_can_connect <- function(cluster, name = name, host = "pipe.pico.sh", ssh_arg
       
   ## (2) Test connection
   t_max <- proc.time()[3] + timeout
-  m <- pico_hello(p_pipe, type = "client")
+  m <- pico_p2p_hello(p_pipe, type = "client")
   msg <- attr(m, "message")
   repeat {
     bfr <- pico_receive_message(p_pipe)
@@ -348,7 +348,7 @@ p2p_can_connect <- function(cluster, name = name, host = "pipe.pico.sh", ssh_arg
   }
 
   ## (3) Check if we created our own cluster on-the-fly
-  after <- pico_hosted_clusters(host = host, ssh_args = ssh_args)
+  after <- pico_p2p_hosted_clusters(host = host, ssh_args = ssh_args)
   delta <- setdiff(after$name, before$name)
   for (name in delta) {
     parts <- strsplit(name, split = "/", fixed = TRUE)[[1]]

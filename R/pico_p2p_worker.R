@@ -27,7 +27,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
   on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)
 
-  now <- pico_time()
+  now <- pico_p2p_time()
 
   if (inherits(duration, "ssh_args")) {
     ## e.g. ssh_args = "-J dt1"
@@ -38,7 +38,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
     duration <- as.numeric(duration)
   }
   
-  expires <- pico_time(delta = duration)
+  expires <- pico_p2p_time(delta = duration)
   duration <- difftime(duration, 0)
 
   info("assert connection to p2p cluster %s", sQuote(cluster))
@@ -62,10 +62,10 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
     }
     
     info("hello")
-    m <- pico_hello(p, type = "worker", expires = expires)
+    m <- pico_p2p_hello(p, type = "worker", expires = expires)
   
     info("wait for request")
-    m <- pico_wait_for(p, type = "request", expires = expires)
+    m <- pico_p2p_wait_for(p, type = "request", expires = expires)
     if (m[["type"]] == "expired") {
       info("time is out")
       break
@@ -74,10 +74,10 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
     client <- m$from
 
     info("offer to work for %s", sQuote(client))
-    pico_take_on_future(p, to = client, future = m$future)
+    pico_p2p_take_on_future(p, to = client, future = m$future)
 
     info("wait for accept")
-    m <- pico_wait_for(p, type = "accept", futures = m$future)
+    m <- pico_p2p_wait_for(p, type = "accept", futures = m$future)
     if (m[["type"]] == "expired") {
       info("future request expired")
       next
@@ -85,7 +85,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
 
     if (m[["to"]] == name) {
       info("receive future from %s", sQuote(client))
-      res <- pico_receive_future(p, via = m$via)
+      res <- pico_p2p_receive_future(p, via = m$via)
       f <- res[["future"]]
   
       info("process future %s:%s", sQuote(client), sQuoteLabel(f))
@@ -95,7 +95,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
       dt <- difftime(dt[3], 0)
 
       info("send future result to %s after %s processing", sQuote(client), format(dt))
-      res <- pico_send_result(p, future = f, via = m$via)
+      res <- pico_p2p_send_result(p, future = f, via = m$via)
     }
   } ## repeat()
   info("bye")

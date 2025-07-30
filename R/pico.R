@@ -106,10 +106,81 @@ pico_send_message <- function(p, message, newline = TRUE, ...) {
   p$process$write_input(message)
 }
 
+
+pico_send_message_dataframe <- function(p, df) {
+  msg <- unlist(df, use.names = TRUE)
+  msg <- sprintf("%s=%s", names(msg), msg)
+  msg <- paste(msg, collapse = ",")
+  pico_send_message(p, msg)
+  attr(df, "message") <- msg
+  invisible(df)
+}
+
+
 #' @rdname pico_pipe
 #' @export
 pico_receive_message <- function(p, n = 1L, ...) {
   stopifnot(inherits(p, "pico_pipe"))
   stopifnot(length(n) == 1L, is.numeric(n), !is.na(n), n > 0L)
   p$process$read_output_lines(n)
+}
+
+
+#' @export
+pico_receive_message_dataframe <- function(p, ..., pattern = NULL) {
+  msg <- pico_receive_message(p, ...)
+  
+  ## Filter lines by regular expression?
+  if (!is.null(pattern)) msg <- grep(pattern, msg, value = TRUE)
+  
+  ## No matching message recieved?
+  if (length(msg) == 0) return(NULL)
+
+  ## Parse as a dataframe
+  parts <- strsplit(msg, split = ",", fixed = TRUE)
+  parts <- lapply(parts, FUN = function(x) {
+    x <- unlist(strsplit(x, split = "=", fixed = TRUE))
+    names <- x[seq(from = 1L, to  = length(x), by = 2L)]
+    value <- x[seq(from = 2L, to  = length(x), by = 2L)]
+    names(value) <- names
+    as.data.frame(as.list(value))
+  })
+  
+  do.call(rbind, parts)  
+}
+
+
+
+#' @export
+pico_hosted_channels <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
+  username <- pico_username()
+  t_max <- proc.time()[3] + timeout
+  pattern <- sprintf(".*[[:blank:]]%s/([^:]+):[[:blank:]]+[(]Access List:[[:blank:]]+(.*)[)]", username)
+  channels <- NULL
+  while (is.null(channels)) local({
+    p_ls <- pico_pipe(command = "ls", host = host, ssh_args = ssh_args)
+    on.exit(tryCatch(pico_terminate(p_ls), error = identity))
+    p <- p_ls$process
+    bfr <- p$read_all_output_lines()
+    if (length(bfr) >= 1L) {
+      if (length(bfr) == 1L && bfr == "no pubsub channels found") {
+        channels <<- data.frame(name = character(0L), users = character(0L))
+        return(channels)
+      } else {
+        lines <- grep(pattern, bfr, value = TRUE)
+        if (length(lines) >= 1L) {
+          names <- gsub(pattern, "\\1", lines)
+          users <- gsub(pattern, "\\2", lines)
+          users <- gsub("[[:blank:]]+", "", users)
+          channels <<- data.frame(name = names, users = users)
+          return(channels)
+        }
+      }
+      if (proc.time()[3] > t_max) {
+        stop(sprintf("Failed to identity %s channels", host))
+      }
+      Sys.sleep(0.1)
+    }
+  })
+  channels
 }
