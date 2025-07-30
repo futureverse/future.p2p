@@ -89,7 +89,7 @@ find_wormhole <- local({
 
 #' @importFrom utils file_test
 #' @export
-wormhole_call <- function(command = c("send", "receive"), ..., input = NULL, rsh = NULL) {
+wormhole_call <- function(command = c("send", "receive"), ..., input = NULL, rsh = NULL, timeout = 0) {
   command <- match.arg(command)
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -118,7 +118,7 @@ wormhole_call <- function(command = c("send", "receive"), ..., input = NULL, rsh
     bin <- rsh[1]
   }
   
-  out <- system2(bin, args = args, stdout = TRUE, stderr = TRUE, input = input)
+  out <- system2(bin, args = args, stdout = TRUE, stderr = TRUE, input = input, timeout = timeout)
   status <- attr(out, "status")
   if (!is.null(status)) {
     msg <- sprintf("wormhole_call(): System call returned with exit code %s", status)
