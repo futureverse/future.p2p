@@ -122,4 +122,30 @@ another.
 {bob}$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p --ssh_args="-J somehost"
 ```
 
+### Troubleshoot Wormhole
+
+If you are behind a firewall with a proxy, wormhole might fail to
+establish an outbound connection. For example, if you try:
+
+```sh
+$ wormhole send --text hello
+```
+
+it might stall forever.  If that happens, press <kbd>Ctrl-C</kbd> to
+interrupt and retry by disabling the proxy settings using:
+
+```sh
+$ http_proxy="" wormhole send --text hello
+On the other computer, please run: wormhole receive (or wormhole-william recv)                                                       
+Wormhole code is: 53-visitor-physique
+```
+
+If the latter works for you, launch R by unsetting environment
+variable `http_proxy`, e.g.
+
+```sh
+{bob}$ http_proxy="" Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p --ssh_args="-J somehost"
+```
+
+
 [pico.sh]: https://pico.sh/
