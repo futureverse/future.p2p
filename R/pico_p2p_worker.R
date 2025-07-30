@@ -104,12 +104,3 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
 
 ## Expose function on the CLI
 cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
-
-
-info <- function(fmtstr, ..., time = Sys.time(), timefmt = "%T", from = c("worker", "client")) {
-  from <- match.arg(from)
-  msg <- sprintf(fmtstr, ...)
-  msg <- sprintf("%s [%s] %s", format(time, format = timefmt), from, msg)
-  message(msg)
-}
-
