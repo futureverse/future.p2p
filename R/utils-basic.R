@@ -1,3 +1,11 @@
+info <- function(fmtstr, ..., time = Sys.time(), timefmt = "%T", from = c("worker", "client")) {
+  from <- match.arg(from)
+  msg <- sprintf(fmtstr, ...)
+  msg <- sprintf("%s [%s] %s", format(time, format = timefmt), from, msg)
+  message(msg)
+}
+
+
 isFALSE <- function(x) {
   is.logical(x) && length(x) == 1L && !is.na(x) && !x
 }
