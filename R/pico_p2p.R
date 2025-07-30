@@ -63,10 +63,20 @@ pico_username <- local({
         Sys.sleep(0.1)
       })
     }
-    
-    username
+
+    structure(username, class = "pico_username")
   }
 })
+
+## Expose function on the CLI
+cli_fcn(pico_username) <- character(0L)
+
+
+#' @export
+print.pico_username <- function(x, ...) {
+  cat(x, "\n", sep = "")
+}
+
 
 pico_send_message_dataframe <- function(p, df) {
   msg <- unlist(df, use.names = TRUE)
