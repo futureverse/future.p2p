@@ -83,9 +83,15 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
       next
     }
 
+    uri <- parse_transfer_uri(m[["via"]])
+    if (!uri[["protocol"]] %in% supported_transfer_protocols()) {
+      info("non-supported protocol")
+      next
+    }
+
     if (m[["to"]] == name) {
       info("receive future from %s", sQuote(client))
-      res <- pico_p2p_receive_future(p, via = m$via)
+      res <- pico_p2p_receive_future(p, via = m[["via"]])
       f <- res[["future"]]
   
       info("process future %s:%s", sQuote(client), sQuoteLabel(f))
@@ -95,7 +101,7 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
       dt <- difftime(dt[3], 0)
 
       info("send future result to %s after %s processing", sQuote(client), format(dt))
-      res <- pico_p2p_send_result(p, future = f, via = m$via)
+      res <- pico_p2p_send_result(p, future = f, via = m[["via"]])
     }
   } ## repeat()
   info("bye")

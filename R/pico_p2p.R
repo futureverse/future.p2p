@@ -46,7 +46,7 @@ pico_p2p_hello <- function(p, from = p$user, type = c("worker", "client", "clust
     expires = pico_p2p_time(expires),
     type = type,
     from = from,
-    protocols = paste(transfer_protocols(), collapse = ";")
+    protocols = paste(supported_transfer_protocols(), collapse = ";")
   )
   pico_send_message_dataframe(p, m)
 }
@@ -130,7 +130,7 @@ pico_p2p_have_future <- function(p, future, duration = getOption("future.p2p.dur
     from = from,
     future = future_id(future),
     size = size,
-    protocols = paste(transfer_protocols(), collapse = ";")
+    protocols = paste(supported_transfer_protocols(), collapse = ";")
   )
   
   pico_send_message_dataframe(p, m)
@@ -159,7 +159,7 @@ pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user,
     from = from,
     to = to,
     future = future,
-    protocols = paste(transfer_protocols(), collapse = ";")
+    protocols = paste(supported_transfer_protocols(), collapse = ";")
   )
 
   pico_send_message_dataframe(p, m)

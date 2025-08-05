@@ -5,7 +5,7 @@
 \alias{wormhole_receive}
 \title{Send and Receive Files via Wormhole}
 \usage{
-wormhole_send(file, code = via_channel(), rsh = NULL, ...)
+wormhole_send(file, code, rsh = NULL, ...)
 
 wormhole_receive(code, path = tempdir(), ..., rsh = NULL)
 }
