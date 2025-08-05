@@ -46,7 +46,9 @@ pico_p2p_cluster <- function(cluster = "mycluster", users = character(0L), name 
 
   clusters <- pico_p2p_hosted_clusters(host = host, ssh_args = ssh_args)
   if (cluster_name %in% clusters$name) {
-    stop(sprintf("P2P cluster is already running: %s", sQuote(cluster)))
+    msg <- sprintf("P2P cluster is already running: %s", sQuote(cluster))
+    msg <- sprintf("%s (see 'ssh pipe.pico.sh ls' for details)", msg)
+    stop(FutureError(msg))
   }
 
   now <- pico_p2p_time()
