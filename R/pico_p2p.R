@@ -129,7 +129,7 @@ pico_p2p_have_future <- function(p, future, duration = getOption("future.p2p.dur
     from = from,
     future = future_id(future),
     size = size,
-    protocols = "wormhole"
+    protocols = paste(transfer_protocols(), collapse = ";")
   )
   
   pico_send_message_dataframe(p, m)
@@ -158,36 +158,11 @@ pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user,
     from = from,
     to = to,
     future = future,
-    protocols = "wormhole"
+    protocols = paste(transfer_protocols(), collapse = ";")
   )
 
   pico_send_message_dataframe(p, m)
 }
-
-via_transfer_uri <- function(protocol = "wormhole") {
-  protocol <- match.arg(protocol)
-  if (protocol == "wormhole") {
-    digits <- sample.int(16L, size = 17L, replace = TRUE) %% 16
-    digits[1:4] <- digits[1:4] %% 10
-    digits <- as.hexmode(digits)
-    digits <- as.character(digits)
-    digits[5] <- "-"
-    channel <- paste(digits, collapse = "")
-  }
-  sprintf("%s://%s", protocol, channel)
-}
-
-parse_transfer_uri <- function(uri) {
-  stopifnot(length(uri) == 1, is.character(uri), !is.na(uri), nzchar(uri))
-  pattern <- "^([^:]+)://(.*)$"
-  protocol <- sub(pattern, "\\1", uri)
-  path <- sub(pattern, "\\2", uri)
-  if (!protocol %in% c("wormhole")) {
-    stop(FutureError(sprintf("Non-supported transfer protocol: %s", sQuote(protocol))))
-  }
-  list(protocol = protocol, path = path)
-}
-
 
 #' @export
 pico_p2p_send_future <- function(p, future, to, via = via_transfer_uri(), duration = 60, from = p$user, ...) {
