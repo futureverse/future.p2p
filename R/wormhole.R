@@ -79,7 +79,8 @@ find_wormhole <- local({
       if (debug) mdebugf("Wormhole executable: %s", sQuote(res))
       if (nzchar(res)) {
         bfr <- system2(res, args = "--version", stdout = TRUE)
-
+        attr(res, "version-string") <- bfr
+	
         ## Prune 'version' word and 'v' prefix
 	bfr <- sub("[[:blank:]]+version[[:blank:]]+", " ", bfr)
 	bfr <- sub("[[:blank:]]+v([[:digit:]])", " \\1", bfr)
@@ -88,7 +89,7 @@ find_wormhole <- local({
         name <- sub(pattern, "\\1", bfr)
         attr(res, "name") <- name
         version <- sub(pattern, "\\2", bfr)
-        attr(res, "verion") <- version
+        attr(res, "version") <- version
         bin <<- res
       }	
     }

@@ -311,7 +311,11 @@ print.PicoP2PFutureBackend <- function(x, ...) {
   cat(sprintf(" - Username: %s\n", sQuote(username)))
 
   cat("Data transfer tools:\n")
-  cat(sprintf(" %2d. %s\n", 1L, "wormhole"))
+  info <- tryCatch({
+    bin <- find_wormhole()
+    attr(bin, "version-string")
+  }, error = function(ex) "<please install wormhole>")
+  cat(sprintf(" %2d. %s (%s)\n", 1L, "wormhole", info))
 
   invisible(backend)
 }
