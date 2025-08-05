@@ -6,8 +6,12 @@
 In order to join a future P2P cluster, you must:
 
 1. have a [pico.sh] account,
+
 2. have SSH access to pipe.pico.sh,
-3. have `wormhole` installed, and
+
+3. have `wormhole` installed (e.g. [Magic-Wormhole] or
+[wormhole-william]), and
+
 4. support the `ws://` protocol used by wormhole
 
 
@@ -149,3 +153,5 @@ variable `http_proxy`, e.g.
 
 
 [pico.sh]: https://pico.sh/
+[Magic-Wormhole]: https://magic-wormhole.readthedocs.io/en/latest/
+[wormhole-william]: https://github.com/psanford/wormhole-william
