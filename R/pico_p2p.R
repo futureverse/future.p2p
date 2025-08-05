@@ -128,7 +128,8 @@ pico_p2p_have_future <- function(p, future, duration = getOption("future.p2p.dur
     type = "request",
     from = from,
     future = future_id(future),
-    size = size
+    size = size,
+    protocols = "wormhole"
   )
   
   pico_send_message_dataframe(p, m)
@@ -156,7 +157,8 @@ pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user,
     type = "offer",
     from = from,
     to = to,
-    future = future
+    future = future,
+    protocols = "wormhole"
   )
 
   pico_send_message_dataframe(p, m)
