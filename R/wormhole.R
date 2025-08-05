@@ -14,7 +14,7 @@
 #'
 #' @importFrom utils file_test
 #' @export
-wormhole_send <- function(file, code = via_channel(), rsh = NULL, ...) {
+wormhole_send <- function(file, code, rsh = NULL, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("wormhole_send() ...")
@@ -56,7 +56,8 @@ wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
   ## Switch to download directory
   opwd <- setwd(path)
   on.exit(setwd(opwd), add = TRUE, after = FALSE)
-  
+
+  files <- NULL
   out <- wormhole_call("receive", code, input = "y", ..., rsh = rsh)
   files <- dir(path = path, all.files = TRUE, full.names = TRUE, no.. = TRUE)
   files

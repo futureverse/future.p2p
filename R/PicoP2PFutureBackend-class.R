@@ -238,7 +238,7 @@ dispatch_future <- function(future) {
   name <- backend[["name"]]
   host <- backend[["host"]]
   ssh_args <- backend[["ssh_args"]]
-  via <- via_channel()
+  via <- via_transfer_uri()
   
   ## 1. Put future on the dispatcher queue
   void <- p2p_dir("results")

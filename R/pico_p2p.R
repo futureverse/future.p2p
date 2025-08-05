@@ -162,18 +162,33 @@ pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user,
   pico_send_message_dataframe(p, m)
 }
 
-via_channel <- function() {
-  digits <- sample.int(16L, size = 17L, replace = TRUE) %% 16
-  digits[1:4] <- digits[1:4] %% 10
-  digits <- as.hexmode(digits)
-  digits <- as.character(digits)
-  digits[5] <- "-"
-  paste(digits, collapse = "")
+via_transfer_uri <- function(protocol = "wormhole") {
+  protocol <- match.arg(protocol)
+  if (protocol == "wormhole") {
+    digits <- sample.int(16L, size = 17L, replace = TRUE) %% 16
+    digits[1:4] <- digits[1:4] %% 10
+    digits <- as.hexmode(digits)
+    digits <- as.character(digits)
+    digits[5] <- "-"
+    channel <- paste(digits, collapse = "")
+  }
+  sprintf("%s://%s", protocol, channel)
+}
+
+parse_transfer_uri <- function(uri) {
+  stopifnot(length(uri) == 1, is.character(uri), !is.na(uri), nzchar(uri))
+  pattern <- "^([^:]+)://(.*)$"
+  protocol <- sub(pattern, "\\1", uri)
+  path <- sub(pattern, "\\2", uri)
+  if (!protocol %in% c("wormhole")) {
+    stop(FutureError(sprintf("Non-supported transfer protocol: %s", sQuote(protocol))))
+  }
+  list(protocol = protocol, path = path)
 }
 
 
 #' @export
-pico_p2p_send_future <- function(p, future, to, via = via_channel(), duration = 60, from = p$user, ...) {
+pico_p2p_send_future <- function(p, future, to, via = via_transfer_uri(), duration = 60, from = p$user, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("pico_p2p_send_future() ...")
@@ -198,8 +213,8 @@ pico_p2p_send_future <- function(p, future, to, via = via_channel(), duration = 
   }
 
   stopifnot(length(to) == 1L, is.character(to), nzchar(to))
-  stopifnot(length(via) == 1L, is.character(via), nzchar(via))
   stopifnot(length(from) == 1L, is.character(from), nzchar(from))
+  stopifnot(length(via) == 1L, is.character(via), nzchar(via))
 
   m <- data.frame(
     when = now_str(),
@@ -212,7 +227,12 @@ pico_p2p_send_future <- function(p, future, to, via = via_channel(), duration = 
   )
 
   m_res <- pico_send_message_dataframe(p, m)
-  w_res <- wormhole_send(file, code = sprintf("%s-f", m$via))
+
+  uri <- parse_transfer_uri(via)
+  if (uri$protocol == "wormhole") {
+    w_res <- wormhole_send(file, code = sprintf("%s-f", uri$path))
+  }
+  
   m_res
 }
 
@@ -230,8 +250,12 @@ pico_p2p_receive_future <- function(p, via, duration = 60) {
   }
   
   stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
-  code <- sprintf("%s-f", via)
-  tf <- wormhole_receive(code)
+  
+  uri <- parse_transfer_uri(via)
+  if (uri$protocol == "wormhole") {
+    tf <- wormhole_receive(code = sprintf("%s-f", uri$path))
+  }
+
   future <- readRDS(tf)
   on.exit(file.remove(tf))
   list(
@@ -254,12 +278,15 @@ pico_p2p_send_result <- function(p, future, via, duration = 60) {
       mdebug_pop()
     })
   }
-  
-  file <- file.path(tempdir(), sprintf("%s-FutureResult.rds", future_id(future)))
-  r <- result(future)
-  saveRDS(r, file = file)
-  code <- sprintf("%s-r", via)
-  res <- wormhole_send(file, code = code)
+
+  uri <- parse_transfer_uri(via)
+  if (uri$protocol == "wormhole") {
+    file <- file.path(tempdir(), sprintf("%s-FutureResult.rds", future_id(future)))
+    r <- result(future)
+    saveRDS(r, file = file)
+    res <- wormhole_send(file, code = sprintf("%s-r", uri$path))
+  }
+
   invisible(res)
 }
 
@@ -277,9 +304,11 @@ pico_p2p_receive_result <- function(p, via, duration = 60, path = tempdir()) {
     })
   }
   
-  stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
-  code <- sprintf("%s-r", via)
-  file <- wormhole_receive(code, path = path)
+  uri <- parse_transfer_uri(via)
+  if (uri$protocol == "wormhole") {
+    file <- wormhole_receive(code = sprintf("%s-r", uri$path), path = path)
+  }
+  
   file
 }
 
