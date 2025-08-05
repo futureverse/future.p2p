@@ -112,7 +112,6 @@ find_wormhole <- local({
 
 
 #' @importFrom utils file_test
-#' @export
 wormhole_call <- function(command = c("send", "receive"), ..., input = NULL, rsh = NULL, timeout = 0) {
   command <- match.arg(command)
   debug <- isTRUE(getOption("future.p2p.debug"))
