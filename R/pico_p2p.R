@@ -45,7 +45,8 @@ pico_p2p_hello <- function(p, from = p$user, type = c("worker", "client", "clust
     when = now_str(),
     expires = pico_p2p_time(expires),
     type = type,
-    from = from
+    from = from,
+    protocols = paste(transfer_protocols(), collapse = ";")
   )
   pico_send_message_dataframe(p, m)
 }
