@@ -76,12 +76,27 @@ find_wormhole <- local({
         })
       }
       res <- Sys.which("wormhole")
-      if (nzchar(res)) bin <<- res
       if (debug) mdebugf("Wormhole executable: %s", sQuote(res))
+      if (nzchar(res)) {
+        bfr <- system2(res, args = "--version", stdout = TRUE)
+
+        ## Prune 'version' word and 'v' prefix
+	bfr <- sub("[[:blank:]]+version[[:blank:]]+", " ", bfr)
+	bfr <- sub("[[:blank:]]+v([[:digit:]])", " \\1", bfr)
+	
+        pattern <- "^([^[:blank:]]+)[[:blank:]]([[:digit:].]+)$"
+        name <- sub(pattern, "\\1", bfr)
+        attr(res, "name") <- name
+        version <- sub(pattern, "\\2", bfr)
+        attr(res, "verion") <- version
+        bin <<- res
+      }	
     }
+    
     if (is.null(bin)) {
       stop("Failed to locate executable 'wormhole'")
     }
+    
     bin
   }
 })
