@@ -5,30 +5,59 @@
 
 In order to join a future P2P cluster, you must:
 
-1. have a [pico.sh] account, and
+1. have _SSH key pairs_ configured,
 
-2. have SSH access to pipe.pico.sh
+2. have a _[pico.sh] account_, and
+
+3. have SSH access to pipe.pico.sh
 
 
-## Create a P2P account (once; all users)
+In order to have a [pico.sh] account, you need to connect to their
+services using _SSH keys_ - they do not accept password logins, which
+also would not work for **future.p2p**. If you don't know about SSH
+keys, the gist is that they allow you to SSH without having to enter
+your password each time. Instead, your computer authenticates with the
+server using secure public-private keys. It's a very convenient way of
+working with SSH. You can read more it in the Wikibooks article
+['OpenSSH/Cookbook/Public Key
+Authentication'](https://en.wikibooks.org/wiki/OpenSSH%2FCookbook%2FPublic_Key_Authentication),
+which also provides detailed instructions. The gist for creating a SSH
+key pair is:
 
-To create a [pico.sh] account, call:
+```sh
+$ mkdir ~/.ssh/
+$ chmod 0700 ~/.ssh/
+$ ssh-keygen
+```
+
+and then follow the instructions. Although you can leave the
+passphrase empty, I recommend to set one and let the operating
+system's _SSH agent_ to manage authentication. This means that you
+will only have to authenticate once when you log in into your
+computer, instead of at each SSH connection.
+
+With SSH key pairs configured, you should now be able to create a
+[pico.sh] account by calling:
 
 ```sh
 $ ssh pico.sh
 ```
 
-and choose a username and click <kbd>ENTER</kbd>.  This will add your
-public SSH key to the pico.sh servers, which is then used to identify
-you in all future interactions. Next, verify SSH access to
-`pipe.pico.sh`;
+If you're asked to accept the "SSH fingerprint", do so. Then choose
+your pico.sh username and click <kbd>ENTER</kbd>.  That's it!  This
+will add your public SSH key to the pico.sh servers, which is then
+used to identify you in all future interactions. Press
+<kbd>Ctrl-C</kbd> to exit.
+
+Finally, verify SSH access to `pipe.pico.sh` (sic!);
 
 ```sh
 $ ssh pipe.pico.sh
 ```
 
-_Important_: Make sure to accept the SSH fingerprint, otherwise you
-will not be able to connect to the P2P cluster from R.
+It is important that you do this and accept the SSH fingerprint for
+this server too, otherwise you will not be able to connect to the P2P
+cluster from R.
 
 
 ## Launch a P2P cluster (one of the users)
@@ -82,14 +111,17 @@ the [wormhole-william] executable is installed.
 
 ## Share your compute power with your friends (any user)
 
-To contribute your R compute power to the `alice/p2p` cluster, launch
-a P2P worker as:
+Without parallel workers, the P2P cluster is useless and will not
+process any parallel tasks. This is where the peer-to-peer concept
+comes in, where we contribute our idle compute cycles to the cluster
+for others to make use of. To contribute your R compute power to the
+`alice/p2p` cluster, launch a P2P worker as:
 
 ```r
 future.p2p::pico_p2p_worker(cluster = "alice/p2p")
 ```
 
-Alternatively, launch it directly from the command line using:
+Alternatively, you can launch it directly from the command line using:
 
 ```sh
 {bob}$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p
