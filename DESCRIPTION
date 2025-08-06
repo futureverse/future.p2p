@@ -7,6 +7,10 @@ Depends:
 Imports:
     processx,
     callr
+Suggests:
+    commonmark,
+    base64enc
+VignetteBuilder: future.p2p
 Authors@R: c(
    person("Henrik", "Bengtsson", role=c("aut", "cre", "cph"),
           email = "henrikb@braju.com"))
