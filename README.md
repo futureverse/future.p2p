@@ -77,7 +77,7 @@ print(v)
 ```
 
 _Comment:_ The first time you run this, you might find that
-the [wormhole-williams] executable is installed.
+the [wormhole-william] executable is installed.
 
 
 ## Share your compute power with your friends (any user)
@@ -100,7 +100,7 @@ contribute additional ones by repeating the same command one or more
 times.
 
 _Comment:_ The first time you run this, you might find that
-the [wormhole-williams] executable is installed.
+the [wormhole-william] executable is installed.
 
 
 ## Appendix

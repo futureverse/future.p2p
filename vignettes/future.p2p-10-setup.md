@@ -69,6 +69,9 @@ Make sure to _accept the SSH fingerprint_, otherwise you will not be
 able to connect to the P2P cluster from R.
 
 
+## Install Wormhole
+
+
 
 
 [future.p2p]: https://github.com/HenrikBengtsson/future.p2p
