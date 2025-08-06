@@ -43,7 +43,7 @@ future.p2p::pico_p2p_cluster(cluster = "alice/p2p", users = c("bob", "carol", "d
 Alternatively, launch it directly from the command line using:
 
 ```sh
-{bob}$ Rscript -e future.p2p::pico_p2p_cluster --cluster=alice/p2p --users=bob,carol,diana
+{alice}$ Rscript -e future.p2p::pico_p2p_cluster --cluster=alice/p2p --users=bob,carol,diana
 ```
 
 After this, 'bob', 'carol', 'diana', and 'alice' can use and share
@@ -109,9 +109,9 @@ the [wormhole-william] executable is installed.
 
 If you have multiple computers, you can add your public SSH keys for
 those as well by logging in again by calling `ssh pico.sh`. Then go to
-the `pubkeys` menu, where you have options to add additional public
-SSH keys of yours. This way, you can use your pico.sh account from
-multiple computer systems, which can be handy if you want to setup
+the `pubkeys` menu, where you have options to add additional _public
+SSH keys_ of yours. This way, you can use your pico.sh account from
+multiple computer systems, which can be handy if you want to set up
 parallel workers on one system and harness their compute power from
 another.
 
