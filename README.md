@@ -111,7 +111,7 @@ If you have multiple computers, you can add your public SSH keys for
 those as well by logging in again by calling `ssh pico.sh`. Then go to
 the `pubkeys` menu, where you have options to add additional _public
 SSH keys_ of yours. This way, you can use your pico.sh account from
-multiple computer systems, which can be handy if you want to setup
+multiple computer systems, which can be handy if you want to set up
 parallel workers on one system and harness their compute power from
 another.
 
