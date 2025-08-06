@@ -25,7 +25,7 @@
 #' with the returned object.
 #'
 #' @return
-#' A [processx::process] of clas `pico_pipe`.
+#' A [processx::process] of class `pico_pipe`.
 #'
 #' @seealso
 #' This function relies on the <https://pico.sh> services.

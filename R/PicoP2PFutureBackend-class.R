@@ -60,7 +60,7 @@ attr(pico_p2p, "init") <- TRUE
 #'
 #' @param \ldots Additional arguments passed to [future::FutureBackend()].
 #'
-#' @return A PicoP2PFutureBackend object
+#' @return A `PicoP2PFutureBackend` object
 #'
 #'
 #' @importFrom future FutureBackend

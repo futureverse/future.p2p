@@ -27,7 +27,8 @@ futures and results between each others.
 Users who wish to join a P2P cluster, needs to create a [pico.sh]
 account, which given them access to the task message board. In
 contrast, P2P file transfers are anonymous and requires no accounts,
-but requires specific P2P file-transfer software tools ssh-keygeninstalled.
+but requires specific P2P file-transfer software tools `ssh-keygen`
+installed.
 
 This document walks you through how to set these up. _You only need to
 do the below once_.

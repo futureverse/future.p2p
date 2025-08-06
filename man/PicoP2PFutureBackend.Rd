@@ -24,7 +24,7 @@ PicoP2PFutureBackend(
 \item{\ldots}{Additional arguments passed to \code{\link[future:FutureBackend-class]{future::FutureBackend()}}.}
 }
 \value{
-A PicoP2PFutureBackend object
+A \code{PicoP2PFutureBackend} object
 }
 \description{
 A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole

@@ -48,7 +48,7 @@ to the message, otherwise not.}
 with the returned object.}
 }
 \value{
-A \link[processx:process]{processx::process} of clas \code{pico_pipe}.
+A \link[processx:process]{processx::process} of class \code{pico_pipe}.
 }
 \description{
 Connect to a pico pipe
