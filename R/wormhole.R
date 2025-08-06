@@ -84,8 +84,13 @@ find_wormhole <- local({
           mdebug_pop()
         })
       }
-      res <- Sys.which("wormhole")
+
+      res <- wormhole_pathname()
+      if (!file_test("-x", res)) {
+        res <- Sys.which("wormhole")
+      }
       if (debug) mdebugf("Wormhole executable: %s", sQuote(res))
+      
       if (nzchar(res)) {
         bfr <- system2(res, args = "--version", stdout = TRUE)
         attr(res, "version-string") <- bfr
@@ -100,11 +105,11 @@ find_wormhole <- local({
         version <- sub(pattern, "\\2", bfr)
         attr(res, "version") <- version
         bin <<- res
-      }	
+      }
     }
     
     if (is.null(bin)) {
-      stop("Failed to locate executable 'wormhole'")
+      stop("Failed to locate 'wormhole' executable")
     }
     
     bin
@@ -153,4 +158,49 @@ wormhole_call <- function(command = c("send", "receive"), ..., input = NULL, rsh
     stop(msg)
   }
   invisible(out)
+}
+
+
+#' @export
+wormhole_filename <- function(sysname = Sys.info()[["sysname"]], arch = R.version[["arch"]]) {
+  sysname <- tolower(sysname)
+
+  if (sysname %in% c("linux", "darwin")) {
+    if (arch == "x86_64") arch <- "amd64"
+  } else if (sysname == "windows") {
+    arch <- "386"
+  } else {
+    stop(sprintf("Unknown system: %s", sysname))
+  }
+
+  sprintf("wormhole-william-%s-%s", sysname, arch)
+} ## wormhole_filename()
+
+
+wormhole_pathname <- function(filename = wormhole_filename(), path = tools::R_user_dir("future.p2p", "data")) {
+  file.path(path, filename)
+} ## wormhole_pathname()
+
+#' @importFrom utils file_test
+#' @export
+install_wormhole <- function(pathname = wormhole_pathname(), version = "1.0.8") {
+  ## Nothing to do?
+  if (file_test("-x", pathname)) return(pathname)
+  
+  path <- dirname(pathname)
+  if (!file_test("-d", path)) {
+    dir.create(path, recursive = TRUE)
+    stopifnot(file_test("-d", path))
+  }
+
+  url <- sprintf("https://github.com/psanford/wormhole-william/releases/download/v%s/%s", version, filename)
+  tf <- file.path(tempdir(), filename)
+  res <- download.file(url, destfile = tf, mode = "wb")
+  stopifnot(file_test("-f", tf))
+  Sys.chmod(tf, mode = "0755")
+  stopifnot(file_test("-x", tf))
+  file.rename(tf, to = pathname)
+  stopifnot(file_test("-x", pathname))
+  
+  pathname
 }
