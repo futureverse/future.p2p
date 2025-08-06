@@ -192,7 +192,8 @@ install_wormhole <- function(pathname = wormhole_pathname(), version = "1.0.8") 
     dir.create(path, recursive = TRUE)
     stopifnot(file_test("-d", path))
   }
-
+  filename <- basename(pathname)
+  
   url <- sprintf("https://github.com/psanford/wormhole-william/releases/download/v%s/%s", version, filename)
   tf <- file.path(tempdir(), filename)
   res <- download.file(url, destfile = tf, mode = "wb")
