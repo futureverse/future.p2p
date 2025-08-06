@@ -43,7 +43,7 @@ future.p2p::pico_p2p_cluster(cluster = "alice/p2p", users = c("bob", "carol", "d
 Alternatively, launch it directly from the command line using:
 
 ```sh
-{bob}$ Rscript -e future.p2p::pico_p2p_cluster --cluster=alice/p2p --users=bob,carol,diana
+{alice}$ Rscript -e future.p2p::pico_p2p_cluster --cluster=alice/p2p --users=bob,carol,diana
 ```
 
 After this, 'bob', 'carol', 'diana', and 'alice' can use and share
