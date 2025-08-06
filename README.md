@@ -1,5 +1,21 @@
 # future.p2p - A Peer-to-Peer Compute Cluster via Futureverse
 
+## TL;DR
+
+```r
+library(future)
+
+## Resolve futures via a P2P cluster shared among friends
+plan(future.p2p::pico_p2p, cluster = "alice/p2p")
+
+## Create future
+f <- future(Sys.getpid())
+  
+## Get results
+v <- value(f)
+print(v)
+```
+
 
 ## Prerequisites
 
@@ -89,18 +105,23 @@ analysis.  Note that the `alice/` prefix is reserved for pico user
 ## Parallelize via P2P cluster (any user)
 
 Any user with access to the 'alice/p2p' cluster can harness the
-collective compute power. For example,
+collective compute power. In our example, this means 'bob', 'carol',
+'diana', and 'alice' may use the P2P cluster at the same time.
+
+Just like with any other future backend, we specify that we want to
+use the P2P cluster via `plan()` of the **future** package. Here is a
+small example that evaluates `Sys.getpid()` on one of the 'alice/p2p'
+cluster workers, which one we don't know:
 
 ```r
 library(future)
 
-## Resolve future via your friends' P2P cluster
 plan(future.p2p::pico_p2p, cluster = "alice/p2p")
 
-## Create future
+## Evaluate expression via P2P cluster
 f <- future(Sys.getpid())
-  
-## Get results
+
+## Retrieve value
 v <- value(f)
 print(v)
 ```
