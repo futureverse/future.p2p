@@ -5,14 +5,9 @@
 
 In order to join a future P2P cluster, you must:
 
-1. have a [pico.sh] account,
+1. have a [pico.sh] account, and
 
-2. have SSH access to pipe.pico.sh,
-
-3. have `wormhole` installed (e.g. [Magic-Wormhole] or
-[wormhole-william]), and
-
-4. support the `ws://` protocol used by wormhole
+2. have SSH access to pipe.pico.sh
 
 
 ## Create a P2P account (once; all users)
@@ -34,7 +29,6 @@ $ ssh pipe.pico.sh
 
 _Important_: Make sure to accept the SSH fingerprint, otherwise you
 will not be able to connect to the P2P cluster from R.
-
 
 
 ## Launch a P2P cluster (one of the users)
@@ -82,6 +76,9 @@ v <- value(f)
 print(v)
 ```
 
+_Comment:_ The first time you run this, you might find that
+the [wormhole-williams] executable is installed.
+
 
 ## Share your compute power with your friends (any user)
 
@@ -101,6 +98,9 @@ Alternatively, launch it directly from the command line using:
 This will contribute one parallel worker to the p2p cluster. You can
 contribute additional ones by repeating the same command one or more
 times.
+
+_Comment:_ The first time you run this, you might find that
+the [wormhole-williams] executable is installed.
 
 
 ## Appendix
@@ -131,15 +131,18 @@ another.
 If you are behind a firewall with a proxy, wormhole might fail to
 establish an outbound connection. For example, if you try:
 
-```sh
-$ wormhole send --text hello
+```r
+> library(future.p2p)
+> system2(find_wormhole(), args = c("send", "--text", "hello"))
 ```
 
 it might stall forever.  If that happens, press <kbd>Ctrl-C</kbd> to
 interrupt and retry by disabling the proxy settings using:
 
 ```sh
-$ http_proxy="" wormhole send --text hello
+> library(future.p2p)
+> Sys.unsetenv("http_proxy")
+> system2(find_wormhole(), args = c("send", "--text", "hello"))
 On the other computer, please run: wormhole receive (or wormhole-william recv)                                                       
 Wormhole code is: 53-visitor-physique
 ```
@@ -148,7 +151,7 @@ If the latter works for you, launch R by unsetting environment
 variable `http_proxy`, e.g.
 
 ```sh
-{bob}$ http_proxy="" Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p --ssh_args="-J somehost"
+{bob}$ http_proxy="" Rscript -e future.p2p::pico_p2p_worker --cluster=alice/p2p
 ```
 
 

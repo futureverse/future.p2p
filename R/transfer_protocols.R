@@ -14,7 +14,7 @@ supported_transfer_protocols <- function() {
   }
   
   if (length(protocols) == 0L) {
-    stop(FutureError(sprintf("None of the known transfer protocols are supported: %s", commaq(known_protocols))))
+    stop(FutureError(sprintf("None of the known transfer protocols are supported: %s", commaq(known_transfer_protocols()))))
   }
   
   protocols

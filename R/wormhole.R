@@ -86,9 +86,13 @@ find_wormhole <- local({
       }
 
       res <- wormhole_pathname()
-      if (!file_test("-x", res)) {
-        res <- Sys.which("wormhole")
-      }
+
+      ## Install wormhole?  
+      if (!file_test("-x", res)) res <- install_wormhole()
+
+      ## Legacy: fall back to pre-existing 'wormhole' executable
+      if (!file_test("-x", res)) res <- Sys.which("wormhole")
+      
       if (debug) mdebugf("Wormhole executable: %s", sQuote(res))
       
       if (nzchar(res)) {
@@ -181,7 +185,7 @@ wormhole_pathname <- function(filename = wormhole_filename(), path = tools::R_us
   file.path(path, filename)
 } ## wormhole_pathname()
 
-#' @importFrom utils file_test
+#' @importFrom utils download.file file_test
 #' @export
 install_wormhole <- function(pathname = wormhole_pathname(), version = "1.0.8") {
   ## Nothing to do?
