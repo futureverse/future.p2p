@@ -171,13 +171,15 @@ wormhole_filename <- function(sysname = Sys.info()[["sysname"]], arch = R.versio
 
   if (sysname %in% c("linux", "darwin")) {
     if (arch == "x86_64") arch <- "amd64"
+    ext <- ""
   } else if (sysname == "windows") {
     arch <- "386"
+    ext <- ".exe"
   } else {
     stop(sprintf("Unknown system: %s", sysname))
   }
 
-  sprintf("wormhole-william-%s-%s", sysname, arch)
+  sprintf("wormhole-william-%s-%s%s", sysname, arch, ext)
 } ## wormhole_filename()
 
 
