@@ -132,7 +132,7 @@ you will get a Windows Security Alert asking you to "Allow access" for
 the Wormhole executable to access "public and private networks". Check
 and accept both. Details: (i) Allow "private" networks if you have
 other local computers you want to participate in the P2P cluster. (ii)
-Allow "public" networks if you want to particpate in a P2P cluster
+Allow "public" networks if you want to participate in a P2P cluster
 with computers running externally, e.g. your friends computers.
 
 
@@ -164,7 +164,7 @@ you will get a Windows Security Alert asking you to "Allow access" for
 the Wormhole executable to access "public and private networks". Check
 and accept both. Details: (i) Allow "private" networks if you have
 other local computers you want to participate in the P2P cluster. (ii)
-Allow "public" networks if you want to particpate in a P2P cluster
+Allow "public" networks if you want to participate in a P2P cluster
 with computers running externally, e.g. your friends computers.
 
 
