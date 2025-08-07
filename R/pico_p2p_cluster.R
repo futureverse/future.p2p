@@ -6,6 +6,7 @@
 #'
 #' @param users (character vector) Names of Pico users who should have access,
 #' in addition to the owner.
+#' The default is a personal cluster that only you have access to.
 #'
 #' @param name The name of the cluster owner as publicized on the P2P cluster.
 #'
@@ -16,7 +17,9 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_cluster <- function(cluster = "mycluster", users = character(0L), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
+pico_p2p_cluster <- function(cluster = p2p_cluster(), users = character(0L), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
+  stopifnot(length(cluster) == 1L, is.character(cluster), !is.na(cluster), nzchar(cluster))
+  
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   okay <- FALSE
   if (length(parts) == 1L) {

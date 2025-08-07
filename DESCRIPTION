@@ -1,6 +1,6 @@
 Package: future.p2p
 Title: A Peer-to-Peer Compute Cluster via Futureverse
-Version: 0.0.0.9026
+Version: 0.0.0.9027
 Description: Implementation of the 'Future' API <doi:10.32614/RJ-2021-048> that resolves futures on a peer-to-peer ('P2P') compute environment. By using this future backend, you and your friends can share your spare compute resources with each other.
 Depends:
   future (>= 1.58.0)

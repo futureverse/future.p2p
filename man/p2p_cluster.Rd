@@ -11,7 +11,7 @@ p2p_name()
 }
 \value{
 \code{p2p_cluster()} return R option \code{future.p2p.cluster}, if set,
-otherwise \code{{pico_name}/mycluster}.
+otherwise \code{{pico_name}/personal}.
 
 \code{p2p_name()} returns the client or worker name of format
 \code{"{username}@{hostname}:{pid}"}.

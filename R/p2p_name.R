@@ -2,13 +2,13 @@
 #'
 #' @return
 #' `p2p_cluster()` return R option `future.p2p.cluster`, if set,
-#' otherwise `{pico_name}/mycluster`.
+#' otherwise `{pico_name}/personal`.
 #' 
 #' @export
 p2p_cluster <- function() {
   name <- getOption("future.p2p.cluster")
   if (is.null(name)) {
-    name <- sprintf("%s/%s", pico_username(), "mycluster")
+    name <- sprintf("%s/%s", pico_username(), "personal")
   }
   name
 }

@@ -5,7 +5,7 @@
 \title{Launches a P2P cluster}
 \usage{
 pico_p2p_cluster(
-  cluster = "mycluster",
+  cluster = p2p_cluster(),
   users = character(0L),
   name = p2p_name(),
   host = "pipe.pico.sh",
@@ -17,7 +17,8 @@ pico_p2p_cluster(
 \item{cluster}{(character string) The name of the p2p cluster.}
 
 \item{users}{(character vector) Names of Pico users who should have access,
-in addition to the owner.}
+in addition to the owner.
+The default is a personal cluster that only you have access to.}
 
 \item{name}{The name of the cluster owner as publicized on the P2P cluster.}
 
