@@ -126,8 +126,14 @@ v <- value(f)
 print(v)
 ```
 
-_Comment:_ The first time you run this, you might find that
-the [wormhole-william] executable is installed.
+_Comment:_ The first time you run this, you might find that the
+[wormhole-william] executable is installed. If you are on MS Windows,
+you will get a Windows Security Alert asking you to "Allow access" for
+the Wormhole executable to access "public and private networks". Check
+and accept both. Details: (i) Allow "private" networks if you have
+other local computers you want to participate in the P2P cluster. (ii)
+Allow "public" networks if you want to particpate in a P2P cluster
+with computers running externally, e.g. your friends computers.
 
 
 ## Share your compute power with your friends (any user)
@@ -152,8 +158,14 @@ This will contribute one parallel worker to the p2p cluster. You can
 contribute additional ones by repeating the same command one or more
 times.
 
-_Comment:_ The first time you run this, you might find that
-the [wormhole-william] executable is installed.
+_Comment:_ The first time you run this, you might find that the
+[wormhole-william] executable is installed. If you are on MS Windows,
+you will get a Windows Security Alert asking you to "Allow access" for
+the Wormhole executable to access "public and private networks". Check
+and accept both. Details: (i) Allow "private" networks if you have
+other local computers you want to participate in the P2P cluster. (ii)
+Allow "public" networks if you want to particpate in a P2P cluster
+with computers running externally, e.g. your friends computers.
 
 
 ## Appendix
