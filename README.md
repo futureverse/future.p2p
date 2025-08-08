@@ -19,7 +19,7 @@ print(v)
 ```
 
 
-## Prerequisites
+## Getting started
 
 In order to join a future P2P cluster, you must:
 
