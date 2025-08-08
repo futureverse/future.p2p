@@ -62,7 +62,7 @@ cluster only means that you control who has access - there's no extra
 load added. So, to host, 'alice' calls:
 
 ```sh
-{alice}$ Rscript -e future.p2p::host-cluster --users=bob,carol,diana --cluster=alice/friends
+{alice}$ Rscript -e future.p2p::host_cluster --users=bob,carol,diana --cluster=alice/friends
 ```
 
 A future P2P cluster can be hosted from anywhere in the world, and it

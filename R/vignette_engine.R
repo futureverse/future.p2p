@@ -18,6 +18,7 @@ register_vignette_engine_during_build_only <- function(pkgname) {
 
       html <- commonmark::markdown_html(md,
                                         smart = FALSE,
+					footnotes = TRUE,
                                         extensions = "table",
                                         normalize = FALSE)
       
