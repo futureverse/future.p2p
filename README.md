@@ -36,7 +36,7 @@ $ chmod 0700 ~/.ssh/
 $ ssh-keygen
 ```
 
-With the key pair create a [pico.sh] account by SSH:ing to their
+With the key pair create a [pico.sh] account by logging into their
 server:
 
 ```sh

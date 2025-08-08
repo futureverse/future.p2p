@@ -17,7 +17,7 @@ personal cluster is only accessible by the user who runs it.
 This document shows you how the get started. I recommend starting out
 with a _personal_ P2P cluster just to get a feel for what is
 involved. After that, setting one up among friends, is almost as
-easy. Regardlessly, all users need to set up a few things before they
+easy. Regardless, all users need to set up a few things before they
 can join a P2P cluster.
 
 A P2P cluster consists of:
