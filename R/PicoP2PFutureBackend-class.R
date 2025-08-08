@@ -1,9 +1,9 @@
-#' pico_p2p futures
+#' p2p futures
 #'
 #' _WARNING: This function must never be called.
 #'  It may only be used with [future::plan()]_
 #'
-#' A 'pico_p2p' future is an asynchronous multiprocess
+#' A 'p2p' future is an asynchronous multiprocess
 #' future that will be evaluated in a background R session.
 #'
 #' @inheritParams pico_pipe
@@ -23,15 +23,14 @@
 #' being invited to a shared folder.
 #'
 #' Users who wish to contribute their compute power to the P2P cluster
-#' should call [pico_p2p_worker()].
+#' should call [worker()].
 #'
 #' Users who wish to take advantage of the compute power of the
-#' P2P cluster should use `plan(pico_p2p)`.
+#' P2P cluster should use `plan(future.p2p::cluster)`.
 #'
 #' @examplesIf interactive()
-#' ## Futures are pushed to the Pico P2P cluster and 
-#' ## results are collected from there
-#' plan(future.p2p::pico_p2p, .init = FALSE)
+#' # Connect to personal P2P cluster, which is automatically launched
+#' plan(future.p2p::cluster)
 #' 
 #' ## Create future
 #' a <- 42
@@ -47,16 +46,16 @@
 #'
 #' @importFrom future future
 #' @export
-pico_p2p <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
-  stop("INTERNAL ERROR: The future.p2p::pico_p2p() must never be called directly")
+cluster <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
+  stop("INTERNAL ERROR: The future.p2p::cluster() function must never be called directly")
 }
-class(pico_p2p) <- c("pico_p2p", "multiprocess", "future", "function")
-attr(pico_p2p, "init") <- TRUE
+class(cluster) <- c("pico_p2p", "multiprocess", "future", "function")
+attr(cluster, "init") <- TRUE
 
 
 #' A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole
 #'
-#' @inheritParams pico_p2p
+#' @inheritParams cluster
 #'
 #' @param \ldots Additional arguments passed to [future::FutureBackend()].
 #'
@@ -107,7 +106,7 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), hos
 
   core
 }
-attr(pico_p2p, "factory") <- PicoP2PFutureBackend
+attr(cluster, "factory") <- PicoP2PFutureBackend
 
 
 
@@ -177,7 +176,7 @@ nbrOfFreeWorkers.PicoP2PFutureBackend <- function(evaluator = NULL, background =
 #' It will always return at least one worker, which is yourself.
 #' _WARNING: This is currently hardcoded to 10 workers, regardless of the number._
 #' 
-#' @rdname pico_p2p
+#' @rdname cluster
 #' @export
 availablePicoP2PWorkers <- function() {
   nworkers <- 10L
@@ -302,7 +301,10 @@ print.PicoP2PFutureBackend <- function(x, ...) {
   cat(sprintf("P2P clusters you are hosting: [n=%d]\n", nrow(clusters)))
   for (kk in seq_len(nrow(clusters))) {
     cluster <- clusters[kk, ]
-    cat(sprintf(" %2d. %s (%s)\n", kk, cluster$name, cluster$users))
+    users <- strsplit(cluster$users, split = ",", fixed = TRUE)[[1]]
+    users <- unique(c(users, pico_username()))
+    users <- paste(users, collapse = ", ")
+    cat(sprintf(" %2d. %s (users: %s)\n", kk, sQuote(cluster$name), users))
   }
 
   cat("Message board:\n")
@@ -321,7 +323,7 @@ print.PicoP2PFutureBackend <- function(x, ...) {
 }
 
 
-p2p_can_connect <- function(cluster, name = name, host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
+p2p_can_connect <- function(cluster, name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
   cluster_owner <- dirname(cluster)
   if (cluster_owner == pico_username()) {
     topic <- sprintf("%s/future.p2p", basename(cluster))

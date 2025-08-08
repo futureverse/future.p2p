@@ -1,4 +1,4 @@
-#' Launches a P2P cluster
+#' Hosts a P2P cluster
 #'
 #' @inheritParams pico_pipe
 #'
@@ -13,11 +13,12 @@
 #' @param duration Duration (in seconds) to offer this cluster.
 #'
 #' @examplesIf interactive()
-#' pico_p2p_cluster()
+#' # Connect to personal P2P cluster, which is automatically launched
+#' host_cluster(users = c("bob", "carol"))
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_cluster <- function(cluster = p2p_cluster(), users = character(0L), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
+host_cluster <- function(cluster = p2p_cluster(users), users = character(0L), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
   stopifnot(length(cluster) == 1L, is.character(cluster), !is.na(cluster), nzchar(cluster))
   
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
@@ -100,8 +101,8 @@ pico_p2p_cluster <- function(cluster = p2p_cluster(), users = character(0L), nam
   info("shutting down cluster ...")
   pico_terminate(p)
   info("bye")
-} ## pico_p2p_cluster()
+} ## host_cluster()
 
 
 ## Expose function on the CLI
-cli_fcn(pico_p2p_cluster) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(users)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
+cli_fcn(host_cluster) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(users)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")

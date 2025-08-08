@@ -9,7 +9,8 @@
 #' @param duration Duration (in seconds) to offer working on futures.
 #'
 #' @examplesIf interactive()
-#' pico_p2p_worker()
+#' ## Start a P2P cluster worker
+#' future.p2p::worker()
 #'
 #' @section Sequential, single-core processing by default:
 #' A P2P worker runs sequentially (`plan(sequential)`) and is configured
@@ -17,7 +18,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
+worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
@@ -108,8 +109,8 @@ pico_p2p_worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "
     }
   } ## repeat()
   info("bye")
-} ## pico_p2p_worker()
+} ## worker()
 
 
 ## Expose function on the CLI
-cli_fcn(pico_p2p_worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
+cli_fcn(worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")

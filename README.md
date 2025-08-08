@@ -8,7 +8,7 @@ _- Share R compute among friends across the world_
 library(future)
 
 ## Resolve futures via a P2P cluster shared among friends
-plan(future.p2p::pico_p2p, cluster = "alice/friends")
+plan(future.p2p::cluster, cluster = "alice/friends")
 
 ## Create future
 f <- future(Sys.getpid())
@@ -81,30 +81,26 @@ cluster from R.
 ## Set up a shared P2P cluster (managed by one of the users)
 
 Pico.sh users 'alice', 'bob', 'carol', and 'diana' decides to share a
-P2P cluster and 'alice' agrees to set it up. They can do this by
-calling:
+P2P cluster. User 'alice' agrees to host it. Hosting a P2P cluster
+only means that you control who has access - nothing else, e.g.there
+will be _no_ extra traffic going through the computer of 'alice'.
+To host, 'alice' calls:
 
 ```r
-future.p2p::pico_p2p_cluster(cluster = "alice/friends", users = c("bob", "carol", "diana"))
+future.p2p::host_cluster(cluster = "alice/friends", users = c("bob", "carol", "diana"))
 ```
 
-Alternatively, they can set it up directly from the terminal using:
+Alternatively, they can host it directly from the terminal using:
 
 ```sh
-{alice}$ Rscript -e future.p2p::pico_p2p_cluster --cluster=alice/friends --users=bob,carol,diana
+{alice}$ Rscript -e future.p2p::host-cluster --users=bob,carol,diana --cluster=alice/friends
 ```
 
 After this, 'bob', 'carol', 'diana', and 'alice' can use and share
 each others compute resources from within R.
 
-A future P2P cluster can be launched from anywhere in the world, and
-it does not have to on a machine where 'alice' runs their own R
-analysis. Being a manager of a P2P cluster comes with no cost,
-e.g. there will be _no_ traffic going through alice's computer.
-
-Note that the `alice/` prefix is reserved for pico user `alice`. This
-is why user `bob` can _not_ create a cluster named `alice/pop` - only
-one called `bob/{name}`.
+A future P2P cluster can be hosted from anywhere in the world, and it
+does not have to on a machine where you run your own R analysis.
 
 
 ## Parallelize via P2P cluster (all users)
@@ -121,7 +117,7 @@ cluster workers, which one we don't know:
 ```r
 library(future)
 
-plan(future.p2p::pico_p2p, cluster = "alice/friends")
+plan(future.p2p::cluster, cluster = "alice/friends")
 
 ## Evaluate expression via P2P cluster
 f <- future(Sys.getpid())
@@ -150,13 +146,13 @@ for others to make use of. To contribute your R compute power to the
 `alice/friends` cluster, launch a P2P worker as:
 
 ```r
-future.p2p::pico_p2p_worker(cluster = "alice/friends")
+future.p2p::worker("alice/friends")
 ```
 
 Alternatively, you can launch it directly from the command line using:
 
 ```sh
-{bob}$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/friends
+{bob}$ Rscript -e future.p2p::worker --cluster=alice/friends
 ```
 
 This will contribute one parallel worker to the p2p cluster. You can
@@ -189,11 +185,11 @@ another.
 ### Set up a worker to connect to pico.sh via a jumphost
 
 ```r
-> future.p2p::pico_p2p_worker(cluster = "alice/friends", ssh_args = c("-J", "somehost"))
+> future.p2p::worker(cluster = "alice/friends", ssh_args = c("-J", "somehost"))
 ```
 
 ```sh
-{bob}$ Rscript -e future.p2p::pico_p2p_worker --cluster=alice/friends --ssh_args="-J somehost"
+{bob}$ Rscript -e future.p2p::worker --ssh_args="-J somehost" --cluster=alice/friends
 ```
 
 ### Troubleshoot Wormhole
@@ -221,7 +217,7 @@ If the latter works for you, launch R by unsetting environment
 variable `http_proxy`, e.g.
 
 ```sh
-{bob}$ http_proxy="" Rscript -e future.p2p::pico_p2p_worker --cluster=alice/friends
+{bob}$ http_proxy="" Rscript -e future.p2p::worker --cluster=alice/friends
 ```
 
 
