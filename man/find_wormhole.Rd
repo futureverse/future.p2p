@@ -2,7 +2,7 @@
 % Please edit documentation in R/wormhole.R
 \name{find_wormhole}
 \alias{find_wormhole}
-\title{Find the Wormhole Executable}
+\title{Find a Wormhole Executable}
 \usage{
 find_wormhole()
 }
@@ -13,5 +13,9 @@ and attributes \code{name} and \code{version} the parsed version string.
 If no executable exists, an error is produced.
 }
 \description{
-Find the Wormhole Executable
+Find a Wormhole Executable
+}
+\details{
+Unless R option \code{future.p2p.wormhole} specifies an executable, the default
+is to download and install \code{wormhole-william} locally and use that one.
 }

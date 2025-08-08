@@ -4,7 +4,9 @@
 \alias{zzz-future.p2p.options}
 \alias{future.p2p.options}
 \alias{future.p2p.debug}
-\alias{R_FUTURE_DEBUG}
+\alias{future.p2p.wormhole}
+\alias{R_FUTURE_P2P_DEBUG}
+\alias{R_FUTURE_P2P_WORMHOLE}
 \title{Options used by future.p2p}
 \description{
 Below are the \R options and environment variables that are used by the
