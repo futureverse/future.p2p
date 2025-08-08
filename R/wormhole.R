@@ -201,7 +201,7 @@ install_wormhole <- function(pathname = wormhole_pathname(), version = "1.0.8") 
   filename <- basename(pathname)
   
   url <- sprintf("https://github.com/psanford/wormhole-william/releases/download/v%s/%s", version, filename)
-  tf <- file.path(tempdir(), filename)
+  tf <- sprintf("%s.%s", pathname, basename(tempdir()))
   res <- download.file(url, destfile = tf, mode = "wb")
   stopifnot(file_test("-f", tf))
   Sys.chmod(tf, mode = "0755")

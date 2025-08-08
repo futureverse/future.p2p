@@ -1,4 +1,4 @@
-# future.p2p - A Peer-to-Peer Compute Cluster via Futureverse
+s# future.p2p - A Peer-to-Peer Compute Cluster via Futureverse
 
 _- Share R compute among friends across the world_
 
@@ -23,24 +23,12 @@ print(v)
 
 In order to join a future P2P cluster, you must:
 
-1. have _SSH key pairs_ configured,
+1. have an _SSH key pair_ configured, and
 
-2. have a _[pico.sh] account_, and
+2. have a _[pico.sh] account_.
 
-3. have SSH access to pipe.pico.sh
-
-
-In order to have a [pico.sh] account, you need to connect to their
-services using _SSH keys_ - they do not accept password logins, which
-also would not work for **future.p2p**. If you don't know about SSH
-keys, the gist is that they allow you to SSH without having to enter
-your password each time. Instead, your computer authenticates with the
-server using secure public-private keys. It's a very convenient way of
-working with SSH. You can read more it in the Wikibooks article
-['OpenSSH/Cookbook/Public Key
-Authentication'](https://en.wikibooks.org/wiki/OpenSSH%2FCookbook%2FPublic_Key_Authentication),
-which also provides detailed instructions. The gist for creating a SSH
-key pair is:
+See the 'Getting Started' vignette for how to set this up, but the
+gist for creating an SSH key pair if you already don't have one is to:
 
 ```sh
 $ mkdir ~/.ssh/
@@ -48,56 +36,34 @@ $ chmod 0700 ~/.ssh/
 $ ssh-keygen
 ```
 
-and then follow the instructions. Although you can leave the
-passphrase empty, I recommend to set one and let the operating
-system's _SSH agent_ to manage authentication. This means that you
-will only have to authenticate once when you log in into your
-computer, instead of at each SSH connection.
-
-With SSH key pairs configured, you should now be able to create a
-[pico.sh] account by calling:
+With the key pair create a [pico.sh] account by SSH:ing to their
+server:
 
 ```sh
 $ ssh pico.sh
 ```
 
-If you're asked to accept the "SSH fingerprint", do so. Then choose
-your pico.sh username and click <kbd>ENTER</kbd>.  That's it!  This
-will add your public SSH key to the pico.sh servers, which is then
-used to identify you in all future interactions. Press
-<kbd>Ctrl-C</kbd> to exit.
-
-Finally, verify SSH access to `pipe.pico.sh` (sic!);
+Choose your pico.sh username, which will also be your P2P cluster
+username, and click <kbd>ENTER</kbd>. Finally, verify SSH access to
+`pipe.pico.sh` (sic!);
 
 ```sh
 $ ssh pipe.pico.sh
 ```
 
-It is important that you do this and accept the SSH fingerprint for
-this server too, otherwise you will not be able to connect to the P2P
-cluster from R.
+That's it!
 
 
-## Set up a shared P2P cluster (managed by one of the users)
+## Set up a shared P2P cluster
 
-Pico.sh users 'alice', 'bob', 'carol', and 'diana' decides to share a
-P2P cluster. User 'alice' agrees to host it. Hosting a P2P cluster
-only means that you control who has access - nothing else, e.g.there
-will be _no_ extra traffic going through the computer of 'alice'.
-To host, 'alice' calls:
-
-```r
-future.p2p::host_cluster(cluster = "alice/friends", users = c("bob", "carol", "diana"))
-```
-
-Alternatively, they can host it directly from the terminal using:
+Let's assume P2P users 'alice', 'bob', 'carol', and 'diana' decides to
+share a P2P cluster and user 'alice' agrees to host it. Hosting a P2P
+cluster only means that you control who has access - there's no extra
+load added. So, to host, 'alice' calls:
 
 ```sh
 {alice}$ Rscript -e future.p2p::host-cluster --users=bob,carol,diana --cluster=alice/friends
 ```
-
-After this, 'bob', 'carol', 'diana', and 'alice' can use and share
-each others compute resources from within R.
 
 A future P2P cluster can be hosted from anywhere in the world, and it
 does not have to on a machine where you run your own R analysis.
@@ -105,21 +71,19 @@ does not have to on a machine where you run your own R analysis.
 
 ## Parallelize via P2P cluster (all users)
 
-Any user with access to the 'alice/friends' cluster can harness the
-collective compute power. In our example, this means 'bob', 'carol',
-'diana', and 'alice' may use the P2P cluster at the same time.
+Any user with access to the 'alice/friends' cluster can use it. In our
+example, this means 'bob', 'carol', 'diana', and 'alice' may use the
+P2P cluster at the same time. Just like with any other future backend,
+we use `plan()` to specifying that we want to parallelize via the P2P
+cluster.
 
-Just like with any other future backend, we specify that we want to
-use the P2P cluster via `plan()` of the **future** package. Here is a
-small example that evaluates `Sys.getpid()` on one of the 'alice/friends'
-cluster workers, which one we don't know:
+For example,
 
 ```r
 library(future)
-
 plan(future.p2p::cluster, cluster = "alice/friends")
 
-## Evaluate expression via P2P cluster
+## Evaluate a R expression via the P2P cluster
 f <- future(Sys.getpid())
 
 ## Retrieve value

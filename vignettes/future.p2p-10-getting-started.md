@@ -33,22 +33,54 @@ workers to offer their help to process the futures.
 The P2P file-transfer backend is how clients and workers transfer
 futures and results between each others.
 
-
-## Create P2P user account
-
 Users who wish to join a P2P cluster, needs to create a [pico.sh]
 account, which given them access to the task message board. In
 contrast, P2P file transfers that take place between clients and
-workers, are anonymous and requires no accounts. To create a [pico.sh]
-account, call:
+workers, are anonymous and requires no accounts. 
+
+
+## 1. Generating an SSH public-private key pair
+
+In order to have a [pico.sh] account, you need to connect to their
+services using _SSH keys_ - they do not accept password logins, which
+also would not work for **future.p2p**.
+
+If you don't know about SSH keys, the gist is that they allow you to
+SSH without having to enter your password each time. Instead, your
+computer authenticates with the server using secure public-private
+keys. It's a very convenient way of working with SSH. You can read
+more it in the Wikibooks article ['OpenSSH/Cookbook/Public Key
+Authentication'](https://en.wikibooks.org/wiki/OpenSSH%2FCookbook%2FPublic_Key_Authentication),
+which also provides detailed instructions. The gist for creating a SSH
+key pair is:
+
+```sh
+$ mkdir ~/.ssh/
+$ chmod 0700 ~/.ssh/
+$ ssh-keygen
+```
+
+and then follow the instructions. Although you can leave the
+passphrase empty, I recommend to set one and let the operating
+system's _SSH agent_ to manage authentication. This means that you
+will only have to authenticate once when you log in into your
+computer, instead of at each SSH connection.
+
+
+## 2. Create P2P user account
+
+With SSH key pairs configured, you can now create a [pico.sh] account
+by calling:
 
 ```sh
 $ ssh pico.sh
 ```
 
-and _choose a username_ and click <kbd>ENTER</kbd>.  This adds your
-public SSH key to the pico.sh servers, which is then used to identify
-you in all future interactions.
+You will be asked to _choose a username_ . This will be your P2P
+cluster username. You cannot change it later, so pick one with some
+care. Your account will be created when you hit <kbd>ENTER</kbd> -
+that's it. This adds your public SSH key to the pico.sh servers, which
+is then used to identify you in all future interactions.
 
 If you wish to access your pico.sh account from multiple machines, you
 can add additional public SSH keys via `ssh pico.sh`.

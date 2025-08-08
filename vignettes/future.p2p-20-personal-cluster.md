@@ -26,6 +26,18 @@ $ Rscript -e future.p2p::worker
 Launch as many workers as you needed. You can add more later, if
 needed.
 
+_Comment:_ The first time you launch a worker, or configure `plan()`
+so use the P2P cluster, you might find that the [wormhole-william]
+executable is installed. If you are on MS Windows, you will get a
+Windows Security Alert asking you to "Allow access" for the Wormhole
+executable to access "public and private networks". Check and accept
+both. Details: (i) Allow "private" networks if you have other local
+computers you want to participate in the P2P cluster. (ii) Allow
+"public" networks if you want to participate in a P2P cluster with
+computers running externally, e.g. your friends computers.
+
+
+
 With your P2P workers set up, you can start using your personal
 cluster, by setting the future plan.  For example,
 
