@@ -5,13 +5,18 @@
 \alias{p2p_name}
 \title{Gets the default name of the P2P cluster}
 \usage{
-p2p_cluster()
+p2p_cluster(users = character(0))
 
 p2p_name()
 }
+\arguments{
+\item{users}{Users to have access to the cluster. This controls whether
+the default cluster names should be "personal" or "friends".}
+}
 \value{
-\code{p2p_cluster()} return R option \code{future.p2p.cluster}, if set,
-otherwise \code{{pico_name}/personal}.
+\code{p2p_cluster()} returns R option \code{future.p2p.cluster}, if set.
+If not set, it returns \code{{pico_name}/personal} if \code{length(users) == 0},
+otherwise \code{{pico_name}/friends}.
 
 \code{p2p_name()} returns the client or worker name of format
 \code{"{username}@{hostname}:{pid}"}.
