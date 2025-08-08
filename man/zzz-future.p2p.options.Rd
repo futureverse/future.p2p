@@ -23,6 +23,16 @@ If you find yourself having to tweak one of the options, make sure to
 undo your changes immediately afterward.
 }
 
+\section{Options}{
+
+\describe{
+\item{\option{future.p2p.wormhole}:}{(character)
+Specifies the absolute path to the \code{wormhole} executable. If not
+specified, a default one will be installed.
+}
+}
+}
+
 \section{Options for debugging}{
 
 \describe{

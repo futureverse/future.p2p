@@ -74,6 +74,7 @@ wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
 #' @export
 find_wormhole <- local({
   bin <- NULL
+  
   function() {
     if (is.null(bin)) {
       debug <- isTRUE(getOption("future.p2p.debug"))
@@ -85,14 +86,24 @@ find_wormhole <- local({
         })
       }
 
-      res <- wormhole_pathname()
+      ## User specified binary?
+      res <- getOption("future.p2p.wormhole")
+      if (!is.null(res)) {
+        if (!file_test("-f", res)) {
+          stop("R option 'future.p2p.wormhole' specifies a non-existing file: ", sQuote(res))
+	} else if (!file_test("-x", res)) {
+        stop("R option 'future.p2p.wormhole' specifies a file that is non-executable: ", sQuote(res))
+        }
+      }	else {
+        ## If not, install automatically, if missing
+        res <- wormhole_pathname()
 
-      ## Install wormhole?  
-      if (!file_test("-x", res)) res <- install_wormhole()
-
+        ## Install wormhole?
+        if (!file_test("-x", res)) res <- install_wormhole()
+      }
+      
       ## Legacy: fall back to pre-existing 'wormhole' executable
       if (!file_test("-x", res)) res <- Sys.which("wormhole")
-      
       if (debug) mdebugf("Wormhole executable: %s", sQuote(res))
       
       if (nzchar(res)) {
