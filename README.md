@@ -91,16 +91,6 @@ v <- value(f)
 print(v)
 ```
 
-_Comment:_ The first time you run this, you might find that the
-[wormhole-william] executable is installed. If you are on MS Windows,
-you will get a Windows Security Alert asking you to "Allow access" for
-the Wormhole executable to access "public and private networks". Check
-and accept both. Details: (i) Allow "private" networks if you have
-other local computers you want to participate in the P2P cluster. (ii)
-Allow "public" networks if you want to participate in a P2P cluster
-with computers running externally, e.g. your friends computers.
-
-
 ## Share your compute power with your friends (any user)
 
 Without parallel workers, the P2P cluster is useless and will not
@@ -109,12 +99,6 @@ comes in, where we contribute our idle compute cycles to the cluster
 for others to make use of. To contribute your R compute power to the
 `alice/friends` cluster, launch a P2P worker as:
 
-```r
-future.p2p::worker("alice/friends")
-```
-
-Alternatively, you can launch it directly from the command line using:
-
 ```sh
 {bob}$ Rscript -e future.p2p::worker --cluster=alice/friends
 ```
@@ -122,15 +106,6 @@ Alternatively, you can launch it directly from the command line using:
 This will contribute one parallel worker to the p2p cluster. You can
 contribute additional ones by repeating the same command one or more
 times.
-
-_Comment:_ The first time you run this, you might find that the
-[wormhole-william] executable is installed. If you are on MS Windows,
-you will get a Windows Security Alert asking you to "Allow access" for
-the Wormhole executable to access "public and private networks". Check
-and accept both. Details: (i) Allow "private" networks if you have
-other local computers you want to participate in the P2P cluster. (ii)
-Allow "public" networks if you want to participate in a P2P cluster
-with computers running externally, e.g. your friends computers.
 
 
 ## Appendix
