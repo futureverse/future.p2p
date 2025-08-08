@@ -1,6 +1,7 @@
-s# future.p2p - A Peer-to-Peer Compute Cluster via Futureverse
+# future.p2p - A Peer-to-Peer Compute Cluster via Futureverse
 
 _- Share R compute among friends across the world_
+
 
 ## TL;DR
 
