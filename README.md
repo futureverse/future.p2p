@@ -78,7 +78,7 @@ this server too, otherwise you will not be able to connect to the P2P
 cluster from R.
 
 
-## Launch a P2P cluster (one of the users)
+## Launch a shared P2P cluster (one of the users)
 
 Pico.sh user 'alice' sets up a P2P cluster named `alice/friends` that
 pico.sh users 'bob', 'carol', and 'diana' have access to;
