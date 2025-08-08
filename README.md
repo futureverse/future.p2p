@@ -76,33 +76,36 @@ this server too, otherwise you will not be able to connect to the P2P
 cluster from R.
 
 
-## Launch a P2P cluster (one of the users)
+## Set up a shared P2P cluster (managed by one of the users)
 
-Pico.sh user 'alice' sets up a P2P cluster named `alice/friends` that
-pico.sh users 'bob', 'carol', and 'diana' have access to;
+Pico.sh users 'alice', 'bob', 'carol', and 'diana' decides to share a
+P2P cluster and 'alice' agrees to set it up. They can do this by
+calling:
 
 ```r
 future.p2p::pico_p2p_cluster(cluster = "alice/friends", users = c("bob", "carol", "diana"))
 ```
 
-Alternatively, launch it directly from the command line using:
+Alternatively, they can set it up directly from the terminal using:
 
 ```sh
 {alice}$ Rscript -e future.p2p::pico_p2p_cluster --cluster=alice/friends --users=bob,carol,diana
 ```
 
 After this, 'bob', 'carol', 'diana', and 'alice' can use and share
-their R compute resources.  This 'alice/friends' cluster is available as
-long as the above R function of 'alice' is running.
+each others compute resources from within R.
 
 A future P2P cluster can be launched from anywhere in the world, and
 it does not have to on a machine where 'alice' runs their own R
-analysis.  Note that the `alice/` prefix is reserved for pico user
-`alice`.  This is why user `bob` can _not_ create a cluster named
-`alice/pop` - only one called `bob/{name}`.
+analysis. Being a manager of a P2P cluster comes with no cost,
+e.g. there will be _no_ traffic going through alice's computer.
+
+Note that the `alice/` prefix is reserved for pico user `alice`. This
+is why user `bob` can _not_ create a cluster named `alice/pop` - only
+one called `bob/{name}`.
 
 
-## Parallelize via P2P cluster (any user)
+## Parallelize via P2P cluster (all users)
 
 Any user with access to the 'alice/friends' cluster can harness the
 collective compute power. In our example, this means 'bob', 'carol',
