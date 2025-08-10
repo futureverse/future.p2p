@@ -1,14 +1,21 @@
 #' Gets the default name of the P2P cluster
 #'
+#' @param users Users to have access to the cluster. This controls whether
+#' the default cluster names should be "personal" or "friends".
+#'
 #' @return
-#' `p2p_cluster()` return R option `future.p2p.cluster`, if set,
-#' otherwise `{pico_name}/personal`.
+#' `p2p_cluster()` returns R option `future.p2p.cluster`, if set.
+#' If not set, it returns `{pico_name}/personal` if `length(users) == 0`,
+#' otherwise `{pico_name}/friends`.
 #' 
 #' @export
-p2p_cluster <- function() {
+p2p_cluster <- function(users = character(0)) {
+  users <- unique(users)
   name <- getOption("future.p2p.cluster")
   if (is.null(name)) {
-    name <- sprintf("%s/%s", pico_username(), "personal")
+    users <- setdiff(users, pico_username())
+    name <- if (length(users) == 0) "personal" else "friends"
+    name <- sprintf("%s/%s", pico_username(), name)
   }
   name
 }

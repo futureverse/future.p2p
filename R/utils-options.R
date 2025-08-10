@@ -14,6 +14,15 @@
 #' If you find yourself having to tweak one of the options, make sure to
 #' undo your changes immediately afterward.
 #'
+#' @section Options:
+#' \describe{
+#'  \item{\option{future.p2p.wormhole}:}{(character)
+#'    Specifies the absolute path to the `wormhole` executable. If not
+#'    specified, a default one will be installed.
+#     (Default: not set)
+#'  }
+#' }
+#'
 #' @section Options for debugging:
 #' \describe{
 #'  \item{\option{future.p2p.debug}:}{(logical)
@@ -40,8 +49,10 @@
 #' future.p2p.options
 #'
 #' future.p2p.debug
+#' future.p2p.wormhole
 #'
-#' R_FUTURE_DEBUG
+#' R_FUTURE_P2P_DEBUG
+#' R_FUTURE_P2P_WORMHOLE
 #'
 #' @name zzz-future.p2p.options 
 NULL
@@ -138,4 +149,5 @@ update_package_option <- function(name, mode = "character", default = NULL, spli
 ## Set options based on environment variables
 update_package_options <- function(debug = FALSE) {
   update_package_option("future.p2p.debug", mode = "logical")
+  update_package_option("future.p2p.wormhole", mode = "character")
 }

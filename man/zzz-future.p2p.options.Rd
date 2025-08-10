@@ -4,7 +4,9 @@
 \alias{zzz-future.p2p.options}
 \alias{future.p2p.options}
 \alias{future.p2p.debug}
-\alias{R_FUTURE_DEBUG}
+\alias{future.p2p.wormhole}
+\alias{R_FUTURE_P2P_DEBUG}
+\alias{R_FUTURE_P2P_WORMHOLE}
 \title{Options used by future.p2p}
 \description{
 Below are the \R options and environment variables that are used by the
@@ -21,6 +23,16 @@ Just like for other R options, as a package developer you must \emph{not} change
 any of the below options.  Only the end-user should set these.
 If you find yourself having to tweak one of the options, make sure to
 undo your changes immediately afterward.
+}
+
+\section{Options}{
+
+\describe{
+\item{\option{future.p2p.wormhole}:}{(character)
+Specifies the absolute path to the \code{wormhole} executable. If not
+specified, a default one will be installed.
+}
+}
 }
 
 \section{Options for debugging}{

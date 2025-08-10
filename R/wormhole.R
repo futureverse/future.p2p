@@ -63,7 +63,7 @@ wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
   files
 }
 
-#' Find the Wormhole Executable
+#' Find a Wormhole Executable
 #'
 #' @return
 #' The absolute path to the `wormhole` executable as a character string.
@@ -71,9 +71,14 @@ wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
 #' and attributes `name` and `version` the parsed version string.
 #' If no executable exists, an error is produced.
 #'
+#' @details
+#' Unless R option `future.p2p.wormhole` specifies an executable, the default
+#' is to download and install `wormhole-william` locally and use that one.
+#'
 #' @export
 find_wormhole <- local({
   bin <- NULL
+  
   function() {
     if (is.null(bin)) {
       debug <- isTRUE(getOption("future.p2p.debug"))
@@ -85,14 +90,24 @@ find_wormhole <- local({
         })
       }
 
-      res <- wormhole_pathname()
+      ## User specified binary?
+      res <- getOption("future.p2p.wormhole")
+      if (!is.null(res)) {
+        if (!file_test("-f", res)) {
+          stop("R option 'future.p2p.wormhole' specifies a non-existing file: ", sQuote(res))
+	} else if (!file_test("-x", res)) {
+        stop("R option 'future.p2p.wormhole' specifies a file that is non-executable: ", sQuote(res))
+        }
+      }	else {
+        ## If not, install automatically, if missing
+        res <- wormhole_pathname()
 
-      ## Install wormhole?  
-      if (!file_test("-x", res)) res <- install_wormhole()
-
+        ## Install wormhole?
+        if (!file_test("-x", res)) res <- install_wormhole()
+      }
+      
       ## Legacy: fall back to pre-existing 'wormhole' executable
       if (!file_test("-x", res)) res <- Sys.which("wormhole")
-      
       if (debug) mdebugf("Wormhole executable: %s", sQuote(res))
       
       if (nzchar(res)) {
@@ -201,7 +216,7 @@ install_wormhole <- function(pathname = wormhole_pathname(), version = "1.0.8") 
   filename <- basename(pathname)
   
   url <- sprintf("https://github.com/psanford/wormhole-william/releases/download/v%s/%s", version, filename)
-  tf <- file.path(tempdir(), filename)
+  tf <- sprintf("%s.%s", pathname, basename(tempdir()))
   res <- download.file(url, destfile = tf, mode = "wb")
   stopifnot(file_test("-f", tf))
   Sys.chmod(tf, mode = "0755")
