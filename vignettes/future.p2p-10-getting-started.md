@@ -55,8 +55,6 @@ which also provides detailed instructions. The gist for creating a SSH
 key pair is:
 
 ```sh
-$ mkdir ~/.ssh/
-$ chmod 0700 ~/.ssh/
 $ ssh-keygen
 ```
 

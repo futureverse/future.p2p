@@ -25,7 +25,7 @@ print(v)
 ## Installation
 
 ```r
-remotes::install_github("futureverse/future.p2p")
+install.packages('future.p2p', repos = c('https://futureverse.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
 
@@ -41,8 +41,6 @@ See the 'Getting Started' vignette for how to set this up, but the
 gist for creating an SSH key pair if you already don't have one is to:
 
 ```sh
-$ mkdir ~/.ssh/
-$ chmod 0700 ~/.ssh/
 $ ssh-keygen
 ```
 
