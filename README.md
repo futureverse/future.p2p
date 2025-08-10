@@ -20,6 +20,13 @@ print(v)
 ```
 
 
+## Installation
+
+```r
+remotes::install_github("futureverse/future.p2p")
+```
+
+
 ## Getting started
 
 In order to join a future P2P cluster, you must:
@@ -107,6 +114,7 @@ for others to make use of. To contribute your R compute power to the
 This will contribute one parallel worker to the p2p cluster. You can
 contribute additional ones by repeating the same command one or more
 times.
+
 
 
 ## Appendix
