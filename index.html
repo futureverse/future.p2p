@@ -116,7 +116,7 @@
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"futureverse/future.p2p"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'future.p2p'</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'https://futureverse.r-universe.dev'</span>, <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
@@ -127,9 +127,7 @@
 <li><p>have a <em><a href="https://pico.sh/" class="external-link">pico.sh</a> account</em>.</p></li>
 </ol>
 <p>See the ‘Getting Started’ vignette for how to set this up, but the gist for creating an SSH key pair if you already don’t have one is to:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">$</span> mkdir ~/.ssh/</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">$</span> chmod 0700 ~/.ssh/</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
 <p>With the key pair create a <a href="https://pico.sh/" class="external-link">pico.sh</a> account by logging into their server:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">$</span> ssh pico.sh</span></code></pre></div>
 <p>Choose your pico.sh username, which will also be your P2P cluster username, and click <kbd>ENTER</kbd>. Finally, verify SSH access to <code>pipe.pico.sh</code> (sic!);</p>

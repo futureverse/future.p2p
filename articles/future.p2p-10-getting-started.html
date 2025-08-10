@@ -153,9 +153,7 @@ It’s a very convenient way of working with SSH. You can read more it in
 the Wikibooks article <a href="https://en.wikibooks.org/wiki/OpenSSH%2FCookbook%2FPublic_Key_Authentication" class="external-link">‘OpenSSH/Cookbook/Public
 Key Authentication’</a>, which also provides detailed instructions. The
 gist for creating a SSH key pair is:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">$</span> mkdir ~/.ssh/</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="ex">$</span> chmod 0700 ~/.ssh/</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
 <p>and then follow the instructions. Although you can leave the
 passphrase empty, I recommend to set one and let the operating system’s
 <em>SSH agent</em> to manage authentication. This means that you will
