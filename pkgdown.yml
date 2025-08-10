@@ -1,0 +1,8 @@
+pandoc: 3.7.0.2
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  future.p2p-10-getting-started: future.p2p-10-getting-started.html
+  future.p2p-20-personal-cluster: future.p2p-20-personal-cluster.html
+  future.p2p-30-shared-cluster: future.p2p-30-shared-cluster.html
+last_built: 2025-08-10T04:42Z
