@@ -68,5 +68,5 @@ needed for _shared_ P2P cluster.
       cluster with computers running externally, e.g. your friends
       computers.
 
-[future.p2p]: https://github.com/HenrikBengtsson/future.p2p
+[future.p2p]: https://github.com/futureverse/future.p2p
 [future]: https://future.futureverse.org

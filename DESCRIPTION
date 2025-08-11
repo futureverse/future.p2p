@@ -1,6 +1,6 @@
 Package: future.p2p
 Title: A Peer-to-Peer Compute Cluster via Futureverse
-Version: 0.1.0
+Version: 0.1.0-9001
 Description: Implementation of the 'Future' API <doi:10.32614/RJ-2021-048> that resolves futures on a peer-to-peer ('P2P') compute environment. By using this future backend, you and your friends can share your spare compute resources with each other.
 Depends:
   future (>= 1.58.0)
@@ -15,6 +15,8 @@ Authors@R: c(
    person("Henrik", "Bengtsson", role=c("aut", "cre", "cph"),
           email = "henrikb@braju.com"))
 License: GPL (>= 3)
+URL: https://future.p2p.futureverse.org/
+BugReports: https://github.com/futureverse/future.p2p/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
