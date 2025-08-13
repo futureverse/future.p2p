@@ -41,9 +41,10 @@ and
 f <- future(readLines("~/.ssh/id_ed25519"))
 ```
 
-Because of this, it is important that you only join shared P2P cluster
-that you trust, i.e. where you trust all the P2P user and the user who
-hosts it such that they do not invite non-trusted or unknown users.
+Because of this, it is important that you only join shared P2P
+clusters that you trust, i.e. where you trust all the P2P user and the
+user who hosts it such that they do not invite non-trusted or unknown
+users.
 
 There are mechanisms for launching P2P workers in _sandboxed_
 environments. For instance, by running P2P workers in a sandboxed
