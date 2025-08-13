@@ -177,7 +177,7 @@ nbrOfFreeWorkers.PicoP2PFutureBackend <- function(evaluator = NULL, background =
 #' _WARNING: This is currently hardcoded to 10 workers, regardless of the number._
 #' 
 #' @rdname cluster
-#' @export
+#' @keywords internal
 availablePicoP2PWorkers <- function() {
   nworkers <- 10L
   nworkers <- max(1L, nworkers, na.rm = TRUE)

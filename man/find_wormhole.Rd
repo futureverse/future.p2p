@@ -19,3 +19,4 @@ Find a Wormhole Executable
 Unless R option \code{future.p2p.wormhole} specifies an executable, the default
 is to download and install \code{wormhole-william} locally and use that one.
 }
+\keyword{internal}

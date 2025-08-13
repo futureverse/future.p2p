@@ -27,3 +27,4 @@ Send and Receive Files via Wormhole
 \seealso{
 This function relies on the \url{https://pico.sh} services.
 }
+\keyword{internal}
