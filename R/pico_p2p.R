@@ -298,20 +298,33 @@ pico_p2p_hosted_clusters <- function(host = "pipe.pico.sh", ssh_args = NULL, tim
 #' @importFrom utils file_test
 pico_p2p_dispatch_future <- function(future) {
   send_future <- function(topic, name, host = host, ssh_args = ssh_args, future_id, file, to, via, duration) {
-    pico <- future.p2p:::pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
-    m <- future.p2p:::pico_p2p_hello(pico, type = "client")
+    ## Import private pico_nnn() functions, because this function
+    ## is run as-is on the parallel worker
+    import_future.p2p <- function(name, mode = "function", envir = getNamespace("future.p2p"), inherits = FALSE) {
+      get(name, envir = envir, mode = mode, inherits = inherits)
+    }
+    
+    pico_pipe <- import_future.p2p("pico_pipe")
+    pico_p2p_hello <- import_future.p2p("pico_p2p_hello")
+    pico_p2p_have_future <- import_future.p2p("pico_p2p_have_future")
+    pico_p2p_wait_for <- import_future.p2p("pico_p2p_wait_for")
+    pico_p2p_send_future <- import_future.p2p("pico_p2p_send_future")
+    pico_p2p_receive_result <- import_future.p2p("pico_p2p_receive_result")
+   
+    pico <- pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
+    m <- pico_p2p_hello(pico, type = "client")
 
     ## 2. Announce future
     repeat {
-      m1 <- future.p2p:::pico_p2p_have_future(pico, future = file, duration = duration)
-      m2 <- future.p2p:::pico_p2p_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
+      m1 <- pico_p2p_have_future(pico, future = file, duration = duration)
+      m2 <- pico_p2p_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
       if (m2[["type"]] != "expired") break
     }
 
     ## 3. Send future to workers
     worker <- m2[["from"]]
     stopifnot(is.character(worker), nzchar(worker))
-    m3 <- future.p2p:::pico_p2p_send_future(pico, future = file, to = worker, via = via)
+    m3 <- pico_p2p_send_future(pico, future = file, to = worker, via = via)
 
     ## 4. Remove temporary file
     file.remove(file)
@@ -319,7 +332,7 @@ pico_p2p_dispatch_future <- function(future) {
     ## 5. Wait for and receive FutureResult file
     path <- file.path(dirname(dirname(file)), "results")
     tryCatch({
-      file <- future.p2p:::pico_p2p_receive_result(pico, via = via, path = path)
+      file <- pico_p2p_receive_result(pico, via = via, path = path)
     }, interrupt = function(int) {
       cat(file = "foo.log", "interrupted\n")
     })
