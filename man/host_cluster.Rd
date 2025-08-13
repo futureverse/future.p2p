@@ -2,7 +2,7 @@
 % Please edit documentation in R/host_cluster.R
 \name{host_cluster}
 \alias{host_cluster}
-\title{Hosts a P2P cluster}
+\title{Hosts a shared P2P cluster}
 \usage{
 host_cluster(
   cluster = p2p_cluster_name(users),
@@ -26,7 +26,7 @@ The default is a personal cluster that only you have access to.}
 \item{duration}{Duration (in seconds) to offer this cluster.}
 }
 \description{
-Hosts a P2P cluster
+Hosts a shared P2P cluster
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

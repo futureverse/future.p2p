@@ -1,4 +1,4 @@
-#' Hosts a P2P cluster
+#' Hosts a shared P2P cluster
 #'
 #' @inheritParams pico_pipe
 #'
