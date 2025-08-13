@@ -60,9 +60,9 @@ $ ssh-keygen
 
 and then follow the instructions. Although you can leave the
 passphrase empty, I recommend to set one and let the operating
-system's _SSH agent_ to manage authentication. This means that you
-will only have to authenticate once when you log in into your
-computer, instead of at each SSH connection.
+system's _SSH agent_ manage authentication. This means that you will
+only have to authenticate once when you log in into your computer,
+instead of at each SSH connection.
 
 
 ## 2. Create P2P user account
