@@ -73,7 +73,7 @@ wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
 #' Unless R option `future.p2p.wormhole` specifies an executable, the default
 #' is to download and install `wormhole-william` locally and use that one.
 #'
-#' @export
+#' @importFrom utils file_test
 find_wormhole <- local({
   bin <- NULL
   
