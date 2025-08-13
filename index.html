@@ -93,7 +93,7 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="futurep2p---a-peer-to-peer-compute-cluster-in-r-">future.p2p - A Peer-to-Peer Compute Cluster in R <img border="0" src="reference/figures/world-p2p-network-three-users.png" width="150px" align="right"><a class="anchor" aria-label="anchor" href="#futurep2p---a-peer-to-peer-compute-cluster-in-r-"></a>
+<div class="page-header"><h1 id="futurep2p-a-peer-to-peer-compute-cluster-in-r-">future.p2p: A Peer-to-Peer Compute Cluster in R <img border="0" src="reference/figures/world-p2p-network-three-users.png" width="150px" align="right"><a class="anchor" aria-label="anchor" href="#futurep2p-a-peer-to-peer-compute-cluster-in-r-"></a>
 </h1></div>
 <p><em>- Share R compute among friends across the world</em></p>
 <p><br><br></p>
@@ -123,8 +123,8 @@
 <p>and</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/future.html" class="external-link">future</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="st">"~/.ssh/id_ed25519"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Because of this, it is important that you only join shared P2P cluster that you trust, i.e. where you trust all the P2P user and the user who hosts it such that they do not invite non-trusted or unknown users.</p>
-<p>There a mechanisms for launching P2P workers in <em>sandboxed</em> environments. For instance, by running P2P workers in a sandboxed virtual machine (VM), in a sandboxed Linux container (e.g. <a href="https://apptainer.org/" class="external-link">Apptainer</a>, <a href="https://www.docker.com/" class="external-link">Docker</a> and <a href="https://podman.io/" class="external-link">Podman</a>), or via dedicated sandboxing tools (e.g. <a href="https://github.com/containers/bubblewrap" class="external-link">Bubblewrap</a>, <a href="https://github.com/netblue30/firejail" class="external-link">Firejail</a>, and macOS <code>sandbox-exec</code>), you can mitigate some of the risk that malicious code can access the host machine where your personal data lives.</p>
+<p>Because of this, it is important that you only join shared P2P clusters that you trust, i.e. where you trust all the P2P user and the user who hosts it such that they do not invite non-trusted or unknown users.</p>
+<p>There are mechanisms for launching P2P workers in <em>sandboxed</em> environments. For instance, by running P2P workers in a sandboxed virtual machine (VM), in a sandboxed Linux container (e.g. <a href="https://apptainer.org/" class="external-link">Apptainer</a>, <a href="https://www.docker.com/" class="external-link">Docker</a> and <a href="https://podman.io/" class="external-link">Podman</a>), or via dedicated sandboxing tools (e.g. <a href="https://github.com/containers/bubblewrap" class="external-link">Bubblewrap</a>, <a href="https://github.com/netblue30/firejail" class="external-link">Firejail</a>, and macOS <code>sandbox-exec</code>), you can mitigate some of the risk of malicious code accessing the host machine where your personal data lives.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
