@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0-9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0-9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -141,8 +141,38 @@ futures and results between each others.</p>
 the task message board. In contrast, P2P file transfers that take place
 between clients and workers, are anonymous and requires no accounts.</p>
 <div class="section level2">
-<h2 id="generating-an-ssh-public-private-key-pair">1. Generating an SSH public-private key pair<a class="anchor" aria-label="anchor" href="#generating-an-ssh-public-private-key-pair"></a>
+<h2 id="security">⚠️ Security ⚠️<a class="anchor" aria-label="anchor" href="#security"></a>
 </h2>
+<p><em>Important warning: Please note that there is nothing preventing a
+user in your P2P cluster from sending malicious R code to your P2P
+worker!</em></p>
+<p>For example, a P2P user may submit a future that erases all files on
+the P2P worker or a future that attempts to read non-encrypted secret
+files of yours, e.g.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/future.html" class="external-link">future</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"erase-all-user-files"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>and</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/future.html" class="external-link">future</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="st">"~/.ssh/id_ed25519"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Because of this, it is important that you only join shared P2P
+cluster that you trust, i.e. where you trust all the P2P user and the
+user who hosts it such that they do not invite non-trusted or unknown
+users.</p>
+<p>There a mechanisms for launching P2P workers in <em>sandboxed</em>
+environments. For instance, by running P2P workers in a sandboxed
+virtual machine (VM), in a sandboxed Linux container (e.g. <a href="https://apptainer.org/" class="external-link">Apptainer</a>, <a href="https://www.docker.com/" class="external-link">Docker</a> and <a href="https://podman.io/" class="external-link">Podman</a>), or via dedicated sandboxing tools
+(e.g. <a href="https://github.com/containers/bubblewrap" class="external-link">Bubblewrap</a>,
+<a href="https://github.com/netblue30/firejail" class="external-link">Firejail</a>, and macOS
+<code>sandbox-exec</code>), you can mitigate some of the risk that
+malicious code can access the host machine where your personal data
+lives.</p>
+</div>
+<div class="section level2">
+<h2 id="setup-instructions">Setup instructions<a class="anchor" aria-label="anchor" href="#setup-instructions"></a>
+</h2>
+<div class="section level3">
+<h3 id="generating-an-ssh-public-private-key-pair">1. Generating an SSH public-private key pair<a class="anchor" aria-label="anchor" href="#generating-an-ssh-public-private-key-pair"></a>
+</h3>
 <p>In order to have a <a href="https://pico.sh/" class="external-link">pico.sh</a> account,
 you need to connect to their services using <em>SSH keys</em> - they do
 not accept password logins, which also would not work for
@@ -154,18 +184,18 @@ It’s a very convenient way of working with SSH. You can read more it in
 the Wikibooks article <a href="https://en.wikibooks.org/wiki/OpenSSH%2FCookbook%2FPublic_Key_Authentication" class="external-link">‘OpenSSH/Cookbook/Public
 Key Authentication’</a>, which also provides detailed instructions. The
 gist for creating a SSH key pair is:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
 <p>and then follow the instructions. Although you can leave the
 passphrase empty, I recommend to set one and let the operating system’s
 <em>SSH agent</em> manage authentication. This means that you will only
 have to authenticate once when you log in into your computer, instead of
 at each SSH connection.</p>
 </div>
-<div class="section level2">
-<h2 id="create-p2p-user-account">2. Create P2P user account<a class="anchor" aria-label="anchor" href="#create-p2p-user-account"></a>
-</h2>
+<div class="section level3">
+<h3 id="create-p2p-user-account">2. Create P2P user account<a class="anchor" aria-label="anchor" href="#create-p2p-user-account"></a>
+</h3>
 <p>With SSH key pairs configured, you can now create a <a href="https://pico.sh/" class="external-link">pico.sh</a> account by calling:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">$</span> ssh pico.sh</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">$</span> ssh pico.sh</span></code></pre></div>
 <p>You will be asked to <em>choose a username</em> . This will be your
 P2P cluster username. You cannot change it later, so pick one with some
 care. Your account will be created when you hit <kbd>ENTER</kbd> -
@@ -175,9 +205,10 @@ is then used to identify you in all future interactions.</p>
 you can add additional public SSH keys via <code>ssh pico.sh</code>.</p>
 <p>Finally, verify that you have SSH access also to
 <code>pipe.pico.sh</code> (sic!);</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">$</span> ssh pipe.pico.sh</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">$</span> ssh pipe.pico.sh</span></code></pre></div>
 <p>Make sure to <em>accept the SSH fingerprint</em>, otherwise you will
 not be able to connect to the P2P cluster from R.</p>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

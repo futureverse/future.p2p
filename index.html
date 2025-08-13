@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0-9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0-9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -114,9 +114,22 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="warning-security-warning">⚠️ Security ⚠️<a class="anchor" aria-label="anchor" href="#warning-security-warning"></a>
+</h2>
+<p><em>Important warning: Please note that there is nothing preventing a user in your P2P cluster from sending malicious R code to your P2P worker!</em></p>
+<p>For example, a P2P user may submit a future that erases all files on the P2P worker or a future that attempts to read non-encrypted secret files of yours, e.g.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/future.html" class="external-link">future</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"erase-all-user-files"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>and</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/future.html" class="external-link">future</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="st">"~/.ssh/id_ed25519"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Because of this, it is important that you only join shared P2P cluster that you trust, i.e. where you trust all the P2P user and the user who hosts it such that they do not invite non-trusted or unknown users.</p>
+<p>There a mechanisms for launching P2P workers in <em>sandboxed</em> environments. For instance, by running P2P workers in a sandboxed virtual machine (VM), in a sandboxed Linux container (e.g. <a href="https://apptainer.org/" class="external-link">Apptainer</a>, <a href="https://www.docker.com/" class="external-link">Docker</a> and <a href="https://podman.io/" class="external-link">Podman</a>), or via dedicated sandboxing tools (e.g. <a href="https://github.com/containers/bubblewrap" class="external-link">Bubblewrap</a>, <a href="https://github.com/netblue30/firejail" class="external-link">Firejail</a>, and macOS <code>sandbox-exec</code>), you can mitigate some of the risk that malicious code can access the host machine where your personal data lives.</p>
+</div>
+<div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'future.p2p'</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'https://futureverse.r-universe.dev'</span>, <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -128,18 +141,18 @@
 <li><p>have a <em><a href="https://pico.sh/" class="external-link">pico.sh</a> account</em>.</p></li>
 </ol>
 <p>See the ‘Getting Started’ vignette for how to set this up, but the gist for creating an SSH key pair if you already don’t have one is to:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
 <p>With the key pair create a <a href="https://pico.sh/" class="external-link">pico.sh</a> account by logging into their server:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">$</span> ssh pico.sh</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">$</span> ssh pico.sh</span></code></pre></div>
 <p>Choose your pico.sh username, which will also be your P2P cluster username, and click <kbd>ENTER</kbd>. Finally, verify SSH access to <code>pipe.pico.sh</code> (sic!);</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">$</span> ssh pipe.pico.sh</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">$</span> ssh pipe.pico.sh</span></code></pre></div>
 <p>That’s it!</p>
 </div>
 <div class="section level2">
 <h2 id="set-up-a-shared-p2p-cluster">Set up a shared P2P cluster<a class="anchor" aria-label="anchor" href="#set-up-a-shared-p2p-cluster"></a>
 </h2>
 <p>Let’s assume P2P users ‘alice’, ‘bob’, ‘carol’, and ‘diana’ decides to share a P2P cluster and user ‘alice’ agrees to host it. Hosting a P2P cluster only means that you control who has access - there’s no extra load added. So, to host, ‘alice’ calls:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">{alice}$</span> Rscript <span class="at">-e</span> future.p2p::host_cluster <span class="at">--users</span><span class="op">=</span>bob,carol,diana <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ex">{alice}$</span> Rscript <span class="at">-e</span> future.p2p::host_cluster <span class="at">--users</span><span class="op">=</span>bob,carol,diana <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>A future P2P cluster can be hosted from anywhere in the world, and it does not have to on a machine where you run your own R analysis.</p>
 </div>
 <div class="section level2">
@@ -147,7 +160,7 @@
 </h2>
 <p>Any user with access to the ‘alice/friends’ cluster can use it. In our example, this means ‘bob’, ‘carol’, ‘diana’, and ‘alice’ may use the P2P cluster at the same time. Just like with any other future backend, we use <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan()</a></code> to specifying that we want to parallelize via the P2P cluster.</p>
 <p>For example,</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future.p2p</span><span class="fu">::</span><span class="va"><a href="reference/cluster.html">cluster</a></span>, cluster <span class="op">=</span> <span class="st">"alice/friends"</span><span class="op">)</span></span>
 <span></span>
@@ -162,7 +175,7 @@
 <h2 id="share-your-compute-power-with-your-friends-any-user">Share your compute power with your friends (any user)<a class="anchor" aria-label="anchor" href="#share-your-compute-power-with-your-friends-any-user"></a>
 </h2>
 <p>Without parallel workers, the P2P cluster is useless and will not process any parallel tasks. This is where the peer-to-peer concept comes in, where we contribute our idle compute cycles to the cluster for others to make use of. To contribute your R compute power to the <code>alice/friends</code> cluster, launch a P2P worker as:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>This will contribute one parallel worker to the p2p cluster. You can contribute additional ones by repeating the same command one or more times.</p>
 </div>
 <div class="section level2">
@@ -176,20 +189,20 @@
 <div class="section level3">
 <h3 id="set-up-a-worker-to-connect-to-picosh-via-a-jumphost">Set up a worker to connect to pico.sh via a jumphost<a class="anchor" aria-label="anchor" href="#set-up-a-worker-to-connect-to-picosh-via-a-jumphost"></a>
 </h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--ssh_args</span><span class="op">=</span><span class="st">"-J somehost"</span> <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--ssh_args</span><span class="op">=</span><span class="st">"-J somehost"</span> <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="troubleshoot-wormhole">Troubleshoot Wormhole<a class="anchor" aria-label="anchor" href="#troubleshoot-wormhole"></a>
 </h3>
 <p>If you are behind a firewall with a proxy, wormhole might fail to establish an outbound connection. For example, if you try:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">system2</span>(future.p2p<span class="sc">::</span><span class="fu">find_wormhole</span>(), <span class="at">args =</span> <span class="fu">c</span>(<span class="st">"send"</span>, <span class="st">"--text"</span>, <span class="st">"hello"</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">system2</span>(future.p2p<span class="sc">::</span><span class="fu">find_wormhole</span>(), <span class="at">args =</span> <span class="fu">c</span>(<span class="st">"send"</span>, <span class="st">"--text"</span>, <span class="st">"hello"</span>))</span></code></pre></div>
 <p>it might stall forever. If that happens, press <kbd>Ctrl-C</kbd> to interrupt and retry by disabling the proxy settings using:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="op">&gt;</span> Sys.unsetenv<span class="kw">(</span><span class="st">"http_proxy"</span><span class="kw">)</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="op">&gt;</span> system2<span class="kw">(</span><span class="fu">future.p2p::find_wormhole()</span><span class="ex">,</span> args = c<span class="er">(</span><span class="st">"send"</span><span class="ex">,</span> <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="kw">))</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="ex">On</span> the other computer, please run: wormhole receive <span class="er">(</span><span class="ex">or</span> wormhole-william recv<span class="kw">)</span>                                                       </span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="ex">Wormhole</span> code is: 53-visitor-physique</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="op">&gt;</span> Sys.unsetenv<span class="kw">(</span><span class="st">"http_proxy"</span><span class="kw">)</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="op">&gt;</span> system2<span class="kw">(</span><span class="fu">future.p2p::find_wormhole()</span><span class="ex">,</span> args = c<span class="er">(</span><span class="st">"send"</span><span class="ex">,</span> <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="kw">))</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="ex">On</span> the other computer, please run: wormhole receive <span class="er">(</span><span class="ex">or</span> wormhole-william recv<span class="kw">)</span>                                                       </span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="ex">Wormhole</span> code is: 53-visitor-physique</span></code></pre></div>
 <p>If the latter works for you, launch R by unsetting environment variable <code>http_proxy</code>, e.g.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">{bob}$</span> http_proxy=<span class="st">""</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="ex">{bob}$</span> http_proxy=<span class="st">""</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 </div>
 </div>
 </div>
