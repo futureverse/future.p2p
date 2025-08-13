@@ -18,7 +18,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-host_cluster <- function(cluster = p2p_cluster_name(users), users = character(0L), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
+host_cluster <- function(cluster = p2p_cluster_name(users), users = character(0L), name = p2p_client_id(), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
   stopifnot(length(cluster) == 1L, is.character(cluster), !is.na(cluster), nzchar(cluster))
   
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]

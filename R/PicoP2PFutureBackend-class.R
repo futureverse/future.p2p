@@ -46,7 +46,7 @@
 #'
 #' @importFrom future future
 #' @export
-cluster <- function(cluster = p2p_cluster_name(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
+cluster <- function(cluster = p2p_cluster_name(), name = p2p_client_id(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   stop("INTERNAL ERROR: The future.p2p::cluster() function must never be called directly")
 }
 class(cluster) <- c("pico_p2p", "multiprocess", "future", "function")
@@ -65,7 +65,7 @@ attr(cluster, "init") <- TRUE
 #' @importFrom future FutureBackend
 #' @keywords internal
 #' @export
-PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
+PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), name = p2p_client_id(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
@@ -323,7 +323,7 @@ print.PicoP2PFutureBackend <- function(x, ...) {
 }
 
 
-p2p_can_connect <- function(cluster, name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
+p2p_can_connect <- function(cluster, name, host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
   cluster_owner <- dirname(cluster)
   if (cluster_owner == pico_username()) {
     topic <- sprintf("%s/future.p2p", basename(cluster))

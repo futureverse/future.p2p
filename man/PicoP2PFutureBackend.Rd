@@ -6,7 +6,7 @@
 \usage{
 PicoP2PFutureBackend(
   cluster = p2p_cluster_name(),
-  name = p2p_name(),
+  name = p2p_client_id(),
   host = "pipe.pico.sh",
   ssh_args = NULL,
   ...

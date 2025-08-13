@@ -6,7 +6,7 @@
 \usage{
 worker(
   cluster = p2p_cluster_name(),
-  name = p2p_name(),
+  name = p2p_worker_id(),
   host = "pipe.pico.sh",
   ssh_args = NULL,
   duration = 60 * 60

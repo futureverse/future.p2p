@@ -7,7 +7,7 @@
 host_cluster(
   cluster = p2p_cluster_name(users),
   users = character(0L),
-  name = p2p_name(),
+  name = p2p_client_id(),
   host = "pipe.pico.sh",
   ssh_args = NULL,
   duration = 14 * 24 * 60 * 60
