@@ -21,6 +21,38 @@ v <- value(f)
 print(v)
 ```
 
+## ⚠️ Security ⚠️
+
+⚠️ _Important warning: Please note that there is nothing preventing a
+user in your P2P cluster from sending malicious R code to your P2P
+worker!_
+
+For example, a P2P user may submit a future that erases all files on
+the P2P worker or a future that attempts to read non-encrypted secret
+files of yours, e.g.
+
+```r
+f <- future(system("erase-all-user-files"))
+```
+
+and
+
+```r
+f <- future(readLines("~/.ssh/id_ed25519"))
+```
+
+Because of this, it is important that you only join shared P2P cluster
+that you trust, i.e. where you trust all the P2P user and the user who
+hosts it such that they do not invite non-trusted or unknown users.
+
+There a mechanisms for launching P2P workers in _sandboxed_
+environments. For instance, by running P2P workers in a sandboxed
+virtual machine (VM), in a sandboxed Linux container
+(e.g. [Apptainer], [Docker] and [Podman]), or via dedicated sandboxing
+tools (e.g. [Bubblewrap], [Firejail], and macOS `sandbox-exec`), you
+can mitigate some of the risk that malicious code can access the host
+machine where your personal data lives.
+
 
 ## Installation
 
@@ -166,3 +198,8 @@ variable `http_proxy`, e.g.
 [pico.sh]: https://pico.sh/
 [Magic-Wormhole]: https://magic-wormhole.readthedocs.io/en/latest/
 [wormhole-william]: https://github.com/psanford/wormhole-william
+[Apptainer]: https://apptainer.org/
+[Docker]: https://www.docker.com/
+[Podman]: https://podman.io/
+[Bubblewrap]: https://github.com/containers/bubblewrap
+[Firejail]: https://github.com/netblue30/firejail
