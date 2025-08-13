@@ -5,7 +5,7 @@
 \title{Launches a P2P worker and adds it to a P2P cluster}
 \usage{
 worker(
-  cluster = p2p_cluster(),
+  cluster = p2p_cluster_name(),
   name = p2p_name(),
   host = "pipe.pico.sh",
   ssh_args = NULL,

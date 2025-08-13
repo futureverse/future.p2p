@@ -18,7 +18,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-worker <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
+worker <- function(cluster = p2p_cluster_name(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))

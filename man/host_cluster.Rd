@@ -5,7 +5,7 @@
 \title{Hosts a P2P cluster}
 \usage{
 host_cluster(
-  cluster = p2p_cluster(users),
+  cluster = p2p_cluster_name(users),
   users = character(0L),
   name = p2p_name(),
   host = "pipe.pico.sh",

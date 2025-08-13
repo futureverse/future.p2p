@@ -5,7 +5,7 @@
 \title{A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole}
 \usage{
 PicoP2PFutureBackend(
-  cluster = p2p_cluster(),
+  cluster = p2p_cluster_name(),
   name = p2p_name(),
   host = "pipe.pico.sh",
   ssh_args = NULL,

@@ -6,7 +6,7 @@
 \title{p2p futures}
 \usage{
 cluster(
-  cluster = p2p_cluster(),
+  cluster = p2p_cluster_name(),
   name = p2p_name(),
   host = "pipe.pico.sh",
   ssh_args = NULL,
