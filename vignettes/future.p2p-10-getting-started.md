@@ -39,7 +39,43 @@ contrast, P2P file transfers that take place between clients and
 workers, are anonymous and requires no accounts. 
 
 
-## 1. Generating an SSH public-private key pair
+## ⚠️ Security ⚠️
+
+_Important warning: Please note that there is nothing preventing a
+user in your P2P cluster from sending malicious R code to your P2P
+worker!_
+
+For example, a P2P user may submit a future that erases all files on
+the P2P worker or a future that attempts to read non-encrypted secret
+files of yours, e.g.
+
+```r
+f <- future(system("erase-all-user-files"))
+```
+
+and
+
+```r
+f <- future(readLines("~/.ssh/id_ed25519"))
+```
+
+Because of this, it is important that you only join shared P2P cluster
+that you trust, i.e. where you trust all the P2P user and the user who
+hosts it such that they do not invite non-trusted or unknown users.
+
+There a mechanisms for launching P2P workers in _sandboxed_
+environments. For instance, by running P2P workers in a sandboxed
+virtual machine (VM), in a sandboxed Linux container
+(e.g. [Apptainer], [Docker] and [Podman]), or via dedicated sandboxing
+tools (e.g. [Bubblewrap], [Firejail], and macOS `sandbox-exec`), you
+can mitigate some of the risk that malicious code can access the host
+machine where your personal data lives.
+
+
+
+## Setup instructions
+
+### 1. Generating an SSH public-private key pair
 
 In order to have a [pico.sh] account, you need to connect to their
 services using _SSH keys_ - they do not accept password logins, which
@@ -65,7 +101,7 @@ only have to authenticate once when you log in into your computer,
 instead of at each SSH connection.
 
 
-## 2. Create P2P user account
+### 2. Create P2P user account
 
 With SSH key pairs configured, you can now create a [pico.sh] account
 by calling:
@@ -94,3 +130,8 @@ able to connect to the P2P cluster from R.
 
 [pico.sh]: https://pico.sh/
 [future.p2p]: https://github.com/futureverse/future.p2p
+[Apptainer]: https://apptainer.org/
+[Docker]: https://www.docker.com/
+[Podman]: https://podman.io/
+[Bubblewrap]: https://github.com/containers/bubblewrap
+[Firejail]: https://github.com/netblue30/firejail
