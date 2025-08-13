@@ -10,8 +10,6 @@
 #'
 #' @param cluster The p2p cluster to connect to.
 #'
-#' @param name The name of the client as publicized on the P2P cluster.
-#'
 #' @param \ldots Not used.
 #'
 #' @return An object of class `PicoP2PFuture`.
@@ -46,7 +44,7 @@
 #'
 #' @importFrom future future
 #' @export
-cluster <- function(cluster = p2p_cluster_name(), name = p2p_client_id(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
+cluster <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   stop("INTERNAL ERROR: The future.p2p::cluster() function must never be called directly")
 }
 class(cluster) <- c("pico_p2p", "multiprocess", "future", "function")
@@ -65,7 +63,7 @@ attr(cluster, "init") <- TRUE
 #' @importFrom future FutureBackend
 #' @keywords internal
 #' @export
-PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), name = p2p_client_id(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
+PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
@@ -88,6 +86,7 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), name = p2p_client
     stop("Argument 'workers' should be numeric: ", mode(workers))
   }
 
+  name <- p2p_client_id()
   core <- FutureBackend(
     cluster = cluster,
     name = name,

@@ -4,8 +4,6 @@
 #'
 #' @param cluster The p2p cluster to contribute to.
 #'
-#' @param name The name of the worker as publicized on the P2P cluster.
-#'
 #' @param duration Duration (in seconds) to offer working on futures.
 #'
 #' @examplesIf interactive()
@@ -18,7 +16,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-worker <- function(cluster = p2p_cluster_name(), name = p2p_worker_id(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
+worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
@@ -46,6 +44,7 @@ worker <- function(cluster = p2p_cluster_name(), name = p2p_worker_id(), host = 
   bin <- find_wormhole()
 
   info("assert connection to p2p cluster %s", sQuote(cluster))
+  name <- p2p_worker_id()
   if (!p2p_can_connect(cluster, name = name, host = host, ssh_args = ssh_args)) {
     stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username())))
   }
@@ -113,4 +112,4 @@ worker <- function(cluster = p2p_cluster_name(), name = p2p_worker_id(), host = 
 
 
 ## Expose function on the CLI
-cli_fcn(worker) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
+cli_fcn(worker) <- c("--(cluster)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")

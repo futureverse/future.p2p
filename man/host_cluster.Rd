@@ -7,7 +7,6 @@
 host_cluster(
   cluster = p2p_cluster_name(users),
   users = character(0L),
-  name = p2p_client_id(),
   host = "pipe.pico.sh",
   ssh_args = NULL,
   duration = 14 * 24 * 60 * 60
@@ -19,8 +18,6 @@ host_cluster(
 \item{users}{(character vector) Names of Pico users who should have access,
 in addition to the owner.
 The default is a personal cluster that only you have access to.}
-
-\item{name}{The name of the cluster owner as publicized on the P2P cluster.}
 
 \item{host}{(character string) The hostname serving the pico service.}
 

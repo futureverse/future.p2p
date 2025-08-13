@@ -7,7 +7,6 @@
 \usage{
 cluster(
   cluster = p2p_cluster_name(),
-  name = p2p_client_id(),
   host = "pipe.pico.sh",
   ssh_args = NULL,
   ...
@@ -17,8 +16,6 @@ availablePicoP2PWorkers()
 }
 \arguments{
 \item{cluster}{The p2p cluster to connect to.}
-
-\item{name}{The name of the client as publicized on the P2P cluster.}
 
 \item{host}{(character string) The hostname serving the pico service.}
 

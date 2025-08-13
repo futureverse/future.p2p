@@ -6,7 +6,6 @@
 \usage{
 worker(
   cluster = p2p_cluster_name(),
-  name = p2p_worker_id(),
   host = "pipe.pico.sh",
   ssh_args = NULL,
   duration = 60 * 60
@@ -14,8 +13,6 @@ worker(
 }
 \arguments{
 \item{cluster}{The p2p cluster to contribute to.}
-
-\item{name}{The name of the worker as publicized on the P2P cluster.}
 
 \item{host}{(character string) The hostname serving the pico service.}
 

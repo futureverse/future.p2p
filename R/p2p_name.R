@@ -28,7 +28,7 @@ p2p_cluster_name <- function(users = character(0)) {
 #' identified, which both have format`"{username}@{hostname}:{pid}"`.
 #'
 #' @rdname p2p_cluster_name
-#' @export
+#' @keywords internal
 p2p_client_id <- local({
   name <- NULL
   function() {
@@ -43,5 +43,5 @@ p2p_client_id <- local({
 })
 
 #' @rdname p2p_cluster_name
-#' @export
+#' @keywords internal
 p2p_worker_id <- p2p_client_id

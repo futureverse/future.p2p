@@ -8,8 +8,6 @@
 #' in addition to the owner.
 #' The default is a personal cluster that only you have access to.
 #'
-#' @param name The name of the cluster owner as publicized on the P2P cluster.
-#'
 #' @param duration Duration (in seconds) to offer this cluster.
 #'
 #' @examplesIf interactive()
@@ -18,7 +16,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-host_cluster <- function(cluster = p2p_cluster_name(users), users = character(0L), name = p2p_client_id(), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
+host_cluster <- function(cluster = p2p_cluster_name(users), users = character(0L), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
   stopifnot(length(cluster) == 1L, is.character(cluster), !is.na(cluster), nzchar(cluster))
   
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
@@ -66,6 +64,7 @@ host_cluster <- function(cluster = p2p_cluster_name(users), users = character(0L
   if (length(users) > 0) {
     args <- c(args, "-a", paste(users, collapse = ","))
   }
+  name <- p2p_client_id()
   p <- pico_pipe(topic, args = args, user = name, host = host, ssh_args = ssh_args)
   p$users <- users
   
@@ -105,4 +104,4 @@ host_cluster <- function(cluster = p2p_cluster_name(users), users = character(0L
 
 
 ## Expose function on the CLI
-cli_fcn(host_cluster) <- c("--(cluster)=(.*)", "--(name)=(.*)", "--(users)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
+cli_fcn(host_cluster) <- c("--(cluster)=(.*)", "--(users)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")

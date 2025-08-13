@@ -29,3 +29,4 @@ Gets the default name of the P2P cluster
 
 Gets the identified of the current P2P client or P2P worker
 }
+\keyword{internal}
