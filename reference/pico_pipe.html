@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0-9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0-9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,13 @@
 <span></span>
 <span><span class="fu">pico_send_message</span><span class="op">(</span><span class="va">p</span>, <span class="va">message</span>, newline <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">pico_receive_message</span><span class="op">(</span><span class="va">p</span>, n <span class="op">=</span> <span class="fl">1L</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">pico_send_message_dataframe</span><span class="op">(</span><span class="va">p</span>, <span class="va">df</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">pico_receive_message</span><span class="op">(</span><span class="va">p</span>, n <span class="op">=</span> <span class="fl">1L</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">pico_receive_message_dataframe</span><span class="op">(</span><span class="va">p</span>, <span class="va">...</span>, pattern <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">pico_hosted_channels</span><span class="op">(</span>host <span class="op">=</span> <span class="st">"pipe.pico.sh"</span>, ssh_args <span class="op">=</span> <span class="cn">NULL</span>, timeout <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -133,8 +139,20 @@ e.g. <code>alice/topic</code>.</p></dd>
 to the message, otherwise not.</p></dd>
 
 
+<dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
+<dd><p>(data.frame) Data frame to send as a message.</p></dd>
+
+
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
 <dd><p>(integer) Number of messages to read.</p></dd>
+
+
+<dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
+<dd><p>(character string; optional) A regular expression so scan for.</p></dd>
+
+
+<dt id="arg-timeout">timeout<a class="anchor" aria-label="anchor" href="#arg-timeout"></a></dt>
+<dd><p>(numeric scalar) Timeout (in seconds).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
