@@ -12,7 +12,6 @@ now_str <- function(when = pico_p2p_time()) {
   format(when, format = "%FT%T")
 }
 
-#' @export
 future_id <- function(future, ...) {
   if (inherits(future, "Future")) {
     id <- paste(future[["uuid"]], collapse = "-")
@@ -23,7 +22,7 @@ future_id <- function(future, ...) {
   id
 }
 
-#' @export
+
 pico_p2p_hello <- function(p, from = p$user, type = c("worker", "client", "cluster"), expires = NULL, duration = 60*60, ...) {
   type <- match.arg(type)
   
@@ -58,7 +57,7 @@ pico_p2p_expired <- function() {
   )
 }
 
-#' @export
+
 pico_p2p_wait_for <- function(p, type, futures = NULL, expires = NULL, duration = 60, delay = 0.1, ...) {
   if (is.null(expires)) {
     expires <- Sys.time() + duration
@@ -95,7 +94,6 @@ pico_p2p_wait_for <- function(p, type, futures = NULL, expires = NULL, duration 
 
 
 #' @importFrom utils file_test
-#' @export
 pico_p2p_have_future <- function(p, future, duration = getOption("future.p2p.duration.request", 60), from = p$user, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -136,7 +134,6 @@ pico_p2p_have_future <- function(p, future, duration = getOption("future.p2p.dur
   pico_send_message_dataframe(p, m)
 }
 
-#' @export
 pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -165,7 +162,6 @@ pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user,
   pico_send_message_dataframe(p, m)
 }
 
-#' @export
 pico_p2p_send_future <- function(p, future, to, via = via_transfer_uri(), duration = 60, from = p$user, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -215,7 +211,6 @@ pico_p2p_send_future <- function(p, future, to, via = via_transfer_uri(), durati
 }
 
 
-#' @export
 pico_p2p_receive_future <- function(p, via, duration = 60) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -244,7 +239,6 @@ pico_p2p_receive_future <- function(p, via, duration = 60) {
 
 
 #' @importFrom future result
-#' @export
 pico_p2p_send_result <- function(p, future, via, duration = 60) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -269,7 +263,6 @@ pico_p2p_send_result <- function(p, future, via, duration = 60) {
 }
 
 
-#' @export
 pico_p2p_receive_result <- function(p, via, duration = 60, path = tempdir()) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -291,11 +284,113 @@ pico_p2p_receive_result <- function(p, via, duration = 60, path = tempdir()) {
 }
 
 
-#' @export
 pico_p2p_hosted_clusters <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
   clusters <- pico_hosted_channels(host, ssh_args = ssh_args, timeout = timeout)
   keep <- grep("/future.p2p$", clusters$name)
   clusters <- clusters[keep, ]
   clusters$name <- sub("/future.p2p$", "", clusters$name)
   clusters
+}
+
+
+
+#' @importFrom callr r_bg
+#' @importFrom utils file_test
+pico_p2p_dispatch_future <- function(future) {
+  send_future <- function(topic, name, host = host, ssh_args = ssh_args, future_id, file, to, via, duration) {
+    ## Import private pico_nnn() functions, because this function
+    ## is run as-is on the parallel worker
+    import_future.p2p <- function(name, mode = "function", envir = getNamespace("future.p2p"), inherits = FALSE) {
+      get(name, envir = envir, mode = mode, inherits = inherits)
+    }
+    
+    pico_pipe <- import_future.p2p("pico_pipe")
+    pico_p2p_hello <- import_future.p2p("pico_p2p_hello")
+    pico_p2p_have_future <- import_future.p2p("pico_p2p_have_future")
+    pico_p2p_wait_for <- import_future.p2p("pico_p2p_wait_for")
+    pico_p2p_send_future <- import_future.p2p("pico_p2p_send_future")
+    pico_p2p_receive_result <- import_future.p2p("pico_p2p_receive_result")
+   
+    pico <- pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
+    m <- pico_p2p_hello(pico, type = "client")
+
+    ## 2. Announce future
+    repeat {
+      m1 <- pico_p2p_have_future(pico, future = file, duration = duration)
+      m2 <- pico_p2p_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
+      if (m2[["type"]] != "expired") break
+    }
+
+    ## 3. Send future to workers
+    worker <- m2[["from"]]
+    stopifnot(is.character(worker), nzchar(worker))
+    m3 <- pico_p2p_send_future(pico, future = file, to = worker, via = via)
+
+    ## 4. Remove temporary file
+    file.remove(file)
+
+    ## 5. Wait for and receive FutureResult file
+    path <- file.path(dirname(dirname(file)), "results")
+    tryCatch({
+      file <- pico_p2p_receive_result(pico, via = via, path = path)
+    }, interrupt = function(int) {
+      cat(file = "foo.log", "interrupted\n")
+    })
+
+    invisible(file)
+  }
+
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("dispatch_future()...")
+    on.exit(mdebugf_pop())
+  }
+
+  ## Get backend
+  backend <- future[["backend"]]
+  stopifnot(inherits(backend, "FutureBackend"))
+
+  cluster <- backend[["cluster"]]
+  name <- backend[["name"]]
+  host <- backend[["host"]]
+  ssh_args <- backend[["ssh_args"]]
+  via <- via_transfer_uri()
+  
+  ## 1. Put future on the dispatcher queue
+  void <- p2p_dir("results")
+  future[["file"]] <- saveFuture(future, path = p2p_dir("queued"))
+  
+  if (debug) mdebugf("File: %s", sQuote(future[["file"]]))
+
+  ## 1. Connect to pico and say hello
+  cluster_owner <- dirname(cluster)
+  if (cluster_owner == pico_username()) {
+    topic <- sprintf("%s/future.p2p", basename(cluster))
+  } else {
+    topic <- sprintf("%s/future.p2p", cluster)
+  }
+
+  args <- list(
+    topic = topic,
+    name = name,
+    host = host,
+    ssh_args = ssh_args,
+    future_id = future_id(future),
+    file = future[["file"]],
+    via = via,
+    duration = getOption("future.p2p.duration.request", 10.0)
+  )
+  if (debug) {
+    mstr(args)
+  }
+
+  rx <- r_bg(send_future, args = args, supervise = TRUE)
+  future[["rx"]] <- rx
+
+  future[["pico_via"]] <- via
+
+  ## Update future state
+  future[["state"]] <- "running"
+  
+  invisible(future)
 }

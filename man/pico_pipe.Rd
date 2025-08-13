@@ -4,7 +4,10 @@
 \alias{pico_pipe}
 \alias{pico_terminate}
 \alias{pico_send_message}
+\alias{pico_send_message_dataframe}
 \alias{pico_receive_message}
+\alias{pico_receive_message_dataframe}
+\alias{pico_hosted_channels}
 \title{Connect to a pico pipe}
 \usage{
 pico_pipe(
@@ -20,7 +23,13 @@ pico_terminate(p, ...)
 
 pico_send_message(p, message, newline = TRUE, ...)
 
+pico_send_message_dataframe(p, df)
+
 pico_receive_message(p, n = 1L, ...)
+
+pico_receive_message_dataframe(p, ..., pattern = NULL)
+
+pico_hosted_channels(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10)
 }
 \arguments{
 \item{topic}{(character string) The topic to connect to. If connecting
@@ -42,7 +51,13 @@ e.g. \code{alice/topic}.}
 \item{newline}{(logical) If TRUE, a newline (LF; \verb{\\n}) will be appended
 to the message, otherwise not.}
 
+\item{df}{(data.frame) Data frame to send as a message.}
+
 \item{n}{(integer) Number of messages to read.}
+
+\item{pattern}{(character string; optional) A regular expression so scan for.}
+
+\item{timeout}{(numeric scalar) Timeout (in seconds).}
 
 \item{\ldots}{(character vector; optional) Named attributes that are recorded
 with the returned object.}
@@ -56,3 +71,4 @@ Connect to a pico pipe
 \seealso{
 This function relies on the \url{https://pico.sh} services.
 }
+\keyword{internal}

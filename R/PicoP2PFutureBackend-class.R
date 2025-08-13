@@ -10,8 +10,6 @@
 #'
 #' @param cluster The p2p cluster to connect to.
 #'
-#' @param name The name of the client as publicized on the P2P cluster.
-#'
 #' @param \ldots Not used.
 #'
 #' @return An object of class `PicoP2PFuture`.
@@ -46,7 +44,7 @@
 #'
 #' @importFrom future future
 #' @export
-cluster <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
+cluster <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   stop("INTERNAL ERROR: The future.p2p::cluster() function must never be called directly")
 }
 class(cluster) <- c("pico_p2p", "multiprocess", "future", "function")
@@ -65,7 +63,7 @@ attr(cluster, "init") <- TRUE
 #' @importFrom future FutureBackend
 #' @keywords internal
 #' @export
-PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
+PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
@@ -88,6 +86,7 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster(), name = p2p_name(), hos
     stop("Argument 'workers' should be numeric: ", mode(workers))
   }
 
+  name <- p2p_client_id()
   core <- FutureBackend(
     cluster = cluster,
     name = name,
@@ -139,7 +138,7 @@ launchFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
   FutureRegistry(reg, action = "add", future = future, earlySignal = FALSE)
 
   ## 3. Launch future, i.e. submit it to the Pico P2P cluster dispatcher
-  future <- dispatch_future(future)
+  future <- pico_p2p_dispatch_future(future)
 
   invisible(future)
 } ## launchFuture()
@@ -170,14 +169,14 @@ nbrOfFreeWorkers.PicoP2PFutureBackend <- function(evaluator = NULL, background =
 }
 
 
-
+#' Gets the number of known P2P workers
+#'
 #' @return
 #' `availablePicoP2PWorkers()` returns the number of registered workers on the P2P cluster.
 #' It will always return at least one worker, which is yourself.
 #' _WARNING: This is currently hardcoded to 10 workers, regardless of the number._
 #' 
-#' @rdname cluster
-#' @export
+#' @keywords internal
 availablePicoP2PWorkers <- function() {
   nworkers <- 10L
   nworkers <- max(1L, nworkers, na.rm = TRUE)
@@ -189,94 +188,6 @@ availablePicoP2PWorkers <- function() {
 waitForWorker <- function(...) {
 }
 
-
-#' @importFrom callr r_bg
-#' @importFrom utils file_test
-dispatch_future <- function(future) {
-  send_future <- function(topic, name, host = host, ssh_args = ssh_args, future_id, file, to, via, duration) {
-    pico <- future.p2p::pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
-    m <- future.p2p::pico_p2p_hello(pico, type = "client")
-
-    ## 2. Announce future
-    repeat {
-      m1 <- future.p2p::pico_p2p_have_future(pico, future = file, duration = duration)
-      m2 <- future.p2p::pico_p2p_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
-      if (m2[["type"]] != "expired") break
-    }
-
-    ## 3. Send future to workers
-    worker <- m2[["from"]]
-    stopifnot(is.character(worker), nzchar(worker))
-    m3 <- future.p2p::pico_p2p_send_future(pico, future = file, to = worker, via = via)
-
-    ## 4. Remove temporary file
-    file.remove(file)
-
-    ## 5. Wait for and receive FutureResult file
-    path <- file.path(dirname(dirname(file)), "results")
-    tryCatch({
-      file <- future.p2p::pico_p2p_receive_result(pico, via = via, path = path)
-    }, interrupt = function(int) {
-      cat(file = "foo.log", "interrupted\n")
-    })
-
-    invisible(file)
-  }
-
-  debug <- isTRUE(getOption("future.p2p.debug"))
-  if (debug) {
-    mdebug_push("dispatch_future()...")
-    on.exit(mdebugf_pop())
-  }
-
-  ## Get backend
-  backend <- future[["backend"]]
-  stopifnot(inherits(backend, "FutureBackend"))
-
-  cluster <- backend[["cluster"]]
-  name <- backend[["name"]]
-  host <- backend[["host"]]
-  ssh_args <- backend[["ssh_args"]]
-  via <- via_transfer_uri()
-  
-  ## 1. Put future on the dispatcher queue
-  void <- p2p_dir("results")
-  future[["file"]] <- saveFuture(future, path = p2p_dir("queued"))
-  
-  if (debug) mdebugf("File: %s", sQuote(future[["file"]]))
-
-  ## 1. Connect to pico and say hello
-  cluster_owner <- dirname(cluster)
-  if (cluster_owner == pico_username()) {
-    topic <- sprintf("%s/future.p2p", basename(cluster))
-  } else {
-    topic <- sprintf("%s/future.p2p", cluster)
-  }
-
-  args <- list(
-    topic = topic,
-    name = name,
-    host = host,
-    ssh_args = ssh_args,
-    future_id = future_id(future),
-    file = future[["file"]],
-    via = via,
-    duration = getOption("future.p2p.duration.request", 10.0)
-  )
-  if (debug) {
-    mstr(args)
-  }
-
-  rx <- r_bg(send_future, args = args, supervise = TRUE)
-  future[["rx"]] <- rx
-
-  future[["pico_via"]] <- via
-
-  ## Update future state
-  future[["state"]] <- "running"
-  
-  invisible(future)
-}
 
 
 #' @importFrom utils file_test
@@ -323,7 +234,7 @@ print.PicoP2PFutureBackend <- function(x, ...) {
 }
 
 
-p2p_can_connect <- function(cluster, name = p2p_name(), host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
+p2p_can_connect <- function(cluster, name, host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
   cluster_owner <- dirname(cluster)
   if (cluster_owner == pico_username()) {
     topic <- sprintf("%s/future.p2p", basename(cluster))

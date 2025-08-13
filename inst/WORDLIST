@@ -1,8 +1,13 @@
+Apptainer
+Bubblewrap
 Ctrl
+Firejail
 Futureverse
 LF
 OpenSSH
+Podman
 RJ
+VM
 Wikibooks
 alice
 diana
@@ -13,6 +18,7 @@ jumphost
 multiprocess
 parallelization
 pico
+sandboxed
+sandboxing
 unsetting
 william
-

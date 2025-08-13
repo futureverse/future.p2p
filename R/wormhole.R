@@ -12,8 +12,9 @@
 #' @seealso
 #' This function relies on the <https://pico.sh> services.
 #'
+#' @keywords internal
+#'
 #' @importFrom utils file_test
-#' @export
 wormhole_send <- function(file, code, rsh = NULL, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -34,8 +35,9 @@ wormhole_send <- function(file, code, rsh = NULL, ...) {
 #' @param path (character string) Temporary working directory.
 #'
 #' @rdname wormhole_send
+#' @keywords internal
+#'
 #' @importFrom utils file_test
-#' @export
 wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
   stopifnot(file_test("-d", path))
   path <- tempfile(pattern = "dir", tmpdir = path)
@@ -75,7 +77,9 @@ wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
 #' Unless R option `future.p2p.wormhole` specifies an executable, the default
 #' is to download and install `wormhole-william` locally and use that one.
 #'
-#' @export
+#' @keywords internal
+#'
+#' @importFrom utils file_test
 find_wormhole <- local({
   bin <- NULL
   
@@ -180,7 +184,6 @@ wormhole_call <- function(command = c("send", "receive"), ..., input = NULL, rsh
 }
 
 
-#' @export
 wormhole_filename <- function(sysname = Sys.info()[["sysname"]], arch = R.version[["arch"]]) {
   sysname <- tolower(sysname)
 
@@ -202,8 +205,9 @@ wormhole_pathname <- function(filename = wormhole_filename(), path = tools::R_us
   file.path(path, filename)
 } ## wormhole_pathname()
 
+#' @keywords internal
+#'
 #' @importFrom utils download.file file_test
-#' @export
 install_wormhole <- function(pathname = wormhole_pathname(), version = "1.0.8") {
   ## Nothing to do?
   if (file_test("-x", pathname)) return(pathname)

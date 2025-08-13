@@ -4,12 +4,12 @@
 #' the default cluster names should be "personal" or "friends".
 #'
 #' @return
-#' `p2p_cluster()` returns R option `future.p2p.cluster`, if set.
+#' `p2p_cluster_name()` returns R option `future.p2p.cluster`, if set.
 #' If not set, it returns `{pico_name}/personal` if `length(users) == 0`,
 #' otherwise `{pico_name}/friends`.
 #' 
 #' @export
-p2p_cluster <- function(users = character(0)) {
+p2p_cluster_name <- function(users = character(0)) {
   users <- unique(users)
   name <- getOption("future.p2p.cluster")
   if (is.null(name)) {
@@ -21,15 +21,14 @@ p2p_cluster <- function(users = character(0)) {
 }
 
 
-#' Gets the default name of the client or worker on the P2P cluster
+#' Gets the identifier of the current P2P client or P2P worker
 #'
 #' @return
-#' `p2p_name()` returns the client or worker name of format
-#' `"{username}@{hostname}:{pid}"`.
+#' `p2p_client_id()` and `p2p_worker_id()` return the client and worker
+#' identifier, which both have format`"{username}@{hostname}:{pid}"`.
 #'
-#' @rdname p2p_cluster
-#' @export
-p2p_name <- local({
+#' @keywords internal
+p2p_client_id <- local({
   name <- NULL
   function() {
     if (is.null(name)) {
@@ -41,3 +40,7 @@ p2p_name <- local({
     name
   }
 })
+
+#' @rdname p2p_client_id
+#' @keywords internal
+p2p_worker_id <- p2p_client_id

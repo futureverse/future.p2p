@@ -5,8 +5,7 @@
 \title{A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole}
 \usage{
 PicoP2PFutureBackend(
-  cluster = p2p_cluster(),
-  name = p2p_name(),
+  cluster = p2p_cluster_name(),
   host = "pipe.pico.sh",
   ssh_args = NULL,
   ...
@@ -14,8 +13,6 @@ PicoP2PFutureBackend(
 }
 \arguments{
 \item{cluster}{The p2p cluster to connect to.}
-
-\item{name}{The name of the client as publicized on the P2P cluster.}
 
 \item{host}{(character string) The hostname serving the pico service.}
 

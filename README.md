@@ -1,9 +1,9 @@
-# future.p2p - A Peer-to-Peer Compute Cluster in R
-
-<div style="float:right; margin-top:-2ex;">
-  <img border="0" src="man/figures/future-logo.png" alt="The 'future' hexlogo" style="width:150px"/>
-  <img border="0" src="man/figures/world-p2p-network-three-users.png" style="width:150px"/>
+<div id="badges"><!-- pkgdown markup -->
+<a href="https://github.com/futureverse/future.p2p/actions?query=workflow%3AR-CMD-check"><img border="0" src="https://github.com/futureverse/future.p2p/actions/workflows/R-CMD-check.yaml/badge.svg?branch=develop" alt="R CMD check status"/></a>  <a href="https://app.codecov.io/gh/futureverse/future.p2p"><img border="0" src="https://codecov.io/gh/futureverse/future.p2p/branch/develop/graph/badge.svg" alt="Coverage Status"/></a> 
 </div>
+
+
+# future.p2p: A Peer-to-Peer Compute Cluster in R <img border="0" src="man/figures/world-p2p-network-three-users.png" width="150px" align="right"/>
 
 _- Share R compute among friends across the world_
 
@@ -26,11 +26,44 @@ v <- value(f)
 print(v)
 ```
 
+## ⚠️ Security ⚠️
+
+_Important warning: Please note that there is nothing preventing a
+user in your P2P cluster from sending malicious R code to your P2P
+worker!_
+
+For example, a P2P user may submit a future that erases all files on
+the P2P worker or a future that attempts to read non-encrypted secret
+files of yours, e.g.
+
+```r
+f <- future(system("erase-all-user-files"))
+```
+
+and
+
+```r
+f <- future(readLines("~/.ssh/id_ed25519"))
+```
+
+Because of this, it is important that you only join shared P2P
+clusters that you trust, i.e. where you trust all the P2P user and the
+user who hosts it such that they do not invite non-trusted or unknown
+users.
+
+There are mechanisms for launching P2P workers in _sandboxed_
+environments. For instance, by running P2P workers in a sandboxed
+virtual machine (VM), in a sandboxed Linux container
+(e.g. [Apptainer], [Docker] and [Podman]), or via dedicated sandboxing
+tools (e.g. [Bubblewrap], [Firejail], and macOS `sandbox-exec`), you
+can mitigate some of the risk of malicious code accessing the host
+machine where your personal data lives.
+
 
 ## Installation
 
 ```r
-remotes::install_github("futureverse/future.p2p")
+install.packages('future.p2p', repos = c('https://futureverse.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
 
@@ -46,8 +79,6 @@ See the 'Getting Started' vignette for how to set this up, but the
 gist for creating an SSH key pair if you already don't have one is to:
 
 ```sh
-$ mkdir ~/.ssh/
-$ chmod 0700 ~/.ssh/
 $ ssh-keygen
 ```
 
@@ -149,7 +180,7 @@ If you are behind a firewall with a proxy, wormhole might fail to
 establish an outbound connection. For example, if you try:
 
 ```r
-> system2(future.p2p::find_wormhole(), args = c("send", "--text", "hello"))
+> system2(future.p2p:::find_wormhole(), args = c("send", "--text", "hello"))
 ```
 
 it might stall forever.  If that happens, press <kbd>Ctrl-C</kbd> to
@@ -157,7 +188,7 @@ interrupt and retry by disabling the proxy settings using:
 
 ```sh
 > Sys.unsetenv("http_proxy")
-> system2(future.p2p::find_wormhole(), args = c("send", "--text", "hello"))
+> system2(future.p2p:::find_wormhole(), args = c("send", "--text", "hello"))
 On the other computer, please run: wormhole receive (or wormhole-william recv)                                                       
 Wormhole code is: 53-visitor-physique
 ```
@@ -173,3 +204,8 @@ variable `http_proxy`, e.g.
 [pico.sh]: https://pico.sh/
 [Magic-Wormhole]: https://magic-wormhole.readthedocs.io/en/latest/
 [wormhole-william]: https://github.com/psanford/wormhole-william
+[Apptainer]: https://apptainer.org/
+[Docker]: https://www.docker.com/
+[Podman]: https://podman.io/
+[Bubblewrap]: https://github.com/containers/bubblewrap
+[Firejail]: https://github.com/netblue30/firejail

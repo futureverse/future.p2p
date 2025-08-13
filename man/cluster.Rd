@@ -2,23 +2,17 @@
 % Please edit documentation in R/PicoP2PFutureBackend-class.R
 \name{cluster}
 \alias{cluster}
-\alias{availablePicoP2PWorkers}
 \title{p2p futures}
 \usage{
 cluster(
-  cluster = p2p_cluster(),
-  name = p2p_name(),
+  cluster = p2p_cluster_name(),
   host = "pipe.pico.sh",
   ssh_args = NULL,
   ...
 )
-
-availablePicoP2PWorkers()
 }
 \arguments{
 \item{cluster}{The p2p cluster to connect to.}
-
-\item{name}{The name of the client as publicized on the P2P cluster.}
 
 \item{host}{(character string) The hostname serving the pico service.}
 
@@ -28,10 +22,6 @@ availablePicoP2PWorkers()
 }
 \value{
 An object of class \code{PicoP2PFuture}.
-
-\code{availablePicoP2PWorkers()} returns the number of registered workers on the P2P cluster.
-It will always return at least one worker, which is yourself.
-\emph{WARNING: This is currently hardcoded to 10 workers, regardless of the number.}
 }
 \description{
 \emph{WARNING: This function must never be called.
