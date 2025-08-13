@@ -13,7 +13,6 @@
 #' This function relies on the <https://pico.sh> services.
 #'
 #' @importFrom utils file_test
-#' @export
 wormhole_send <- function(file, code, rsh = NULL, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -35,7 +34,6 @@ wormhole_send <- function(file, code, rsh = NULL, ...) {
 #'
 #' @rdname wormhole_send
 #' @importFrom utils file_test
-#' @export
 wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
   stopifnot(file_test("-d", path))
   path <- tempfile(pattern = "dir", tmpdir = path)
@@ -180,7 +178,6 @@ wormhole_call <- function(command = c("send", "receive"), ..., input = NULL, rsh
 }
 
 
-#' @export
 wormhole_filename <- function(sysname = Sys.info()[["sysname"]], arch = R.version[["arch"]]) {
   sysname <- tolower(sysname)
 
@@ -203,7 +200,6 @@ wormhole_pathname <- function(filename = wormhole_filename(), path = tools::R_us
 } ## wormhole_pathname()
 
 #' @importFrom utils download.file file_test
-#' @export
 install_wormhole <- function(pathname = wormhole_pathname(), version = "1.0.8") {
   ## Nothing to do?
   if (file_test("-x", pathname)) return(pathname)
