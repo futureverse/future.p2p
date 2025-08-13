@@ -1,3 +1,8 @@
+<div id="badges"><!-- pkgdown markup -->
+<a href="https://github.com/futureverse/future.p2p/actions?query=workflow%3AR-CMD-check"><img border="0" src="https://github.com/futureverse/future.p2p/actions/workflows/R-CMD-check.yaml/badge.svg?branch=develop" alt="R CMD check status"/></a>  <a href="https://app.codecov.io/gh/futureverse/future.p2p"><img border="0" src="https://codecov.io/gh/futureverse/future.p2p/branch/develop/graph/badge.svg" alt="Coverage Status"/></a> 
+</div>
+
+
 # future.p2p: A Peer-to-Peer Compute Cluster in R <img border="0" src="man/figures/world-p2p-network-three-users.png" width="150px" align="right"/>
 
 _- Share R compute among friends across the world_
