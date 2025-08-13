@@ -180,7 +180,7 @@ If you are behind a firewall with a proxy, wormhole might fail to
 establish an outbound connection. For example, if you try:
 
 ```r
-> system2(future.p2p::find_wormhole(), args = c("send", "--text", "hello"))
+> system2(future.p2p:::find_wormhole(), args = c("send", "--text", "hello"))
 ```
 
 it might stall forever.  If that happens, press <kbd>Ctrl-C</kbd> to
@@ -188,7 +188,7 @@ interrupt and retry by disabling the proxy settings using:
 
 ```sh
 > Sys.unsetenv("http_proxy")
-> system2(future.p2p::find_wormhole(), args = c("send", "--text", "hello"))
+> system2(future.p2p:::find_wormhole(), args = c("send", "--text", "hello"))
 On the other computer, please run: wormhole receive (or wormhole-william recv)                                                       
 Wormhole code is: 53-visitor-physique
 ```
