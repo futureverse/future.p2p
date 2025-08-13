@@ -31,6 +31,7 @@
 #' This function relies on the <https://pico.sh> services.
 #'
 #' @importFrom processx process
+#' @keywords internal
 pico_pipe <- function(topic = NULL, command = c("pipe", "pub", "sub", "ls", "help"), args = c(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   command <- match.arg(command)
   if (command %in% c("pipe", "pub", "sub")) {

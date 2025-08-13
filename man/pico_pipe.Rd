@@ -71,3 +71,4 @@ Connect to a pico pipe
 \seealso{
 This function relies on the \url{https://pico.sh} services.
 }
+\keyword{internal}
