@@ -2,7 +2,6 @@
 % Please edit documentation in R/PicoP2PFutureBackend-class.R
 \name{cluster}
 \alias{cluster}
-\alias{availablePicoP2PWorkers}
 \title{p2p futures}
 \usage{
 cluster(
@@ -11,8 +10,6 @@ cluster(
   ssh_args = NULL,
   ...
 )
-
-availablePicoP2PWorkers()
 }
 \arguments{
 \item{cluster}{The p2p cluster to connect to.}
@@ -25,10 +22,6 @@ availablePicoP2PWorkers()
 }
 \value{
 An object of class \code{PicoP2PFuture}.
-
-\code{availablePicoP2PWorkers()} returns the number of registered workers on the P2P cluster.
-It will always return at least one worker, which is yourself.
-\emph{WARNING: This is currently hardcoded to 10 workers, regardless of the number.}
 }
 \description{
 \emph{WARNING: This function must never be called.
@@ -69,4 +62,3 @@ print(v)
 \url{https://pico.sh/}.
 }
 }
-\keyword{internal}
