@@ -21,13 +21,12 @@ p2p_cluster_name <- function(users = character(0)) {
 }
 
 
-#' Gets the identified of the current P2P client or P2P worker
+#' Gets the identifier of the current P2P client or P2P worker
 #'
 #' @return
 #' `p2p_client_id()` and `p2p_worker_id()` return the client and worker
-#' identified, which both have format`"{username}@{hostname}:{pid}"`.
+#' identifier, which both have format`"{username}@{hostname}:{pid}"`.
 #'
-#' @rdname p2p_cluster_name
 #' @keywords internal
 p2p_client_id <- local({
   name <- NULL
@@ -42,6 +41,6 @@ p2p_client_id <- local({
   }
 })
 
-#' @rdname p2p_cluster_name
+#' @rdname p2p_client_id
 #' @keywords internal
 p2p_worker_id <- p2p_client_id
