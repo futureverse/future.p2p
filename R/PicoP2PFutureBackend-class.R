@@ -138,7 +138,7 @@ launchFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
   FutureRegistry(reg, action = "add", future = future, earlySignal = FALSE)
 
   ## 3. Launch future, i.e. submit it to the Pico P2P cluster dispatcher
-  future <- dispatch_future(future)
+  future <- pico_p2p_dispatch_future(future)
 
   invisible(future)
 } ## launchFuture()
@@ -188,94 +188,6 @@ availablePicoP2PWorkers <- function() {
 waitForWorker <- function(...) {
 }
 
-
-#' @importFrom callr r_bg
-#' @importFrom utils file_test
-dispatch_future <- function(future) {
-  send_future <- function(topic, name, host = host, ssh_args = ssh_args, future_id, file, to, via, duration) {
-    pico <- future.p2p::pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
-    m <- future.p2p::pico_p2p_hello(pico, type = "client")
-
-    ## 2. Announce future
-    repeat {
-      m1 <- future.p2p::pico_p2p_have_future(pico, future = file, duration = duration)
-      m2 <- future.p2p::pico_p2p_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
-      if (m2[["type"]] != "expired") break
-    }
-
-    ## 3. Send future to workers
-    worker <- m2[["from"]]
-    stopifnot(is.character(worker), nzchar(worker))
-    m3 <- future.p2p::pico_p2p_send_future(pico, future = file, to = worker, via = via)
-
-    ## 4. Remove temporary file
-    file.remove(file)
-
-    ## 5. Wait for and receive FutureResult file
-    path <- file.path(dirname(dirname(file)), "results")
-    tryCatch({
-      file <- future.p2p::pico_p2p_receive_result(pico, via = via, path = path)
-    }, interrupt = function(int) {
-      cat(file = "foo.log", "interrupted\n")
-    })
-
-    invisible(file)
-  }
-
-  debug <- isTRUE(getOption("future.p2p.debug"))
-  if (debug) {
-    mdebug_push("dispatch_future()...")
-    on.exit(mdebugf_pop())
-  }
-
-  ## Get backend
-  backend <- future[["backend"]]
-  stopifnot(inherits(backend, "FutureBackend"))
-
-  cluster <- backend[["cluster"]]
-  name <- backend[["name"]]
-  host <- backend[["host"]]
-  ssh_args <- backend[["ssh_args"]]
-  via <- via_transfer_uri()
-  
-  ## 1. Put future on the dispatcher queue
-  void <- p2p_dir("results")
-  future[["file"]] <- saveFuture(future, path = p2p_dir("queued"))
-  
-  if (debug) mdebugf("File: %s", sQuote(future[["file"]]))
-
-  ## 1. Connect to pico and say hello
-  cluster_owner <- dirname(cluster)
-  if (cluster_owner == pico_username()) {
-    topic <- sprintf("%s/future.p2p", basename(cluster))
-  } else {
-    topic <- sprintf("%s/future.p2p", cluster)
-  }
-
-  args <- list(
-    topic = topic,
-    name = name,
-    host = host,
-    ssh_args = ssh_args,
-    future_id = future_id(future),
-    file = future[["file"]],
-    via = via,
-    duration = getOption("future.p2p.duration.request", 10.0)
-  )
-  if (debug) {
-    mstr(args)
-  }
-
-  rx <- r_bg(send_future, args = args, supervise = TRUE)
-  future[["rx"]] <- rx
-
-  future[["pico_via"]] <- via
-
-  ## Update future state
-  future[["state"]] <- "running"
-  
-  invisible(future)
-}
 
 
 #' @importFrom utils file_test

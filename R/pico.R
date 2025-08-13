@@ -31,7 +31,6 @@
 #' This function relies on the <https://pico.sh> services.
 #'
 #' @importFrom processx process
-#' @export
 pico_pipe <- function(topic = NULL, command = c("pipe", "pub", "sub", "ls", "help"), args = c(), host = "pipe.pico.sh", ssh_args = NULL, ...) {
   command <- match.arg(command)
   if (command %in% c("pipe", "pub", "sub")) {
@@ -91,14 +90,12 @@ print.pico <- function(x, ...) {
 }
 
 #' @rdname pico_pipe
-#' @export
 pico_terminate <- function(p, ...) {
   stopifnot(inherits(p, "pico_pipe"))
   p$process$kill()
 }
 
 #' @rdname pico_pipe
-#' @export
 pico_send_message <- function(p, message, newline = TRUE, ...) {
   stopifnot(inherits(p, "pico_pipe"))
   stopifnot(length(message) == 1L, is.character(message), !is.na(message))
@@ -107,6 +104,9 @@ pico_send_message <- function(p, message, newline = TRUE, ...) {
 }
 
 
+#' @param df (data.frame) Data frame to send as a message.
+#'
+#' @rdname pico_pipe
 pico_send_message_dataframe <- function(p, df) {
   msg <- unlist(df, use.names = TRUE)
   msg <- sprintf("%s=%s", names(msg), msg)
@@ -118,7 +118,6 @@ pico_send_message_dataframe <- function(p, df) {
 
 
 #' @rdname pico_pipe
-#' @export
 pico_receive_message <- function(p, n = 1L, ...) {
   stopifnot(inherits(p, "pico_pipe"))
   stopifnot(length(n) == 1L, is.numeric(n), !is.na(n), n > 0L)
@@ -126,7 +125,9 @@ pico_receive_message <- function(p, n = 1L, ...) {
 }
 
 
-#' @export
+#' @param pattern (character string; optional) A regular expression so scan for.
+#'
+#' @rdname pico_pipe
 pico_receive_message_dataframe <- function(p, ..., pattern = NULL) {
   msg <- pico_receive_message(p, ...)
   
@@ -150,8 +151,9 @@ pico_receive_message_dataframe <- function(p, ..., pattern = NULL) {
 }
 
 
-
-#' @export
+#' @param timeout (numeric scalar) Timeout (in seconds).
+#'
+#' @rdname pico_pipe
 pico_hosted_channels <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
   username <- pico_username()
   t_max <- proc.time()[3] + timeout
