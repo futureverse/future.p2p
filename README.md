@@ -23,7 +23,7 @@ print(v)
 
 ## ⚠️ Security ⚠️
 
-⚠️ _Important warning: Please note that there is nothing preventing a
+_Important warning: Please note that there is nothing preventing a
 user in your P2P cluster from sending malicious R code to your P2P
 worker!_
 
