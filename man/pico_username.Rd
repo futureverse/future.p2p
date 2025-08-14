@@ -4,7 +4,7 @@
 \alias{pico_username}
 \title{Gets your pico.sh username}
 \usage{
-pico_username(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10)
+pico_username(host = "pico.sh", ssh_args = NULL, timeout = 10)
 }
 \arguments{
 \item{host}{(character string) The hostname serving the pico service.}

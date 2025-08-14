@@ -1,3 +1,11 @@
+# Version 0.2.1 [2025-08-13]
+
+## Miscellaneous
+
+ * Pico username is now inferred using the new `ssh pico.sh user`
+   endpoint.
+
+
 # Version 0.2.0 [2025-08-13]
 
 ## Signficant Changes
