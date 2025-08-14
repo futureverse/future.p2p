@@ -11,51 +11,41 @@
 pico_username <- local({
   username <- NULL
   
-  function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
+  function(host = "pico.sh", ssh_args = NULL, timeout = 10.0) {
     if (is.null(username)) {
-      ## (1) Launch a temporary pico pipe with a random name
-      topic <- session_uuid()
-      p_pipe <- pico_pipe(topic, command = "pipe", args = "-r", host = host, ssh_args = ssh_args)
-      on.exit(tryCatch(pico_terminate(p_pipe), error = identity))
-      p <- p_pipe$process
-      msg <- sprintf("msg=%s", topic)
-      
-      ## (2) Wait for pico pipe to be up
-      t_max <- proc.time()[3] + timeout
-      pico_send_message(p_pipe, message = msg)
-      repeat {
-        bfr <- pico_receive_message(p_pipe)
-        if (length(bfr) > 0L) {
-          if (any(bfr == msg)) break
-        }
-        if (proc.time()[3] > t_max) {
-          stop("Failed to identity pico.sh username - echo failed")
-        }
-        Sys.sleep(0.1)
+      debug <- isTRUE(getOption("future.p2p.debug"))
+      if (debug) {
+        mdebug_push("pico_username() ...")
+        mdebugf("Host: %s", sQuote(host))
+        mdebugf("Timeout: %s seconds", timeout)
+        mstr(list(ssh_args = ssh_args))
+        mstr(list(ssh_args = ssh_args))
+        on.exit({
+          mdebug_pop()
+        })
       }
-      
-      ## (3) Get info pico pipe
-      t_max <- proc.time()[3] + timeout
-      pattern <- sprintf(".*[[:blank:]]([^/]+)/%s:.*", topic)
-      while (is.null(username)) local({
-        p_ls <- pico_pipe(command = "ls", host = host, ssh_args = ssh_args)
-        on.exit(tryCatch(pico_terminate(p_ls), error = identity))
-        p <- p_ls$process
-        if (length(bfr <- p$read_all_output_lines()) > 1L) {
-          line <- grep(pattern, bfr, value = TRUE)
-          if (length(line) == 1L) {
-            username <<- gsub(pattern, "\\1", line)
-            return(username)
-          }
-        }
-        if (proc.time()[3] > t_max) {
-          stop("Failed to identity pico.sh username - ls failed")
-        }
-        Sys.sleep(0.1)
-      })
+
+      ssh_config <- list(options = ssh_args, host = host)
+      args <- c(ssh_config[["options"]], ssh_config[["host"]], "user")
+      if (debug) {
+        mdebug("SSH call:")
+        mstr(list(args = args))
+      }
+
+      out <- system2("ssh", args = args, stdout = TRUE, stderr = TRUE, timeout = timeout)
+      if (debug) {
+        mdebug("SSH result:")
+        mstr(list(out = out))
+      }
+      status <- attr(out, "status")
+      if (!is.null(status)) {
+        stop(sprintf("Failed to infer pico.sh username. Exit code %s", status))
+      }
+      stopifnot(length(out) >= 3)
+      username <<- structure(out[1], id = out[2], created_on = as.POSIXct(sub("T", " ", out[3])), class = "pico_username")
     }
 
-    structure(username, class = "pico_username")
+    username
   }
 })
 
