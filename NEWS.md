@@ -1,6 +1,9 @@
 # Version (development version)
 
- * ...
+## Signficant Changes
+
+ * Package no longer attaches **future** when attached; the **future**
+   package is now only imported.
 
 
 # Version 0.2.1 [2025-08-13]
