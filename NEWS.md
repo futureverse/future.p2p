@@ -1,6 +1,6 @@
 # Version (development version)
 
-## Signficant Changes
+## Significant Changes
 
  * Package no longer attaches **future** when attached; the **future**
    package is now only imported.
@@ -16,7 +16,7 @@
 
 # Version 0.2.0 [2025-08-13]
 
-## Signficant Changes
+## Significant Changes
 
  * Removed internal functions from the public API.
 

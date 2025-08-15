@@ -68,9 +68,9 @@ There are mechanisms for launching P2P workers in _sandboxed_
 environments. For instance, by running P2P workers in a sandboxed
 virtual machine (VM), in a sandboxed Linux container
 (e.g. [Apptainer], [Docker] and [Podman]), or via dedicated sandboxing
-tools (e.g. [Bubblewrap], [Firejail], and macOS `sandbox-exec`), you
-can mitigate some of the risk of malicious code accessing the host
-machine where your personal data lives.
+tools (e.g. [Bubblewrap], [Firejail], [landrun], and macOS
+`sandbox-exec`), you can mitigate some of the risk of malicious code
+accessing the host machine where your personal data lives.
 
 
 
@@ -136,3 +136,4 @@ able to connect to the P2P cluster from R.
 [Podman]: https://podman.io/
 [Bubblewrap]: https://github.com/containers/bubblewrap
 [Firejail]: https://github.com/netblue30/firejail
+[landrun]: https://github.com/Zouuup/landrun
