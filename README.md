@@ -53,7 +53,7 @@ users.
 
 There are mechanisms for launching P2P workers in _sandboxed_
 environments. For instance, by running P2P workers in a sandboxed
-virtual machine (VM), in a sandboxed Linux container
+virtual machine (VM, e.g. [quickemu]), in a sandboxed Linux container
 (e.g. [Apptainer], [Docker] and [Podman]), or via dedicated sandboxing
 tools (e.g. [Bubblewrap], [Firejail], [landrun], and macOS
 `sandbox-exec`), you can mitigate some of the risk of malicious code
@@ -204,6 +204,7 @@ variable `http_proxy`, e.g.
 [pico.sh]: https://pico.sh/
 [Magic-Wormhole]: https://magic-wormhole.readthedocs.io/en/latest/
 [wormhole-william]: https://github.com/psanford/wormhole-william
+[quickemu]: https://github.com/quickemu-project/quickemu
 [Apptainer]: https://apptainer.org/
 [Docker]: https://www.docker.com/
 [Podman]: https://podman.io/
