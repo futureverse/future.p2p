@@ -16,7 +16,7 @@ have access. After this, each of you can contribute as many workers as
 you like, and each of you can distribute your R processing to this P2P
 cluster.
 
-This document gives instructions how to set up a _shared_ P2P
+This document gives instructions on how to set up a _shared_ P2P
 cluster. The process is almost as simple as setting up a personal P2P
 cluster. If this is the first time using **[future.p2p]**, I recommend
 starting out with a _personal_ P2P cluster just to get a feel for what
@@ -94,5 +94,5 @@ Each tile will be processed by a separate P2P worker.
       cluster with computers running externally, e.g. your friends
       computers.
 
-[future.p2p]: https://github.com/futureverse/future.p2p
+[future.p2p]: https://future.p2p.futureverse.org/
 [future]: https://future.futureverse.org

@@ -130,7 +130,7 @@ Make sure to _accept the SSH fingerprint_, otherwise you will not be
 able to connect to the P2P cluster from R.
 
 [pico.sh]: https://pico.sh/
-[future.p2p]: https://github.com/futureverse/future.p2p
+[future.p2p]: https://future.p2p.futureverse.org/
 [quickemu]: https://github.com/quickemu-project/quickemu
 [Apptainer]: https://apptainer.org/
 [Docker]: https://www.docker.com/
