@@ -13,7 +13,7 @@ If you have access to different machines, locally or remotely, you can
 set up a "personal" P2P cluster to distribute you R tasks to those
 machines using the **[future.p2p]** package.
 
-This document gives instructions how to set up a _personal_ P2P
+This document gives instructions on how to set up a _personal_ P2P
 cluster. Setting up a "personal" cluster is very easy. You can either
 set up the `plan()` first or launch your P2P workers first - the order
 does not matter. I find in convenient to launch the P2P workers first.
@@ -68,5 +68,5 @@ needed for _shared_ P2P cluster.
       cluster with computers running externally, e.g. your friends
       computers.
 
-[future.p2p]: https://github.com/futureverse/future.p2p
+[future.p2p]: https://future.p2p.futureverse.org/
 [future]: https://future.futureverse.org

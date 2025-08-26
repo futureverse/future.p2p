@@ -15,9 +15,11 @@ doi
 hardcoded
 hostname
 jumphost
+landrun
 multiprocess
 parallelization
 pico
+quickemu
 sandboxed
 sandboxing
 unsetting

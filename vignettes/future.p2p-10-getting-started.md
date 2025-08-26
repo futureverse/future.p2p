@@ -66,11 +66,11 @@ users.
 
 There are mechanisms for launching P2P workers in _sandboxed_
 environments. For instance, by running P2P workers in a sandboxed
-virtual machine (VM), in a sandboxed Linux container
+virtual machine (VM, e.g. [quickemu]), in a sandboxed Linux container
 (e.g. [Apptainer], [Docker] and [Podman]), or via dedicated sandboxing
-tools (e.g. [Bubblewrap], [Firejail], and macOS `sandbox-exec`), you
-can mitigate some of the risk of malicious code accessing the host
-machine where your personal data lives.
+tools (e.g. [Bubblewrap], [Firejail], [landrun], and macOS
+`sandbox-exec`), you can mitigate some of the risk of malicious code
+accessing the host machine where your personal data lives.
 
 
 
@@ -130,9 +130,11 @@ Make sure to _accept the SSH fingerprint_, otherwise you will not be
 able to connect to the P2P cluster from R.
 
 [pico.sh]: https://pico.sh/
-[future.p2p]: https://github.com/futureverse/future.p2p
+[future.p2p]: https://future.p2p.futureverse.org/
+[quickemu]: https://github.com/quickemu-project/quickemu
 [Apptainer]: https://apptainer.org/
 [Docker]: https://www.docker.com/
 [Podman]: https://podman.io/
 [Bubblewrap]: https://github.com/containers/bubblewrap
 [Firejail]: https://github.com/netblue30/firejail
+[landrun]: https://github.com/Zouuup/landrun
