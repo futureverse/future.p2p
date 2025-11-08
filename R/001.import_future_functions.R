@@ -15,3 +15,13 @@ import_future_functions <- function() {
 
   .debug <<- import_future(".debug", mode = "environment", default = new.env(parent = emptyenv()))
 }
+
+
+#' @importFrom utils packageVersion
+future_supports_state_submitted <- local({
+  .value <- NA
+  function() {
+    if (is.na(.value)) .value <<- (packageVersion("future") > "1.67.0")
+    .value
+  }
+})
