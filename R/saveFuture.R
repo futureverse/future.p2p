@@ -23,8 +23,33 @@ saveFuture <- function(future, file = NULL, path = tempdir(), vanilla = TRUE) {
     future <- cloneFuture(future, uuid = TRUE)
   }
 
-  saveRDS(future, file = file)
+  save_rds(future, file = file)
   attr(file, "future_id") <- future_id(future)
 
   invisible(file)
+}
+
+
+#' @importFrom utils file_test
+save_rds <- function(object, file, ...) {
+  file_tmp <- sprintf("%s.tmp", file)
+  if (file_test("-f", file_tmp)) {
+    stop("Cannot save RDS file. It is already in the process of being saved: ", sQuote(file_tmp))
+  }
+  
+  on.exit({
+    if (file_test("-f", file_tmp)) file.remove(file_tmp)
+  })
+  
+  saveRDS(object, file = file_tmp, ...)
+
+  ## Overwrite, just like saveRDS() does
+  if (file_test("-f", file)) file.remove(file)
+  file.rename(file_tmp, file)
+
+ if (!file_test("-f", file)) {
+   stop("Failed to save object to file: ", sQuote(file))
+ }
+ 
+ invisible(file)
 }
