@@ -53,7 +53,14 @@ result.PicoP2PFuture <- function(future, ...) {
   rx <- future[["rx"]]
   if (debug) mdebug("Waiting for dispatch process to finish")
   rx$wait()
+
+  ## Get the results
   file <- rx$get_result()
+
+  ## Finalize the 'callr' process, which includes removing any temporary
+  ## files that it created
+  rx$finalize()
+
   future[["rx"]] <- NULL
   if (debug) mdebugf("FutureResult file: %s [%g bytes]", sQuote(file), file.size(file))
   if (!file_test("-f", file)) {
