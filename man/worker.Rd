@@ -30,7 +30,7 @@ to with a single CPU core to prevent nested parallelization.
 }
 
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 ## Start a P2P cluster worker
 future.p2p::worker()
 \dontshow{\}) # examplesIf}
