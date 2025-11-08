@@ -25,6 +25,38 @@ resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
   ## Still running?
   rx <- future[["rx"]]
   resolved <- !rx$is_alive()
+
+  channels <- attr(rx, "channels", exact = TRUE)
+
+  state <- future[["state"]]
+  
+  ## Update state?
+  if (state == "submitted" || state == "running") {
+    if (debug) mdebugf("Future state before: %s", commaq(state))
+    from_child <- function() {
+      file <- attr(rx, "channels", exact = TRUE)[["rx"]]
+      if (is.null(file)) return(character(0L))
+      if (!file_test("-f", file)) return(character(0L))
+      readLines(file, n = 1e6, warn = FALSE)
+    } ## from_child()
+
+    bfr <- from_child()
+    if (debug) mdebugf("Child process updates: [n=%d] %s", length(bfr), commaq(bfr))
+    if ("wait" %in% bfr) state <- "running"
+    future[["state"]] <- state
+    if (debug) mdebugf("Future state after: %s", commaq(state))
+  }
+
+  ## Remove communication channels?
+  if (resolved) {
+    future[["state"]] <- "finished"
+    if (length(channels) > 0) {
+      if (debug) mdebugf("Removing communication channel files: [n=%d] %s", length(channels), commaq(channels))
+      file.remove(channels)
+      attr(rx, "channels") <- NULL
+      future[["rx"]] <- rx
+    }
+  }
   
   resolved
 }
@@ -51,6 +83,7 @@ result.PicoP2PFuture <- function(future, ...) {
   }
 
   rx <- future[["rx"]]
+
   if (debug) mdebug("Waiting for dispatch process to finish")
   rx$wait()
 
@@ -60,6 +93,13 @@ result.PicoP2PFuture <- function(future, ...) {
   ## Finalize the 'callr' process, which includes removing any temporary
   ## files that it created
   rx$finalize()
+
+  ## Remove communication channels
+  channels <- attr(rx, "channels", exact = TRUE)
+  if (length(channels) > 0) {
+    if (debug) mdebugf("Removing communication channel files: [n=%d] %s", length(channels), commaq(channels))
+    file.remove(channels)
+  }
 
   future[["rx"]] <- NULL
   if (debug) mdebugf("FutureResult file: %s [%g bytes]", sQuote(file), file.size(file))
