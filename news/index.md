@@ -2,6 +2,10 @@
 
 ## Version (development version)
 
+### New Features
+
+- Add support for canceling and interrupting ‘future.p2p’ futures.
+
 ### Bug Fixes
 
 - The `future.p2p` backend was holding on to temporary **callr** files
