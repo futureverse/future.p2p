@@ -21,12 +21,6 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
   }
-  
-  old_opts <- options(parallelly.availableCores.fallback = 1L)
-  on.exit(options(old_opts))
-  with(plan(sequential), local = TRUE)
-
-  now <- pico_p2p_time()
 
   if (inherits(duration, "ssh_args")) {
     ## e.g. ssh_args = "-J dt1"
@@ -36,7 +30,22 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
   if (inherits(duration, "cmd_arg")) {
     duration <- as.numeric(duration)
   }
-  
+
+  info("install wormhole-william, if missing")
+  bin <- find_wormhole()
+
+  run_worker(cluster = cluster, worker_id = p2p_worker_id(), host = host, ssh_args = ssh_args, duration = duration)
+} ## worker()
+
+
+#' @importFrom future plan
+run_worker <- function(cluster, worker_id, host, ssh_args, duration) {
+  old_opts <- options(parallelly.availableCores.fallback = 1L)
+  on.exit(options(old_opts))
+  with(plan(sequential), local = TRUE)
+
+  now <- pico_p2p_time()
+
   expires <- pico_p2p_time(delta = duration)
   duration <- difftime(duration, 0)
 
@@ -44,19 +53,18 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
   bin <- find_wormhole()
 
   info("assert connection to p2p cluster %s", sQuote(cluster))
-  name <- p2p_worker_id()
-  if (!p2p_can_connect(cluster, name = name, host = host, ssh_args = ssh_args)) {
+  if (!p2p_can_connect(cluster, name = worker_id, host = host, ssh_args = ssh_args)) {
     stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username())))
   }
 
-  info("connect worker %s to p2p cluster %s for %s until %s", sQuote(name), sQuote(cluster), format(duration), expires)
+  info("connect worker %s to p2p cluster %s for %s until %s", sQuote(worker_id), sQuote(cluster), format(duration), expires)
   cluster_owner <- dirname(cluster)
   if (cluster_owner == pico_username()) {
     topic <- sprintf("%s/future.p2p", basename(cluster))
   } else {
     topic <- sprintf("%s/future.p2p", cluster)
   }
-  p <- pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
+  p <- pico_pipe(topic, user = worker_id, host = host, ssh_args = ssh_args)
 
   repeat {
     if (Sys.time() > expires) {
@@ -92,7 +100,7 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
       next
     }
 
-    if (m[["to"]] == name) {
+    if (m[["to"]] == worker_id) {
       info("receive future from %s", sQuote(client))
       res <- pico_p2p_receive_future(p, via = m[["via"]])
       f <- res[["future"]]
@@ -107,8 +115,9 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
       res <- pico_p2p_send_result(p, future = f, via = m[["via"]])
     }
   } ## repeat()
+  
   info("bye")
-} ## worker()
+} ## run_worker()
 
 
 ## Expose function on the CLI
