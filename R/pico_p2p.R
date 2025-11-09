@@ -323,20 +323,6 @@ pico_p2p_hosted_clusters <- function(host = "pipe.pico.sh", ssh_args = NULL, tim
 #' @importFrom utils file_test
 pico_p2p_dispatch_future <- function(future) {
   send_future <- function(topic, name, host = host, ssh_args = ssh_args, future_id, file, to, via, duration, channels) {
-    ## Import private pico_nnn() functions, because this function
-    ## is run as-is on the parallel worker
-    import_future.p2p <- function(name, mode = "function", envir = getNamespace("future.p2p"), inherits = FALSE) {
-      get(name, envir = envir, mode = mode, inherits = inherits)
-    }
-    
-    pico_pipe <- import_future.p2p("pico_pipe")
-    pico_p2p_hello <- import_future.p2p("pico_p2p_hello")
-    pico_p2p_have_future <- import_future.p2p("pico_p2p_have_future")
-    pico_p2p_wait_for <- import_future.p2p("pico_p2p_wait_for")
-    pico_p2p_send_future <- import_future.p2p("pico_p2p_send_future")
-    pico_p2p_withdraw_future <- import_future.p2p("pico_p2p_withdraw_future")
-    pico_p2p_receive_result <- import_future.p2p("pico_p2p_receive_result")
-
     update_parent <- function(msg, ...) {
       rx <- channels[["rx"]]
       if (is.null(rx)) return()
@@ -477,7 +463,7 @@ pico_p2p_dispatch_future <- function(future) {
     mstr(args)
   }
 
-  rx <- r_bg(send_future, args = args, supervise = TRUE)
+  rx <- r_bg(send_future, args = args, supervise = TRUE, package = TRUE)
   attr(rx, "channels") <- args[["channels"]]
   future[["rx"]] <- rx
 
