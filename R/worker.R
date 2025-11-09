@@ -15,6 +15,7 @@
 #' to with a single CPU core to prevent nested parallelization.
 #'
 #' @importFrom future resolve plan sequential
+#' @importFrom processx poll
 #' @export
 worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
@@ -34,12 +35,61 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
   info("install wormhole-william, if missing")
   bin <- find_wormhole()
 
-  run_worker(cluster = cluster, worker_id = p2p_worker_id(), host = host, ssh_args = ssh_args, duration = duration)
+  channel_prefix <- sprintf("%s_%s", .packageName, session_uuid())
+  channels <- c(
+    tx = tempfile(pattern = channel_prefix, fileext = ".tx"),
+    rx = tempfile(pattern = channel_prefix, fileext = ".rx")
+  )
+  lapply(channels, FUN = file.create, showWarnings = FALSE)
+  on.exit({
+    lapply(channels, FUN = file.remove, showWarnings = FALSE)
+  })
+  
+  args <- list(
+    cluster = cluster,
+    worker_id = p2p_worker_id(),
+    host = host,
+    ssh_args = ssh_args,
+    duration = duration,
+    channels = channels
+  )
+
+  info("launching worker")
+  rx <- r_bg(run_worker, args = args, supervise = TRUE, package = TRUE)
+  attr(rx, "channels") <- args[["channels"]]
+
+  ## Relay output from the worker process
+  while (rx$is_alive()) {
+    res <- poll(list(rx), ms = -1)[[1]]
+
+    ## Relay stdout?
+    if ("ready" %in% res[["output"]]) {
+      out <- rx$read_output_lines()
+      writeLines(out, con = stdout())
+    }
+    
+    ## Relay stderr?
+    if ("ready" %in% res[["error"]]) {
+      err <- rx$read_error_lines()
+      writeLines(err, con = stderr())
+    }
+  }
+
+  info("wait for worker process to terminate")
+  rx$wait()
+
+  info("get worker process result")
+  results <- rx$get_result()
+  
+  info("finalize worker process")
+  rx$finalize()
+  
+  invisible(result)
 } ## worker()
 
 
 #' @importFrom future plan
-run_worker <- function(cluster, worker_id, host, ssh_args, duration) {
+run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
   old_opts <- options(parallelly.availableCores.fallback = 1L)
   on.exit(options(old_opts))
   with(plan(sequential), local = TRUE)
@@ -74,7 +124,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration) {
     
     info("hello")
     m <- pico_p2p_hello(p, type = "worker", expires = expires)
-  
+    
     info("wait for request")
     m <- pico_p2p_wait_for(p, type = "request", expires = expires)
     if (m[["type"]] == "expired") {
@@ -93,7 +143,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration) {
       info("future request expired")
       next
     }
-
+   
     uri <- parse_transfer_uri(m[["via"]])
     if (!uri[["protocol"]] %in% supported_transfer_protocols()) {
       info("non-supported protocol")
