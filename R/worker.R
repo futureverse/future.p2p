@@ -14,7 +14,6 @@
 #' A P2P worker runs sequentially (`plan(sequential)`) and is configured
 #' to with a single CPU core to prevent nested parallelization.
 #'
-#' @importFrom future resolve plan sequential
 #' @importFrom processx poll
 #' @export
 worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
@@ -32,8 +31,14 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
     duration <- as.numeric(duration)
   }
 
-  info("install wormhole-william, if missing")
+  info("install 'wormhole', if missing")
   bin <- find_wormhole()
+
+  info("assert connection to p2p cluster %s", sQuote(cluster))
+  worker_id <- p2p_worker_id()
+  if (!p2p_can_connect(cluster, name = worker_id, host = host, ssh_args = ssh_args)) {
+    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username())))
+  }
 
   channel_prefix <- sprintf("%s_%s", .packageName, session_uuid())
   channels <- c(
@@ -44,23 +49,61 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
   on.exit({
     lapply(channels, FUN = file.remove, showWarnings = FALSE)
   })
-  
+
   args <- list(
     cluster = cluster,
-    worker_id = p2p_worker_id(),
+    worker_id = worker_id,
     host = host,
     ssh_args = ssh_args,
     duration = duration,
     channels = channels
   )
 
-  info("launching worker")
+  info("connect worker %s to p2p cluster %s", sQuote(worker_id), sQuote(cluster))
+  cluster_owner <- dirname(cluster)
+  if (cluster_owner == pico_username()) {
+    topic <- sprintf("%s/future.p2p", basename(cluster))
+  } else {
+    topic <- sprintf("%s/future.p2p", cluster)
+  }
+  p <- pico_pipe(topic, user = worker_id, host = host, ssh_args = ssh_args)
+
+  info("launching background worker process")
   rx <- r_bg(run_worker, args = args, supervise = TRUE, package = TRUE)
   attr(rx, "channels") <- args[["channels"]]
 
+  future_uuid <- NULL
+
   ## Relay output from the worker process
   while (rx$is_alive()) {
-    res <- poll(list(rx), ms = -1)[[1]]
+    bfr <- readLines(channels[["rx"]], n = 1e6, warn = FALSE)
+    if (any(grepl("^future=", bfr))) {
+      future_uuid <- grep("^future=", bfr, value = TRUE)
+      if (length(future_uuid) > 0) {
+        stopifnot(length(future_uuid) == 1L)
+        future_uuid <- sub("^future=", "", future_uuid)
+        info(sprintf("Processing future %s", future_uuid))
+        
+        ## Consume communication channel 'rx'
+        file.create(channels[["rx"]])
+      }
+    }
+  
+    m <- pico_p2p_next_message(p)
+    if (!is.null(m)) {
+      to <- m[["to"]]
+      if (identical(to, worker_id)) {
+        type <- m[["type"]]
+        future_id <- m[["future"]]
+        if ("withdraw" %in% type && future_id %in% future_uuid) {
+          info("interrupting worker process for future %s", sQuote(future_id))
+          rx$interrupt()
+          future_uuid <- NULL
+        }
+      }
+    }
+  
+    res <- poll(list(rx), ms = 100)[[1]]
 
     ## Relay stdout?
     if ("ready" %in% res[["output"]]) {
@@ -73,7 +116,7 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
       err <- rx$read_error_lines()
       writeLines(err, con = stderr())
     }
-  }
+  } ## while (rx$is_alive())
 
   info("wait for worker process to terminate")
   rx$wait()
@@ -88,7 +131,7 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
 } ## worker()
 
 
-#' @importFrom future plan
+#' @importFrom future resolve plan sequential
 run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
   old_opts <- options(parallelly.availableCores.fallback = 1L)
   on.exit(options(old_opts))
@@ -99,7 +142,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
   expires <- pico_p2p_time(delta = duration)
   duration <- difftime(duration, 0)
 
-  info("install wormhole-william, if missing")
+  info("get 'wormhole'")
   bin <- find_wormhole()
 
   info("assert connection to p2p cluster %s", sQuote(cluster))
@@ -107,7 +150,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
     stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username())))
   }
 
-  info("connect worker %s to p2p cluster %s for %s until %s", sQuote(worker_id), sQuote(cluster), format(duration), expires)
+  info("connect background worker process %s to p2p cluster %s for %s until %s", sQuote(worker_id), sQuote(cluster), format(duration), expires)
   cluster_owner <- dirname(cluster)
   if (cluster_owner == pico_username()) {
     topic <- sprintf("%s/future.p2p", basename(cluster))
@@ -116,7 +159,13 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
   }
   p <- pico_pipe(topic, user = worker_id, host = host, ssh_args = ssh_args)
 
-  repeat {
+  rx <- channels[["rx"]]
+  tx <- channels[["tx"]]
+  
+  repeat tryCatch({
+    ## Erase communication channels
+    file.create(channels)
+  
     if (Sys.time() > expires) {
       info("time is out")
       break
@@ -138,12 +187,17 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
     pico_p2p_take_on_future(p, to = client, future = m$future)
 
     info("wait for accept")
-    m <- pico_p2p_wait_for(p, type = "accept", futures = m$future)
+    m <- pico_p2p_wait_for(p, type = c("accept", "withdraw"), futures = m$future)
     if (m[["type"]] == "expired") {
       info("future request expired")
       next
     }
-   
+
+    if (m[["type"]] == "withdraw") {
+      info("future request withdraws")
+      next
+    }
+
     uri <- parse_transfer_uri(m[["via"]])
     if (!uri[["protocol"]] %in% supported_transfer_protocols()) {
       info("non-supported protocol")
@@ -154,17 +208,23 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
       info("receive future from %s", sQuote(client))
       res <- pico_p2p_receive_future(p, via = m[["via"]])
       f <- res[["future"]]
-  
+      cat(sprintf("future=%s", f[["uuid"]]), file = rx, append = FALSE)
+
       info("process future %s:%s", sQuote(client), sQuoteLabel(f))
       dt <- system.time({
         r <- tryCatch(result(f), error = identity)
       })
       dt <- difftime(dt[3], 0)
+      
+      ## Erase communication channels
+      file.create(channels)
 
       info("send future result to %s after %s processing", sQuote(client), format(dt))
       res <- pico_p2p_send_result(p, future = f, via = m[["via"]])
     }
-  } ## repeat()
+  }, interrupt = function(c) {
+    info("interrupted")
+  }) ## repeat tryCatch({ ... })
   
   info("bye")
 } ## run_worker()

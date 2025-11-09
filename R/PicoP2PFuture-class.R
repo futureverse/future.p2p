@@ -90,6 +90,14 @@ result.PicoP2PFuture <- function(future, ...) {
   ## Get the results
   response <- rx$get_result()
 
+  ## Relay stdout?
+  out <- rx$read_output_lines()
+  writeLines(out, con = stdout())
+    
+  ## Relay stderr?
+  err <- rx$read_error_lines()
+  writeLines(err, con = stderr())
+
   ## Finalize the 'callr' process, which includes removing any temporary
   ## files that it created
   rx$finalize()
