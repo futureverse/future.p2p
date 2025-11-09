@@ -134,6 +134,30 @@ pico_p2p_have_future <- function(p, future, duration = getOption("future.p2p.dur
   pico_send_message_dataframe(p, m)
 }
 
+
+pico_p2p_withdraw_future <- function(p, future_id = future_id, from = p$user, ...) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_p2p_widthdraw_future() ...")
+    mdebugf("Future: %s", future_id)
+    on.exit({
+      mdebug_pop()
+    })
+  }
+   
+  stopifnot(length(from) == 1L, is.character(from), nzchar(from))
+
+  m <- data.frame(
+    when = now_str(),
+    type = "withdraw",
+    from = from,
+    future = future_id
+  )
+  
+  pico_send_message_dataframe(p, m)
+}
+
+
 pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -142,7 +166,7 @@ pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user,
     mdebugf("Duration: %g seconds", duration)
     on.exit({
       mdebug_pop()
-    })
+    })    
   }
   
   stopifnot(length(future) == 1L, is.character(future), nzchar(future))
@@ -310,6 +334,7 @@ pico_p2p_dispatch_future <- function(future) {
     pico_p2p_have_future <- import_future.p2p("pico_p2p_have_future")
     pico_p2p_wait_for <- import_future.p2p("pico_p2p_wait_for")
     pico_p2p_send_future <- import_future.p2p("pico_p2p_send_future")
+    pico_p2p_withdraw_future <- import_future.p2p("pico_p2p_withdraw_future")
     pico_p2p_receive_result <- import_future.p2p("pico_p2p_receive_result")
 
     update_parent <- function(msg, ...) {
@@ -354,7 +379,7 @@ pico_p2p_dispatch_future <- function(future) {
 
       ## Check for interrupts
       if ("interrupt" %in% listen_parent()) {
-        ## TODO: Withdraw future
+        m0 <- pico_p2p_withdraw_future(pico, future_id = future_id)
         return(list(type = "event", value = "interrupted"))
       }
 
@@ -362,7 +387,7 @@ pico_p2p_dispatch_future <- function(future) {
       
       ## Check for interrupts
       if ("interrupt" %in% listen_parent()) {
-        ## TODO: Withdraw future
+        m0 <- pico_p2p_withdraw_future(pico, future_id = future_id)
         return(list(type = "event", value = "interrupted"))
       }
 
@@ -380,7 +405,7 @@ pico_p2p_dispatch_future <- function(future) {
 
     ## Check for interrupts
     if ("interrupt" %in% listen_parent()) {
-      ## TODO: Withdraw future
+      m0 <- pico_p2p_withdraw_future(pico, future_id = future_id)
       return(list(type = "event", value = "interrupted"))
     }
 
@@ -390,7 +415,7 @@ pico_p2p_dispatch_future <- function(future) {
     tryCatch({
       file <- pico_p2p_receive_result(pico, via = via, path = path)
     }, interrupt = function(int) {
-      ## TODO: Withdraw future
+      m0 <- pico_p2p_withdraw_future(pico, future_id = future_id)
       return(list(type = "event", value = "interrupted"))
     })
 
