@@ -294,6 +294,7 @@ pico_p2p_hosted_clusters <- function(host = "pipe.pico.sh", ssh_args = NULL, tim
 
 
 
+#' @importFrom future FutureInterruptError FutureResult
 #' @importFrom callr r_bg
 #' @importFrom utils file_test
 pico_p2p_dispatch_future <- function(future) {
@@ -312,21 +313,59 @@ pico_p2p_dispatch_future <- function(future) {
     pico_p2p_receive_result <- import_future.p2p("pico_p2p_receive_result")
 
     update_parent <- function(msg, ...) {
+      rx <- channels[["rx"]]
+      if (is.null(rx)) return()
       msg <- sprintf("%s\n", msg)
-      cat(msg, file = channels[["rx"]], append = TRUE)
+      cat(msg, file = rx, append = TRUE)
     }
 
+    listen_parent <- function(...) {
+      tx <- channels[["tx"]]
+      if (is.null(tx)) return(character(0L))
+      readLines(tx, n = 1e6, warn = FALSE)
+    }
+
+    ## Check for interrupts
+    if ("interrupt" %in% listen_parent()) {
+      return(list(type = "event", value = "interrupted"))
+    }
+    
     update_parent("connecting")
     pico <- pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
+    
+    ## Check for interrupts
+    if ("interrupt" %in% listen_parent()) {
+      return(list(type = "event", value = "interrupted"))
+    }
+    
     update_parent("announcement")
     m <- pico_p2p_hello(pico, type = "client")
+    ## Check for interrupts
+    if ("interrupt" %in% listen_parent()) {
+      return(list(type = "event", value = "interrupted"))
+    }
+    
     update_parent("connected")
 
     ## 2. Announce future
     repeat {
       update_parent("request")
       m1 <- pico_p2p_have_future(pico, future = file, duration = duration)
+
+      ## Check for interrupts
+      if ("interrupt" %in% listen_parent()) {
+        ## TODO: Withdraw future
+        return(list(type = "event", value = "interrupted"))
+      }
+
       m2 <- pico_p2p_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
+      
+      ## Check for interrupts
+      if ("interrupt" %in% listen_parent()) {
+        ## TODO: Withdraw future
+        return(list(type = "event", value = "interrupted"))
+      }
+
       if (m2[["type"]] != "expired") break
     }
 
@@ -339,18 +378,25 @@ pico_p2p_dispatch_future <- function(future) {
     ## 4. Remove temporary file
     file.remove(file)
 
+    ## Check for interrupts
+    if ("interrupt" %in% listen_parent()) {
+      ## TODO: Withdraw future
+      return(list(type = "event", value = "interrupted"))
+    }
+
     ## 5. Wait for and receive FutureResult file
     update_parent("wait")
     path <- file.path(dirname(dirname(file)), "results")
     tryCatch({
       file <- pico_p2p_receive_result(pico, via = via, path = path)
     }, interrupt = function(int) {
-      cat(file = "foo.log", "interrupted\n")
+      ## TODO: Withdraw future
+      return(list(type = "event", value = "interrupted"))
     })
 
     update_parent("result")
 
-    invisible(file)
+    list(type = "file", value = file)
   } ## send_future()
 
   debug <- isTRUE(getOption("future.p2p.debug"))

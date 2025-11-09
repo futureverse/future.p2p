@@ -88,7 +88,7 @@ result.PicoP2PFuture <- function(future, ...) {
   rx$wait()
 
   ## Get the results
-  file <- rx$get_result()
+  response <- rx$get_result()
 
   ## Finalize the 'callr' process, which includes removing any temporary
   ## files that it created
@@ -102,21 +102,42 @@ result.PicoP2PFuture <- function(future, ...) {
   }
 
   future[["rx"]] <- NULL
-  if (debug) mdebugf("FutureResult file: %s [%g bytes]", sQuote(file), file.size(file))
-  if (!file_test("-f", file)) {
-    stop(FutureError(sprintf("FutureResult file not found: ", sQuote(file))), future = future)
-  }
-  
-  result <- local({
-    if (debug) {
-      mdebug_push("Reading FutureResult from file")
-      mdebugf("FutureResult file: %s [%g bytes]", sQuote(file), file.size(file))
-      on.exit(mdebug_pop())
+
+  stop_if_not(is.list(response))
+  type <- response[["type"]]
+  if (type == "event") {
+    event <- response[["value"]]
+    if (event == "interrupted") {
+      result <- FutureResult(
+        conditions = list(list(
+          condition = structure(list(), class = c("interrupt", "condition")),
+          signaled = 0L
+        )),
+        uuid = future[["uuid"]]
+      )
+    } else {
+      stop(FutureError(sprintf("Unknown event from future dispatcher: event = %s", sQuote(event))))
     }
-    result <- readRDS(file)
-    file.remove(file)
-    result
-  })
+  } else if (type == "file") {
+    file <- response[["value"]]
+    if (debug) mdebugf("FutureResult file: %s [%g bytes]", sQuote(file), file.size(file))
+    if (!file_test("-f", file)) {
+      stop(FutureError(sprintf("FutureResult file not found: ", sQuote(file))), future = future)
+    }
+  
+    result <- local({
+      if (debug) {
+        mdebug_push("Reading FutureResult from file")
+        mdebugf("FutureResult file: %s [%g bytes]", sQuote(file), file.size(file))
+        on.exit(mdebug_pop())
+      }
+      result <- readRDS(file)
+      file.remove(file)
+      result
+    })
+  } else {
+    stop(FutureError(sprintf("Unknown response from future dispatcher: type = %s", sQuote(type))))
+  }
     
   future[["result"]] <- result
   

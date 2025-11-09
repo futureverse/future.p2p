@@ -144,6 +144,43 @@ launchFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
 } ## launchFuture()
 
 
+#' @importFrom future interruptFuture
+#' @export
+interruptFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
+  debug <- isTRUE(getOption("future.debug"))
+  if (debug) {
+    mdebugf_push("interruptFuture(<%s>, future = <%s>, ...) ...", class(backend)[1], class(future)[1])
+    on.exit(mdebugf_pop())
+  }
+  
+  ## Has interrupts been disabled by user?
+  if (!backend[["interrupts"]]) {
+    if (debug) mdebug("Skipping, because interrupts are disabled for this backend")
+    return(future)
+  }
+  
+  rx <- future[["rx"]]
+  if (is.null(rx)) {
+    if (debug) mdebug("Skipping, because there is no future dispatcher processes")
+    return(future)
+  }
+
+  channels <- attr(rx, "channels", exact = TRUE)
+  tx <- channels[["tx"]]
+  if (is.null(tx)) {
+    if (debug) mdebug("Skipping, because there is no communication channel to future dispatcher processes")
+    return(future)
+  }
+
+  cat("interrupt", file = tx, append = TRUE)
+  if (debug) mdebug("Sent 'interrupt' to future dispatcher processes")
+  
+  future[["state"]] <- "interrupted"
+  
+  future
+}
+
+
 #' @importFrom future nbrOfWorkers
 #' @export
 nbrOfWorkers.PicoP2PFutureBackend <- function(evaluator) {
