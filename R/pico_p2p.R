@@ -159,7 +159,7 @@ pico_p2p_withdraw_future <- function(p, from = p$user, to, future_id, ...) {
 }
 
 
-pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user, ...) {
+pico_p2p_take_on_future <- function(p, to, future, duration = 15, from = p$user, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("pico_p2p_take_on_future() ...")
