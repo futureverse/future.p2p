@@ -48,8 +48,27 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
   lapply(channels, FUN = file.create, showWarnings = FALSE)
   on.exit({
     lapply(channels, FUN = file.remove, showWarnings = FALSE)
-  })
+  }, add = TRUE)
 
+  rx_worker <- function(channel = channels[["rx"]], clear = TRUE) {
+    if (file.size(channel) == 0L) return(character(0L))
+    ## Read everything available
+    bfr <- readLines(channel, n = 1e6, warn = FALSE)
+    ## Consume communication channel 'rx'?
+    if (clear) file.create(channel)
+    info("state = %s, rx_worker() = %s", sQuote(state), commaq(bfr))
+    bfr
+  } ## rx_worker()
+
+  tx_worker <- function(msg, channel = channels[["tx"]]) {
+    writeLines(msg, con = channel)
+  } ## tx_worker()
+
+
+  now <- pico_p2p_time()
+
+  expires <- pico_p2p_time(delta = duration)
+  
   args <- list(
     cluster = cluster,
     worker_id = worker_id,
@@ -67,63 +86,208 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
     topic <- sprintf("%s/future.p2p", cluster)
   }
   p <- pico_pipe(topic, user = worker_id, host = host, ssh_args = ssh_args)
+  on.exit({
+    ## FIXME: Update the P2P message board that we're disconnecting
+  }, add = TRUE)
 
   info("launching background worker process")
   rx <- r_bg(run_worker, args = args, supervise = TRUE, package = TRUE)
   attr(rx, "channels") <- args[["channels"]]
 
-  future_uuid <- NULL
+  ## Wait for worker to launch
+  info("waiting for worker process to start")
+  while ("started" %in% rx_worker()) {
+    Sys.sleep(0.1)
+  }
+  info("worker process started")
 
-  ## Relay output from the worker process
-  while (rx$is_alive()) {
-    bfr <- readLines(channels[["rx"]], n = 1e6, warn = FALSE)
-    if (any(grepl("^future=", bfr))) {
-      future_uuid <- grep("^future=", bfr, value = TRUE)
-      if (length(future_uuid) > 0) {
-        stopifnot(length(future_uuid) == 1L)
-        future_uuid <- sub("^future=", "", future_uuid)
-        info(sprintf("Processing future %s", future_uuid))
-        
-        ## Consume communication channel 'rx'
-        file.create(channels[["rx"]])
-      }
-    }
+  ## Announce we're available
+  info("announcing to p2p message board we are joining as a worker")
+  m <- pico_p2p_hello(p, type = "worker", expires = expires)
+
+  ## The ID of the future we're offering to work on or that is being processed
+  future <- NULL
+  client <- NULL
   
-    m <- pico_p2p_next_message(p)
-    if (!is.null(m)) {
-      to <- m[["to"]]
-      if (identical(to, worker_id)) {
-        type <- m[["type"]]
-        future_id <- m[["future"]]
-        if ("withdraw" %in% type && future_id %in% future_uuid) {
-          info("interrupting worker process for future %s", sQuote(future_id))
-          rx$interrupt()
-          future_uuid <- NULL
-        }
-      }
+  ## Main loop monitoring the P2P message board and the background worker
+  state <- "waiting"
+  repeat tryCatch({
+#    info("worker state=%s", sQuote(state))
+    
+    ## Is the worker process still alive
+    if (!rx$is_alive()) {
+      info("terminated")
+      ## FIXME: Update the P2P message board
+      break
     }
-  
+
+    ## Any updates from worker, e.g. output to be relayed?
     res <- poll(list(rx), ms = 100)[[1]]
 
     ## Relay stdout?
     if ("ready" %in% res[["output"]]) {
       out <- rx$read_output_lines()
+      out <- sprintf("[worker process] %s", out)
       writeLines(out, con = stdout())
     }
     
     ## Relay stderr?
     if ("ready" %in% res[["error"]]) {
       err <- rx$read_error_lines()
+      err <- sprintf("[worker process] %s", err)
       writeLines(err, con = stderr())
     }
-  } ## while (rx$is_alive())
 
-  info("wait for worker process to terminate")
+    if (state == "exit") {
+      info("Terminating worker")
+      break
+    }
+    
+    ## Expired?
+    if (Sys.time() > expires) {
+      info("time is out")
+      ## FIXME: Update the P2P message board
+      rx$interrupt()
+      future <- NULL
+      client <- NULL
+      break
+    }
+
+    ## Was worker process interrupted?
+    info <- rx_worker()
+    if ("interrupted" %in% info) {
+       state <- "waiting"
+       future <- NULL
+       client <- NULL
+       ## FIXME: Update client via P2P message board
+       next
+    }
+
+    ## Any messages from the P2P message board?
+#    res <- poll(list(p), ms = 100)[[1]]
+#    if (!"ready" %in% res[["output"]]) next
+
+    ## Read next message?
+    m <- pico_p2p_next_message(p)
+    
+    ## Expired?
+    if (Sys.time() > expires) {
+      info("expired")
+      rx$interrupt()
+      future <- NULL
+      client <- NULL
+      ## FIXME: Update the P2P message board
+      break
+    }
+
+    ## Process request?
+    if (length(m) > 0) {
+      ## Are we read to offer to do work?
+      if (state == "waiting" && m[["type"]] == "request") {
+        stop_if_not(is.null(future), is.null(client))
+        future <- m[["future"]]
+        client <- m[["from"]]
+        info("offer to process future %s for client %s", sQuote(future), sQuote(client))
+        state <- "offer"
+        pico_p2p_take_on_future(p, to = client, future = future)
+      } else if (state == "offer" && future %in% m[["future"]]) {
+        info("waiting for acceptance of our work offer")
+        if (m[["type"]] == "accept" && m[["to"]] == worker_id) {
+          info("client %s accepted our offer to process future %s", sQuote(client), sQuote(future))
+  
+          ## Do we support the file transfer protocol?
+          via <- m[["via"]]
+          uri <- parse_transfer_uri(via)
+          if (!uri[["protocol"]] %in% supported_transfer_protocols()) {
+            info("non-supported protocol")
+            ## FIXME: Decline work offer (although we can just ignore it
+            ## because the client did not respect what we support)
+            state <- "waiting"
+            future <- NULL
+            client <- NULL
+            next
+          }
+          
+          state <- "working"
+          
+          ## Tell worker to receive future from client
+          tx_worker(sprintf("download=%s,via=%s", future, via))
+          
+          ## Wait for worker to *start* download future
+          repeat {
+            info <- rx_worker()
+            if (length(info) == 0) {
+              Sys.sleep(0.1)
+              next
+            }
+  
+            if ("interrupted" %in% info) {
+              state <- "waiting"
+              future <- NULL
+              client <- NULL
+              ## FIXME: Update client via P2P message board
+              break
+            }
+            
+            if ("downloading" %in% info) {
+              ## FIXME: Acknowledge to work on future
+              break
+            }
+          }
+        } else if (m[["type"]] == "withdraw") {
+          info("client %s withdrew future %s", sQuote(client), sQuote(future))
+          state <- "waiting"
+          future <- NULL
+          client <- NULL
+          ## FIXME: Acknowledge withdrawal of future
+        }
+      } else if (state == "working") {
+        ## Withdrawal of future?
+        if (m[["type"]] == "withdraw" && future %in% m[["future"]]) {
+          info("Interrupting future %s, because client %s withdrew it", sQuote(client), sQuote(future))
+          state <- "interrupt"
+          rx$interrupt()
+          future <- NULL
+          client <- NULL
+          ## FIXME: Acknowledge withdrawal of future
+          next
+        }
+      }
+    } ## if (length(m) > 0)
+    
+    if (state == "working") {
+      ## Check if worker is done
+      if ("resolved" %in% info) {
+        state <- "resolved"
+        info("Future %s has been resolved and results will be sent to client %s", sQuote(future), sQuote(client))
+        ## FIXME: Inform client that future has been resolved
+      }
+    } else if (state == "resolved") {
+      ## Check if future results have been transferred
+      if ("uploaded" %in% info) {
+        state <- "waiting"
+        future <- NULL
+        client <- NULL
+        info("Future %s has been resolved and results have been sent to client %s", sQuote(future), sQuote(client))
+      }
+    }
+  }, interrupt = function(c) {
+    info("interrupted")
+    ## Interrupt worker
+    rx$interrupt()
+    future <- NULL
+    client <- NULL
+    ## FIXME: Update the P2P message board
+    state <<- "exit"
+  }) ## repeat tryCatch({ ... })
+
+  info("Waiting 5 seconds before kill worker process and its children ...")
+  Sys.sleep(5.0)
+  rx$kill_tree()
+
+  info("wait for the worker process to terminate")
   rx$wait()
 
-  info("get worker process result")
-  results <- rx$get_result()
-  
   info("finalize worker process")
   rx$finalize()
   
@@ -161,69 +325,60 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
 
   rx <- channels[["rx"]]
   tx <- channels[["tx"]]
-  
+
+  rx_parent <- function(channel = channels[["tx"]], clear = TRUE) {
+    ## Read everything available
+    bfr <- readLines(channel, n = 1e6, warn = FALSE)
+    ## Consume communication channel 'rx'?
+    if (clear) file.create(channel)
+    bfr
+  } ## rx_parent()
+
+  tx_parent <- function(msg, channel = channels[["rx"]]) {
+    writeLines(msg, con = channel)
+  } ## tx_parent()
+
+  ## Tell parent we're alive
+  tx_parent("started")
+
   repeat tryCatch({
-    ## Erase communication channels
-    file.create(channels)
-  
-    if (Sys.time() > expires) {
-      info("time is out")
-      break
-    }
-    
-    info("hello")
-    m <- pico_p2p_hello(p, type = "worker", expires = expires)
-    
-    info("wait for request")
-    m <- pico_p2p_wait_for(p, type = "request", expires = expires)
-    if (m[["type"]] == "expired") {
-      info("time is out")
-      break
-    }
-    
-    client <- m$from
-
-    info("offer to work for %s", sQuote(client))
-    pico_p2p_take_on_future(p, to = client, future = m$future)
-
-    info("wait for accept")
-    m <- pico_p2p_wait_for(p, type = c("accept", "withdraw"), futures = m$future)
-    if (m[["type"]] == "expired") {
-      info("future request expired")
+    ## Wait for instructions from parent
+    action <- rx_parent()
+    if (length(action) == 0) {
+      Sys.sleep(0.1)
       next
     }
 
-    if (m[["type"]] == "withdraw") {
-      info("future request withdraws")
-      next
-    }
-
-    uri <- parse_transfer_uri(m[["via"]])
-    if (!uri[["protocol"]] %in% supported_transfer_protocols()) {
-      info("non-supported protocol")
-      next
-    }
-
-    if (m[["to"]] == worker_id) {
-      info("receive future from %s", sQuote(client))
-      res <- pico_p2p_receive_future(p, via = m[["via"]])
+    ## Download and process future?
+    pattern <- "^download=([^,]+),via=(.*)$"
+    if (grepl(pattern, action)) {
+      future <- sub(pattern, "\\1", action)
+      via <- sub(pattern, "\\2", action)
+      info("download future %s via %s", sQuote(future), sQuote(via))
+      stop_if_not(
+        nzchar(future), !grepl("[,=]", future),
+        nzchar(via), !grepl("[,=]", via)
+      )
+      tx_parent("downloading")
+      res <- pico_p2p_receive_future(p, via = via)
       f <- res[["future"]]
-      cat(sprintf("future=%s", f[["uuid"]]), file = rx, append = FALSE)
+      stop_if_not(paste(f[["uuid"]], collapse = "-") == future)
 
-      info("process future %s:%s", sQuote(client), sQuoteLabel(f))
+      info("process future %s", sQuoteLabel(f))
       dt <- system.time({
         r <- tryCatch(result(f), error = identity)
       })
       dt <- difftime(dt[3], 0)
+      info("Future %s resolved after %s", sQuote(future), format(dt))
+      tx_parent("resolved")
       
-      ## Erase communication channels
-      file.create(channels)
-
-      info("send future result to %s after %s processing", sQuote(client), format(dt))
-      res <- pico_p2p_send_result(p, future = f, via = m[["via"]])
+      info("sending future %s via %s", sQuote(future), sQuote(via))
+      res <- pico_p2p_send_result(p, future = f, via = via)
+      tx_parent("uploaded")
     }
   }, interrupt = function(c) {
     info("interrupted")
+    tx_parent("interrupted")
   }) ## repeat tryCatch({ ... })
   
   info("bye")
