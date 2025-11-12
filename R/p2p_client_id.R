@@ -9,13 +9,13 @@
 #' otherwise `{pico_name}/friends`.
 #' 
 #' @export
-p2p_cluster_name <- function(users = character(0)) {
+p2p_cluster_name <- function(users = character(0), ...) {
   users <- unique(users)
   name <- getOption("future.p2p.cluster")
   if (is.null(name)) {
-    users <- setdiff(users, pico_username())
+    users <- setdiff(users, pico_username(...))
     name <- if (length(users) == 0) "personal" else "friends"
-    name <- sprintf("%s/%s", pico_username(), name)
+    name <- sprintf("%s/%s", pico_username(...), name)
   }
   name
 }
@@ -30,9 +30,9 @@ p2p_cluster_name <- function(users = character(0)) {
 #' @keywords internal
 p2p_client_id <- local({
   name <- NULL
-  function() {
+  function(...) {
     if (is.null(name)) {
-      user <- pico_username()
+      user <- pico_username(...)
       hostname <- Sys.info()[["nodename"]]
       pid <- Sys.getpid()
       name <<- sprintf("%s@%s:%d", user, hostname, pid)

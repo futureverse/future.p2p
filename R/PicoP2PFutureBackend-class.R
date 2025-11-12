@@ -100,7 +100,7 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), host = "pipe.pico
   core <- structure(core, class = c("PicoP2PFutureBackend", "MultiprocessFutureBackend", "FutureBackend", class(core)))
 
   if (!p2p_can_connect(cluster, name = name, host = host, ssh_args = ssh_args)) {
-    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username())))
+    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username(host = host, ssh_args = ssh_args))))
   }
 
   core
@@ -245,19 +245,21 @@ print.PicoP2PFutureBackend <- function(x, ...) {
   cat(sprintf("P2P cluster: %s\n", sQuote(backend[["cluster"]])))
   cat(sprintf("P2P client ID: %s\n", sQuote(backend[["name"]])))
 
-  clusters <- pico_p2p_hosted_clusters(backend[["host"]], backend[["ssh_args"]])
+  host <- backend[["host"]]
+  ssh_args <- backend[["ssh_args"]]
+  clusters <- pico_p2p_hosted_clusters(host = host, ssh_args = ssh_args)
   cat(sprintf("P2P clusters you are hosting: [n=%d]\n", nrow(clusters)))
   for (kk in seq_len(nrow(clusters))) {
     cluster <- clusters[kk, ]
     users <- strsplit(cluster$users, split = ",", fixed = TRUE)[[1]]
-    users <- unique(c(users, pico_username()))
+    users <- unique(c(users, pico_username(host = host, ssh_args = ssh_args)))
     users <- paste(users, collapse = ", ")
     cat(sprintf(" %2d. %s (users: %s)\n", kk, sQuote(cluster$name), users))
   }
 
   cat("Message board:\n")
   cat(sprintf(" - Server: %s\n", backend[["host"]]))
-  username <- pico_username(backend[["host"]], backend[["ssh_args"]])
+  username <- pico_username(host = host, ssh_args = ssh_args)
   cat(sprintf(" - Username: %s\n", sQuote(username)))
 
   cat("Data transfer tools:\n")
@@ -273,7 +275,7 @@ print.PicoP2PFutureBackend <- function(x, ...) {
 
 p2p_can_connect <- function(cluster, name, host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
   cluster_owner <- dirname(cluster)
-  if (cluster_owner == pico_username()) {
+  if (cluster_owner == pico_username(host = host, ssh_args = ssh_args)) {
     topic <- sprintf("%s/future.p2p", basename(cluster))
   } else {
     topic <- sprintf("%s/future.p2p", cluster)

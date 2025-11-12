@@ -25,6 +25,11 @@ pico_username <- local({
         })
       }
 
+      ## Special case
+      if (grepl("^pipe[.]", host)) {
+        host <- sub("^pipe[.]", "", host)
+      }
+      
       ssh_config <- list(options = ssh_args, host = host)
       args <- c(ssh_config[["options"]], ssh_config[["host"]], "user")
       if (debug) {
@@ -41,7 +46,9 @@ pico_username <- local({
       if (!is.null(status)) {
         stop(sprintf("Failed to infer pico.sh username. Exit code %s", status))
       }
-      stopifnot(length(out) >= 3)
+      if (length(out) < 3) {
+        stop(sprintf("pico_username(): Received unexpected results: [n=%s]\n%s", length(out), paste(out, collapse = "\n")))
+      }
       username <<- structure(out[1], id = out[2], created_on = as.POSIXct(sub("T", " ", out[3])), class = "pico_username")
     }
 

@@ -16,7 +16,7 @@
 #'
 #' @importFrom processx poll
 #' @export
-worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
+worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
@@ -47,7 +47,7 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
   info("assert connection to p2p cluster %s", sQuote(cluster))
   worker_id <- p2p_worker_id()
   if (!p2p_can_connect(cluster, name = worker_id, host = host, ssh_args = ssh_args)) {
-    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username())))
+    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username(host = host, ssh_args = ssh_args))))
   }
 
   channel_prefix <- sprintf("%s_%s", .packageName, session_uuid())
@@ -103,7 +103,7 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
 
   info("connect worker %s to p2p cluster %s", sQuote(worker_id), sQuote(cluster))
   cluster_owner <- dirname(cluster)
-  if (cluster_owner == pico_username()) {
+  if (cluster_owner == pico_username(host = host, ssh_args = ssh_args)) {
     topic <- sprintf("%s/future.p2p", basename(cluster))
   } else {
     topic <- sprintf("%s/future.p2p", cluster)
@@ -379,12 +379,12 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
 
   info("assert connection to p2p cluster %s", sQuote(cluster))
   if (!p2p_can_connect(cluster, name = worker_id, host = host, ssh_args = ssh_args)) {
-    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username())))
+    stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username(host = host, ssh_args = ssh_args))))
   }
 
   info("connect background worker process %s to p2p cluster %s for %s until %s", sQuote(worker_id), sQuote(cluster), format(duration), expires)
   cluster_owner <- dirname(cluster)
-  if (cluster_owner == pico_username()) {
+  if (cluster_owner == pico_username(host = host, ssh_args = ssh_args)) {
     topic <- sprintf("%s/future.p2p", basename(cluster))
   } else {
     topic <- sprintf("%s/future.p2p", cluster)

@@ -156,7 +156,7 @@ pico_receive_message_dataframe <- function(p, ..., pattern = NULL) {
 #'
 #' @rdname pico_pipe
 pico_hosted_channels <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10.0) {
-  username <- pico_username()
+  username <- pico_username(host = host, ssh_args = ssh_args)
   t_max <- proc.time()[3] + timeout
   pattern_1 <- sprintf(".*[[:blank:]]%s/([^:]+):", username)
   pattern_2 <- sprintf(".*[[:blank:]]%s/([^:]+):[[:blank:]]+[(]Access List:[[:blank:]]+(.*)[)]", username)

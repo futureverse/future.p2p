@@ -465,7 +465,7 @@ pico_p2p_dispatch_future <- function(future) {
 
   ## 1. Connect to pico and say hello
   cluster_owner <- dirname(cluster)
-  if (cluster_owner == pico_username()) {
+  if (cluster_owner == pico_username(host = host, ssh_args = ssh_args)) {
     topic <- sprintf("%s/future.p2p", basename(cluster))
   } else {
     topic <- sprintf("%s/future.p2p", cluster)
