@@ -236,14 +236,6 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
               Sys.sleep(0.1)
               next
             }
-  
-            if ("interrupted" %in% info) {
-              state <- "waiting"
-              future <- NULL
-              client <- NULL
-              ## FIXME: Update client via P2P message board
-              break
-            }
             
             if ("downloading" %in% info) {
               ## FIXME: Acknowledge to work on future
@@ -256,13 +248,7 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
       } else if (state == "working") {
         ## Withdrawal of future?
         if (m[["type"]] == "withdraw" && future %in% m[["future"]]) {
-          info("Interrupting future %s, because client %s withdrew it", sQuote(client), sQuote(future))
-          state <- "interrupt"
-          rx$interrupt()
-          future <- NULL
-          client <- NULL
-          ## FIXME: Acknowledge withdrawal of future
-          next
+          signalCondition(future_withdraw())
         }
       }
     } ## if (length(m) > 0)
@@ -299,6 +285,12 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
     }
     future <<- NULL
     client <<- NULL
+    ## FIXME: Acknowledge withdrawal of future
+  }, worker_interrupt = function(c) {
+    info("Worker process was interrupted")
+    state <- "waiting"
+    future <- NULL
+    client <- NULL
     ## FIXME: Acknowledge withdrawal of future
   }, interrupt = function(c) {
     info("interrupted")
