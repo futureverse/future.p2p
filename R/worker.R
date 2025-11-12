@@ -22,6 +22,14 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
   }
 
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("future.p2p::worker() ...")
+    on.exit({
+      mdebugf_pop()
+    })
+  }
+  
   if (inherits(duration, "ssh_args")) {
     ## e.g. ssh_args = "-J dt1"
     ssh_args <- strsplit(ssh_args, split = " ", fixed = TRUE)[[1]]
@@ -52,11 +60,24 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
 
   rx_worker <- function(channel = channels[["rx"]], clear = TRUE) {
     if (file.size(channel) == 0L) return(character(0L))
+    if (debug) {
+      mdebugf_push("rx_worker(clear = %s) ...", clear)
+      mdebug_pop()
+    }
     ## Read everything available
     bfr <- readLines(channel, n = 1e6, warn = FALSE)
+    if (debug) {
+      mdebugf("messages from worker process: [n=%d] %s", length(bfr), commaq(bfr))
+    }
+    
     ## Consume communication channel 'rx'?
     if (clear) file.create(channel)
-    info("state = %s, rx_worker() = %s", sQuote(state), commaq(bfr))
+
+    ## Was the worker interrupted?
+    if ("interrupted" %in% bfr) {
+      signalCondition(worker_interrupt())
+    }
+
     bfr
   } ## rx_worker()
 
@@ -200,12 +221,7 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
           uri <- parse_transfer_uri(via)
           if (!uri[["protocol"]] %in% supported_transfer_protocols()) {
             info("non-supported protocol")
-            ## FIXME: Decline work offer (although we can just ignore it
-            ## because the client did not respect what we support)
-            state <- "waiting"
-            future <- NULL
-            client <- NULL
-            next
+            signalCondition(future_withdraw(sprintf("non-supported file-transfer protocol: %s", uri[["protocol"]])))
           }
           
           state <- "working"
@@ -235,11 +251,7 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
             }
           }
         } else if (m[["type"]] == "withdraw") {
-          info("client %s withdrew future %s", sQuote(client), sQuote(future))
-          state <- "waiting"
-          future <- NULL
-          client <- NULL
-          ## FIXME: Acknowledge withdrawal of future
+          signalCondition(future_withdraw())
         }
       } else if (state == "working") {
         ## Withdrawal of future?
@@ -271,6 +283,23 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
         info("Future %s has been resolved and results have been sent to client %s", sQuote(future), sQuote(client))
       }
     }
+  }, future_withdraw = function(c) {
+    ## Client withdrew future
+    if (state == "waiting") {
+      info("client %s withdrew future %s", sQuote(client), sQuote(future))
+       state <<- "waiting"
+    } else if (state == "offer") {
+       ## FIXME: Decline work offer (although we can just ignore it
+       ## because the client did not respect what we support)
+       state <<- "waiting"
+    } else if (state == "working") {
+      info("Interrupting future %s, because client %s withdrew it", sQuote(client), sQuote(future))
+      state <<- "interrupt"
+      rx$interrupt()
+    }
+    future <<- NULL
+    client <<- NULL
+    ## FIXME: Acknowledge withdrawal of future
   }, interrupt = function(c) {
     info("interrupted")
     ## Interrupt worker
@@ -387,3 +416,18 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
 
 ## Expose function on the CLI
 cli_fcn(worker) <- c("--(cluster)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
+
+
+future_withdraw <- function(message = "future withdrawn by client", call = NULL) {
+  cond <- simpleCondition(message = message, call = call)
+  class(cond) <- c("future_withdraw", class(cond))
+  cond
+}
+
+
+worker_interrupt <- function(message = "worker process interrupted", call = NULL) {
+  cond <- simpleCondition(message = message, call = call)
+  class(cond) <- c("worker_interrupt", class(cond))
+  cond
+}
+
