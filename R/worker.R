@@ -206,21 +206,17 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
     m <- pico_p2p_next_message(p)
     
     ## Expired?
-    if (Sys.time() > expires) {
+    now <- Sys.time()
+    if (now > expires) {
       info("expired")
       signalCondition(future_withdraw("worker expired; terminating"))
-    }
-
-    if (Sys.time() > offer_expires) {
+      next
+    } else if (state == "offer" && now > offer_expires) {
       info("work offer expired")
-       state <- "waiting"
-       offer_expires <- Inf
-       future <- NULL
-       client <- NULL
-       ## FIXME: Update client via P2P message board
-       next
+      signalCondition(future_withdraw("worker offer expired"))
+      next
     }
-
+    
     ## Process request?
     if (length(m) > 0) {
       ## Are we read to offer to do work?
@@ -228,42 +224,49 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
         stop_if_not(is.null(future), is.null(client))
         future <- m[["future"]]
         client <- m[["from"]]
-        duration <- 5.0
+        
+        ## Make a work offer for 15 seconds
+        duration <- 15.0
         info("offer to process future %s for client %s (valid for %g seconds)", sQuote(future), sQuote(client), duration)
+        
         state <- "offer"
-        ## Make a work offer for 5 seconds
         m0 <- pico_p2p_take_on_future(p, to = client, future = future, duration = duration)
         offer_expires <- m0[["expires"]]
       } else if (state == "offer" && future %in% m[["future"]]) {
         info("waiting for acceptance of our work offer")
-        if (m[["type"]] == "accept" && m[["to"]] == worker_id) {
-          info("client %s accepted our offer to process future %s", sQuote(client), sQuote(future))
+        if (m[["type"]] == "accept") {
+          if (m[["to"]] == worker_id) {
+            info("client %s accepted our offer to process future %s", sQuote(client), sQuote(future))
   
-          ## Do we support the file transfer protocol?
-          via <- m[["via"]]
-          uri <- parse_transfer_uri(via)
-          if (!uri[["protocol"]] %in% supported_transfer_protocols()) {
-            info("non-supported protocol")
-            signalCondition(future_withdraw(sprintf("non-supported file-transfer protocol: %s", uri[["protocol"]])))
-          }
-          
-          state <- "working"
-          
-          ## Tell worker to receive future from client
-          tx_worker(sprintf("download=%s,via=%s", future, via))
-          
-          ## Wait for worker to *start* download future
-          repeat {
-            info <- rx_worker()
-            if (length(info) == 0) {
-              Sys.sleep(0.1)
-              next
+            ## Do we support the file transfer protocol?
+            via <- m[["via"]]
+            uri <- parse_transfer_uri(via)
+            if (!uri[["protocol"]] %in% supported_transfer_protocols()) {
+              info("non-supported protocol")
+              signalCondition(future_withdraw(sprintf("non-supported file-transfer protocol: %s", uri[["protocol"]])))
             }
             
-            if ("downloading" %in% info) {
-              ## FIXME: Acknowledge to work on future
-              break
+            state <- "working"
+            
+            ## Tell worker to receive future from client
+            tx_worker(sprintf("download=%s,via=%s", future, via))
+            
+            ## Wait for worker to *start* download future
+            repeat {
+              info <- rx_worker()
+              if (length(info) == 0) {
+                Sys.sleep(0.1)
+                next
+              }
+              
+              if ("downloading" %in% info) {
+                ## FIXME: Acknowledge to work on future
+                break
+              }
             }
+          } else {
+            info("withdraw offer for future %s, because client %s accepted another worker's offer", sQuote(future), sQuote(client))
+            signalCondition(future_withdraw("another worker took on the future"))
           }
         } else if (m[["type"]] == "withdraw") {
           signalCondition(future_withdraw())
@@ -315,16 +318,17 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
       rx$interrupt()
     }
     
+    offer_expires <<- Inf
     future <<- NULL
     client <<- NULL
     info("waiting for request")
     ## FIXME: Acknowledge withdrawal of future
   }, worker_interrupt = function(c) {
     info("Worker process was interrupted")
-    state <- "waiting"
-    offer_expires <- Inf
-    future <- NULL
-    client <- NULL
+    state <<- "waiting"
+    offer_expires <<- Inf
+    future <<- NULL
+    client <<- NULL
     info("waiting for request")
     ## FIXME: Acknowledge withdrawal of future
   }, interrupt = function(c) {
@@ -332,9 +336,9 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
     ## Interrupt worker
     rx$interrupt()
     state <<- "exit"
-    offer_expires <- Inf
-    future <- NULL
-    client <- NULL
+    offer_expires <<- Inf
+    future <<- NULL
+    client <<- NULL
     ## FIXME: Update the P2P message board
     info("exiting")
   }) ## repeat tryCatch({ ... })
