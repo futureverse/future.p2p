@@ -160,6 +160,11 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
       writeLines(err, con = stderr())
     }
 
+    if (state == "exit") {
+      info("Terminating worker")
+      break
+    }
+
     ## Handle worker status updates
     if (length(worker_status) > 0) {
       worker_status <- sub("^worker_status=", "", worker_status)
@@ -173,11 +178,6 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
       }
     }
 
-    if (state == "exit") {
-      info("Terminating worker")
-      break
-    }
-    
     ## Expired?
     if (Sys.time() > expires) {
       info("time is out")
@@ -333,12 +333,15 @@ worker <- function(cluster = p2p_cluster_name(), host = "pipe.pico.sh", ssh_args
     ## FIXME: Acknowledge withdrawal of future
   }, interrupt = function(c) {
     info("interrupted")
-    ## Interrupt worker
-    rx$interrupt()
     state <<- "exit"
     offer_expires <<- Inf
     future <<- NULL
     client <<- NULL
+    
+    ## Interrupt worker
+    info("interrupting worker")
+    rx$interrupt()
+    
     ## FIXME: Update the P2P message board
     info("exiting")
   }) ## repeat tryCatch({ ... })
