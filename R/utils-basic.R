@@ -1,5 +1,4 @@
-info <- function(fmtstr, ..., time = Sys.time(), timefmt = "%T", from = c("worker", "client")) {
-  from <- match.arg(from)
+info <- function(fmtstr, ..., time = Sys.time(), timefmt = "%T", from = getOption("future.p2p.info.from", NA_character_)) {
   msg <- sprintf(fmtstr, ...)
   msg <- sprintf("%s [%s] %s", format(time, format = timefmt), from, msg)
   message(msg)
