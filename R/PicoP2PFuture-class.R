@@ -24,16 +24,8 @@ resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
   
   ## Still running?
   rx <- future[["rx"]]
-
-  if (rx$is_alive()) {
-    dispatcher_status <- process_dispatcher_messages(rx, debug = debug)
-    resolved <- FALSE
-  } else {
-    dispatcher_status <- NULL
-    resolved <- TRUE
-  }
-
-  channels <- attr(rx, "channels", exact = TRUE)
+  resolved <- !rx$is_alive()
+  dispatcher_status <- process_dispatcher_messages(rx, debug = debug)
 
   state <- future[["state"]]
   
@@ -50,6 +42,7 @@ resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
   ## Remove communication channels?
   if (resolved) {
     future[["state"]] <- "finished"
+    channels <- attr(rx, "channels", exact = TRUE)
     if (length(channels) > 0) {
       if (debug) mdebugf("Removing communication channel files: [n=%d] %s", length(channels), commaq(channels))
       stop_if_not(is.character(channels))

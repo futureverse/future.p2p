@@ -348,7 +348,6 @@ pico_p2p_dispatch_future <- function(future) {
       tx <- channels[["tx"]]
       if (is.null(tx)) return(character(0L))
       bfr <- readLines(tx, n = 1e6, warn = FALSE)
-      if (debug) mstr(list("listen_parent", bfr = bfr))
       bfr
     }
 
@@ -378,62 +377,94 @@ pico_p2p_dispatch_future <- function(future) {
     update_parent("connected")
 
     worker <- "<none>"
-    
-    ## 2. Announce future
-    requested <- FALSE
+
+    ## 2. Announce future and wait for work offer
+    state <- "started"
+    request_expires <- -1
     repeat {
       ## Check for interrupts
       if ("interrupt" %in% listen_parent()) {
-        if (requested) {
-          if (debug) mdebug("interrupt after request")
-          m0 <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
-          if (debug) mstr(list(m0 = m0))
+        if (state == "request") {
+          if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+          m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+          if (debug) mstr(list(m = m))
         } else {
-          if (debug) mdebug("interrupt before request")
+          if (debug) mdebugf("interrupt ignored (state = %s)", sQuote(state))
         }
         return(list(type = "event", value = "interrupted"))
       }
-      
-      update_parent("request")
-      m1 <- pico_p2p_have_future(pico, future = file, duration = duration)
-      requested <- TRUE
-      
-      ## Check for interrupts
-      if ("interrupt" %in% listen_parent()) {
-        if (debug) mdebug("interrupt after request")
-        m0 <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
-        if (debug) mstr(list(m0 = m0))
-        return(list(type = "event", value = "interrupted"))
+
+      if (state == "started") {
+        update_parent("request")
+        m <- pico_p2p_have_future(pico, future = file, duration = duration)
+        state <- "request"
+        request_expires <- as.POSIXct(as.numeric(m[["expires"]]))
+        next
       }
 
-      m2 <- pico_p2p_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
+      ## Has request expired
+      if (state == "request") {
+        ## Ignore, if requet already expired
+        if (Sys.time() > request_expires) {
+          if (debug) mdebugf("withdraw request (state = %s)", sQuote(state))
+          m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+          if (debug) mstr(list(m = m))
+          return(list(type = "event", value = "expired"))
+        }
+      }
+
+      ## New message from message board?
+      m <- pico_p2p_next_message(pico) ## This is non-block; may return NULL
+
+      ## Skip if message is related to another future than ours
+      if (is.null(m[["future"]]) || m[["future"]] != future_id) next
       
-      if (m2[["type"]] != "expired") break
+      if (debug) mstr(list(m = m))
+      
+      if (state == "request" && m[["type"]] == "offer") {
+        ## Ignore, if offer already expired
+        if (Sys.time() > as.POSIXct(as.numeric(m[["expires"]]))) {
+          if (debug) mdebug("Received expired work offer")
+          next
+        }
+        if (debug) mdebug("Received work offer")
+        state <- "offer"
+        break
+      }
+
+      Sys.sleep(0.1)
+    } ## repeat()
+
+    if (debug) {
+      mdebug("Work offer:")
+      mstr(list(state = state, m = m))
     }
 
-    ## 3. Send future to workers
-    worker <- m2[["from"]]
+    ## 3. Send future to worker
+    worker <- m[["from"]]
     stopifnot(is.character(worker), nzchar(worker))
 
     ## Check for interrupts
     if ("interrupt" %in% listen_parent()) {
-      if (debug) mdebug("interrupt after offer")
-      m0 <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
-      if (debug) mstr(list(m0 = m0))
+      if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+      m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+      if (debug) mstr(list(m = m))
       return(list(type = "event", value = "interrupted"))
     }
 
     update_parent("send")
-    m3 <- pico_p2p_send_future(pico, future = file, to = worker, via = via)
-
+    m <- pico_p2p_send_future(pico, future = file, to = worker, via = via)
+    if (debug) mstr(list(m = m))
+    state <- "processing"
+    
     ## 4. Remove temporary file
     file.remove(file)
 
     ## Check for interrupts
     if ("interrupt" %in% listen_parent()) {
-      if (debug) mdebug("interrupt after future sent")
-      m0 <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
-      if (debug) mstr(list(m0 = m0))
+      if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+      m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+      if (debug) mstr(list(m = m))
       return(list(type = "event", value = "interrupted"))
     }
 
@@ -443,9 +474,9 @@ pico_p2p_dispatch_future <- function(future) {
     tryCatch({
       file <- pico_p2p_receive_result(pico, via = via, path = path)
     }, interrupt = function(int) {
-      if (debug) mdebug("interrupt while receiving future result")
-      m0 <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
-      if (debug) mstr(list(m0 = m0))
+      if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+      m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+      if (debug) mstr(list(m = m))
       return(list(type = "event", value = "interrupted"))
     })
 

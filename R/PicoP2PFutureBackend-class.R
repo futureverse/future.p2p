@@ -172,7 +172,11 @@ interruptFuture.PicoP2PFutureBackend <- function(backend, future, ...) {
     return(future)
   }
 
-  cat("interrupt", file = tx, append = TRUE)
+  local({
+    con <- file(tx, open = "w")
+    on.exit(flush(con))
+    cat("interrupt\n", file = con)
+  })
   if (debug) mdebug("Sent 'interrupt' to future dispatcher processes")
   
   future[["state"]] <- "interrupted"
