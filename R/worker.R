@@ -114,7 +114,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
   )
   stop_if_not(is.data.frame(requests))
   
-  info("waiting for request")
+  info(sprintf("waiting for request [state=%s]", state))
   
   repeat tryCatch({
     ## Is the worker process still alive
@@ -133,51 +133,57 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
 
     ## Handle worker status updates
     if (length(worker_status) > 0) {
-      worker_status <- sub("^worker_status=", "", worker_status)
       info("Status update received from worker: [n=%d] %s", length(worker_status), commaq(worker_status))
       
-      if ("ready" %in% worker_status) {
-       info("worker process is ready")
-       if (state == "interrupt") state <- "waiting"
+      if (!is.null(future)) {
+        if ("resolved" %in% worker_status) {
+          state <- "resolved"
+          info("Future %s has been resolved", sQuote(future))
+        }
+  
+        if ("uploading" %in% worker_status) {
+          state <- "uploading"
+          info("Future results %s are being sent to client %s", sQuote(future), sQuote(client))
+        }
       }
+      
+      if ("ready" %in% worker_status) {
+        info("worker process is ready")
+        ## Drop future from list of requests 
+        if (!is.null(future)) {
+         drop <- future
+         requests <- subset(requests, future != drop)
+         stop_if_not(is.data.frame(requests))
+        }
+        state <- "waiting"
+        offer_expires <- Inf
+        future <- NULL
+        client <- NULL
+        info("Future %s has been resolved and results have been sent to client %s", sQuote(future), sQuote(client))
+        info(sprintf("waiting for request [state=%s]", state))
+      }
+      
       if ("interrupted" %in% worker_status) {
         signalCondition(worker_interrupt())
       }
-    }
+    } ## if (length(worker_status) > 0)
 
-    ## Expired?
-    if (Sys.time() > expires) {
-      info("time is out")
-      ## FIXME: Update the P2P message board
-      rx$interrupt()
-      future <- NULL
-      client <- NULL
-      break
-    }
-
-    ## Any messages from the P2P message board?
-#    res <- poll(list(p), ms = 100)[[1]]
-#    if ("ready" %in% res[["output"]]) {
-
-    ## New message message?
-    m <- pico_p2p_next_message(p) ## This is non-block; may return NULL
-    
     ## Expired?
     now <- Sys.time()
     if (now > expires) {
       info("expired")
       signalCondition(future_withdraw("worker expired; terminating", future = future))
-      next
     } else if (state == "offer" && now > offer_expires) {
       info("work offer expired")
       signalCondition(future_withdraw("worker offer expired", future = future))
-      next
     }
-    
-    ## Process messages from the message board?
+
+    ## New message message?
+    m <- pico_p2p_next_message(p) ## This is non-block; may return NULL
+
     if (length(m) > 0) {
       type <- m[["type"]]
-      
+
       ## A request?
       if (type == "request") {
         ## A new request?
@@ -191,18 +197,24 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
           stop_if_not(is.data.frame(requests))
         }
       }
-
+      
       ## Request accepted by another worker
       if (m[["type"]] == "accept" && m[["to"]] != worker_id) {
-        info("withdraw offer for future %s, because client %s accepted another worker's offer", sQuote(m[["future"]]), sQuote(m[["from"]]))
-        signalCondition(future_withdraw("another worker took on the future", future = m[["future"]]))
+        if (state %in% "offer") {
+          info("withdraw offer for future %s, because client %s accepted another worker's offer", sQuote(m[["future"]]), sQuote(m[["from"]]))
+          signalCondition(future_withdraw(sprintf("another worker took on the future (state %s)", sQuote(state)), future = m[["future"]]))
+        } else {
+          info("drop request for future %s, because accepted by another worker", sQuote(m[["future"]]))
+          signalCondition(future_withdraw(sprintf("drop request for future (state %s)", sQuote(state)), future = m[["future"]]))
+        }
       }
 
       ## Withdrawal of future?
       if (type == "withdraw") {
         signalCondition(future_withdraw(future = m[["future"]]))
+        next
       }
-    }
+    } ## if (length(m) > 0)
 
     ## Drop expired requests
     requests <- subset(requests, expires >= now)
@@ -210,7 +222,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
     
     if (nrow(requests) > 0) {
       if (debug) {
-        mdebugf("Known requests: [n=%d]", nrow(requests))
+        mdebugf("Known requests: [n=%d] (state %s)", nrow(requests), sQuote(state))
         mprint(requests)
       }
     }
@@ -229,25 +241,9 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
       state <- "offer"
       m0 <- pico_p2p_take_on_future(p, to = client, future = future, duration = duration)
       offer_expires <- m0[["expires"]]
-      next
-    } else if (state == "working") {
-      ## Check if worker is done
-      if ("resolved" %in% worker_status) {
-        state <- "resolved"
-        info("Future %s has been resolved and results will be sent to client %s", sQuote(future), sQuote(client))
-        m0 <- pico_p2p_take_on_future(p, to = client, future = future, duration = duration)
-      }
-      next
-    } else if (state == "resolved") {
-      ## Check if future results have been transferred
-      if ("ready" %in% worker_status) {
-        state <- "waiting"
-        offer_expires <- Inf
-        future <- NULL
-        client <- NULL
-        info("Future %s has been resolved and results have been sent to client %s", sQuote(future), sQuote(client))
-        info("waiting for request")
-      }
+      
+      ## Drop from known requests
+      requests <- subset(requests, future != request[["future"]])
       next
     }
 
@@ -274,10 +270,11 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
           }
           
           state <- "working"
+          info("downloading")
             
           ## Tell worker to receive future from client
           tx_worker(sprintf("download=%s,via=%s,from=%s", future, via, client))
-         
+
           ## Wait for worker to *start* download future
           repeat {
             worker_status <- process_worker_messages(rx, debug = debug)
@@ -304,17 +301,18 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
       if (state == "offer") {
         ## FIXME: Decline work offer (although we can just ignore it
         ## because the client did not respect what we support)
-        state <<- "waiting"
-      } else if (state == "working") {
-        info("Interrupting worker")
-        state <<- "interrupt"
+      } else if (state %in% c("working", "resolved")) {
+        info(sprintf("Interrupting worker [state %s]", state))
         rx$interrupt()
       } else {
         stop(FutureError(sprintf("Internal error: state %s", sQuote(state))))
       }
+      state <<- "waiting"
       offer_expires <<- Inf
       future <<- NULL
       client <<- NULL
+      
+      info(sprintf("waiting for request [state=%s]", state))
     }
 
     ## Drop future from list of requests, in case it's there
@@ -322,8 +320,6 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
       requests <<- subset(requests, future != c[["future"]])
       stop_if_not(is.data.frame(requests))
     }
-
-    info("waiting for request")
     ## FIXME: Acknowledge withdrawal of future
   }, worker_interrupt = function(c) {
     info("Worker process was interrupted")
@@ -331,7 +327,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
     offer_expires <<- Inf
     future <<- NULL
     client <<- NULL
-    info("waiting for request")
+    info(sprintf("waiting for request [state=%s]", state))
     ## FIXME: Acknowledge withdrawal of future
   }, interrupt = function(c) {
     info("interrupted")
@@ -411,6 +407,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
   ## Tell parent that worker is ready
   tx_parent("ready")
 
+  state <- "ready"
   repeat tryCatch({
     ## Wait for instructions from parent
     action <- rx_parent()
@@ -431,6 +428,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
         nzchar(via), !grepl("[,=]", via)
       )
       tx_parent("downloading")
+      state <- "downloading"
       dt <- system.time({
         res <- pico_p2p_receive_future(p, via = via)
       })
@@ -441,6 +439,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
       stop_if_not(paste(f[["uuid"]], collapse = "-") == future)
 
       info("process future %s", sQuoteLabel(f))
+      state <- "processing"
       dt <- system.time({
         r <- tryCatch({ result(f) }, error = identity)  ## Note, result() handles 'interrupt':s
       })
@@ -449,16 +448,21 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
       tx_parent("resolved")
       
       info("sending future result %s via %s", sQuote(future), sQuote(via))
+      state <- "uploading"
+      ## NOTE, this may be interrupted
       dt <- system.time({
-        res <- pico_p2p_send_result(p, future = f, to = client, via = via)
+        pico_p2p_send_result(p, future = f, to = client, via = via)
       })
       dt <- difftime(dt[3], 0)
       info("future result %s sent in %s", sQuote(future), format(dt))
       tx_parent("ready")
+      state <- "ready"
     }
   }, interrupt = function(c) {
-    info("interrupted")
+    info(sprintf("interrupted [state %s]", sQuote(state)))
     tx_parent("interrupted")
+    state <<- "ready"
+    tx_parent("ready")
   }) ## repeat tryCatch({ ... })
   
   info("bye")

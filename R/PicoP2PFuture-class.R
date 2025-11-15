@@ -24,17 +24,20 @@ resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
   
   ## Still running?
   rx <- future[["rx"]]
-  resolved <- !rx$is_alive()
-  dispatcher_status <- process_dispatcher_messages(rx, debug = debug)
+  if (is.null(rx)) {
+    resolved <- TRUE
+  } else {
+    resolved <- !rx$is_alive()
+    dispatcher_status <- process_dispatcher_messages(rx, debug = debug)
+  }
 
   state <- future[["state"]]
   
   ## Update state?
   if (state == "submitted" || state == "running") {
     if (debug) mdebugf("Future state before: %s", commaq(state))
-    bfr <- dispatcher_status
-    if (debug) mdebugf("Child process updates: [n=%d] %s", length(bfr), commaq(bfr))
-    if ("wait" %in% bfr) state <- "running"
+    if (debug) mdebugf("Child process updates: [n=%d] %s", length(dispatcher_status), commaq(dispatcher_status))
+    if ("wait" %in% dispatcher_status) state <- "running"
     future[["state"]] <- state
     if (debug) mdebugf("Future state after: %s", commaq(state))
   }
@@ -54,6 +57,7 @@ resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
   
   resolved
 }
+
 
 #' @importFrom future result UnexpectedFutureResultError
 #' @keywords internal

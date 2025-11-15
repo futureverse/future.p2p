@@ -418,12 +418,12 @@ pico_p2p_dispatch_future <- function(future) {
 
       ## Has request expired
       if (state == "request") {
-        ## Ignore, if requet already expired
+        ## Ignore, if request already expired
         if (Sys.time() > request_expires) {
-          if (debug) mdebugf("withdraw request (state = %s)", sQuote(state))
-          m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
-          if (debug) mstr(list(m = m))
-          return(list(type = "event", value = "expired"))
+          if (debug) mdebugf("request expired (state = %s)", sQuote(state))
+          state <- "started"
+          request_expires <- -1
+          next
         }
       }
 
