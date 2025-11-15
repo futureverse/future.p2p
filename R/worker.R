@@ -60,29 +60,6 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
     lapply(channels, FUN = file.remove, showWarnings = FALSE)
   }, add = TRUE)
 
-  rx_worker <- function(channel = channels[["rx"]], clear = TRUE) {
-    if (file.size(channel) == 0L) return(character(0L))
-    if (debug) {
-      mdebugf_push("rx_worker(clear = %s) ...", clear)
-      mdebug_pop()
-    }
-    ## Read everything available
-    bfr <- readLines(channel, n = 1e6, warn = FALSE)
-    if (debug) {
-      mdebugf("messages from worker process: [n=%d] %s", length(bfr), commaq(bfr))
-    }
-    
-    ## Consume communication channel 'rx'?
-    if (clear) file.create(channel)
-
-    ## Was the worker interrupted?
-    if ("interrupted" %in% bfr) {
-      signalCondition(worker_interrupt())
-    }
-
-    bfr
-  } ## rx_worker()
-
   tx_worker <- function(msg, channel = channels[["tx"]]) {
     writeLines(msg, con = channel)
   } ## tx_worker()
@@ -138,28 +115,8 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
       break
     }
 
-    ## Any updates from worker, e.g. output to be relayed?
-    res <- poll(list(rx), ms = 100)[[1]]
-
-    worker_status <- NULL
+    worker_status <- process_worker_messages(rx, debug = debug)
     
-    ## Relay stdout?
-    if ("ready" %in% res[["output"]]) {
-      out <- rx$read_output_lines()
-      is_special <- grepl("^worker_status=", out)
-      worker_status <- out[is_special]
-      out <- out[!is_special]
-      out <- sprintf("  %s", out)
-      writeLines(out, con = stdout())
-    }
-    
-    ## Relay stderr?
-    if ("ready" %in% res[["error"]]) {
-      err <- rx$read_error_lines()
-      err <- sprintf("  %s", err)
-      writeLines(err, con = stderr())
-    }
-
     if (state == "exit") {
       info("Terminating worker")
       break
@@ -186,16 +143,6 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
       future <- NULL
       client <- NULL
       break
-    }
-
-    ## Was worker process interrupted?
-    info <- rx_worker()
-    if ("interrupted" %in% info) {
-       state <- "waiting"
-       future <- NULL
-       client <- NULL
-       ## FIXME: Update client via P2P message board
-       next
     }
 
     ## Any messages from the P2P message board?
@@ -253,16 +200,12 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
             
             ## Wait for worker to *start* download future
             repeat {
-              info <- rx_worker()
-              if (length(info) == 0) {
-                Sys.sleep(0.1)
-                next
-              }
-              
-              if ("downloading" %in% info) {
+              worker_status <- process_worker_messages(rx, debug = debug)
+              if ("downloading" %in% worker_status) {
                 ## FIXME: Acknowledge to work on future
                 break
               }
+              Sys.sleep(0.1)
             }
           } else {
             info("withdraw offer for future %s, because client %s accepted another worker's offer", sQuote(future), sQuote(client))
@@ -281,14 +224,14 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
     
     if (state == "working") {
       ## Check if worker is done
-      if ("resolved" %in% info) {
+      if ("resolved" %in% worker_status) {
         state <- "resolved"
         info("Future %s has been resolved and results will be sent to client %s", sQuote(future), sQuote(client))
         ## FIXME: Inform client that future has been resolved
       }
     } else if (state == "resolved") {
       ## Check if future results have been transferred
-      if ("ready" %in% info) {
+      if ("ready" %in% worker_status) {
         state <- "waiting"
         offer_expires <- Inf
         future <- NULL
@@ -481,3 +424,42 @@ worker_interrupt <- function(message = "worker process interrupted", call = NULL
   cond
 }
 
+
+process_worker_messages <- function(rx, debug = FALSE) {
+  if (debug) {
+    mdebug_push("process_worker_messages() ...")
+    on.exit({
+      mdebugf("worker_status: [n=%d] %s", length(worker_status), commaq((worker_status)))
+      mdebug_pop()
+    })
+  }
+  
+  ## Any updates from worker, e.g. output to be relayed?
+  res <- poll(list(rx), ms = 100)[[1]]
+
+  worker_status <- NULL
+    
+  ## Relay stdout?
+  if ("ready" %in% res[["output"]]) {
+    out <- rx$read_output_lines()
+
+    ## Parse special messages
+    pattern <- "^worker_status="
+    is_special <- grepl(pattern, out)
+    worker_status <- sub(pattern, "", out[is_special])
+    out <- out[!is_special]
+    
+    out <- sprintf("  %s", out)
+    writeLines(out, con = stdout())
+  }
+    
+  ## Relay stderr?
+  if ("ready" %in% res[["error"]]) {
+    err <- rx$read_error_lines()
+    err <- sprintf("  %s", err)
+    writeLines(err, con = stderr())
+  }
+
+  ## Return new worker status, if received
+  worker_status
+} ## process_worker_messages()
