@@ -107,7 +107,10 @@ pico_p2p_have_future <- function(p, future, duration = getOption("future.p2p.dur
   
   if (inherits(future, "Future")) {
     file <- tempfile(fileext = ".rds")
-    on.exit(file.remove(file), add = TRUE)
+    on.exit({
+      stop_if_not(is.character(file))
+      file.remove(file)
+    }, add = TRUE)
     saveRDS(future, file = file)
   } else if (is.character(future)) {
     stopifnot(file_test("-f", future))
@@ -203,7 +206,10 @@ pico_p2p_send_future <- function(p, future, to, via = via_transfer_uri(), durati
   if (inherits(future, "Future")) {
     file <- file.path(tempdir(), sprintf("%s-Future.rds", m$future))
     saveRDS(future, file = file)
-    on.exit(file.remove(file))
+    on.exit({
+      stop_if_not(is.character(file))
+      file.remove(file)
+    }, add = TRUE)
   } else if (is.character(future)) {
     stopifnot(file_test("-f", future))
     file <- future
@@ -250,12 +256,21 @@ pico_p2p_receive_future <- function(p, via, duration = 60) {
   stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
   
   uri <- parse_transfer_uri(via)
+  tf <- NULL
   if (uri$protocol == "wormhole") {
     tf <- wormhole_receive(code = sprintf("%s-f", uri$path))
+  } else {
+    stop(FutureError(sprintf("Non-supported future.p2p transfer protocol: %s", sQuote(via))))
   }
+  stop_if_not(is.character(tf))
+
+  on.exit({
+    stop_if_not(is.character(tf))
+    file.remove(tf)
+  }, add = TRUE)
 
   future <- readRDS(tf)
-  on.exit(file.remove(tf))
+  
   list(
     future = future,
     via = via

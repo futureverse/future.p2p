@@ -52,6 +52,7 @@ resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
     future[["state"]] <- "finished"
     if (length(channels) > 0) {
       if (debug) mdebugf("Removing communication channel files: [n=%d] %s", length(channels), commaq(channels))
+      stop_if_not(is.character(channels))
       file.remove(channels)
       attr(rx, "channels") <- NULL
       future[["rx"]] <- rx
@@ -106,6 +107,7 @@ result.PicoP2PFuture <- function(future, ...) {
   channels <- attr(rx, "channels", exact = TRUE)
   if (length(channels) > 0) {
     if (debug) mdebugf("Removing communication channel files: [n=%d] %s", length(channels), commaq(channels))
+    stop_if_not(is.character(channels))
     file.remove(channels)
   }
 
@@ -140,6 +142,7 @@ result.PicoP2PFuture <- function(future, ...) {
         on.exit(mdebug_pop())
       }
       result <- readRDS(file)
+      stop_if_not(is.character(file))
       file.remove(file)
       result
     })

@@ -21,7 +21,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
   }
-
+  
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("future.p2p::worker() ...")
@@ -57,7 +57,8 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
   )
   lapply(channels, FUN = file.create, showWarnings = FALSE)
   on.exit({
-    lapply(channels, FUN = file.remove, showWarnings = FALSE)
+    stop_if_not(is.character(channels))
+    file.remove(channels)
   }, add = TRUE)
 
   tx_worker <- function(msg, channel = channels[["tx"]]) {
