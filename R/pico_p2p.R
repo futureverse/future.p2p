@@ -340,10 +340,8 @@ pico_p2p_hosted_clusters <- function(host = "pipe.pico.sh", ssh_args = NULL, tim
 pico_p2p_dispatch_future <- function(future) {
   send_future <- function(topic, name, host = host, ssh_args = ssh_args, future_id, file, to, via, duration, channels, debug = FALSE) {
     update_parent <- function(msg, ...) {
-      rx <- channels[["rx"]]
-      if (is.null(rx)) return()
       cat(sprintf("dispatcher_status=%s\n", msg), file = stdout())
-      flush.connection(stdout())
+      flush(stdout())
     }
 
     listen_parent <- function(...) {
@@ -489,8 +487,7 @@ pico_p2p_dispatch_future <- function(future) {
   future_id <- future_id(future)
   channel_prefix <- sprintf("%s_%s", .packageName, future_id)
   channels <- c(
-    tx = tempfile(pattern = channel_prefix, fileext = ".tx"),
-    rx = tempfile(pattern = channel_prefix, fileext = ".rx")
+    tx = tempfile(pattern = channel_prefix, fileext = ".tx")
   )
   lapply(channels, FUN = file.create, showWarnings = FALSE)
   
