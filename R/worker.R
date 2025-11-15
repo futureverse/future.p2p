@@ -15,6 +15,7 @@
 #' to with a single CPU core to prevent nested parallelization.
 #'
 #' @importFrom processx poll
+#' @importFrom utils head
 #' @export
 worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]

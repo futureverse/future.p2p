@@ -3,6 +3,8 @@
 #' @param users Users to have access to the cluster. This controls whether
 #' the default cluster names should be "personal" or "friends".
 #'
+#' @param \ldots Passed as-is to [pico_username()].
+#'
 #' @return
 #' `p2p_cluster_name()` returns R option `future.p2p.cluster`, if set.
 #' If not set, it returns `{pico_name}/personal` if `length(users) == 0`,

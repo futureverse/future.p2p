@@ -5,7 +5,7 @@
 \title{Hosts a shared P2P cluster}
 \usage{
 host_cluster(
-  cluster = p2p_cluster_name(users),
+  cluster = p2p_cluster_name(users, host = host, ssh_args = ssh_args),
   users = character(0L),
   host = "pipe.pico.sh",
   ssh_args = NULL,
