@@ -53,8 +53,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
 
   channel_prefix <- sprintf("%s_%s", .packageName, session_uuid())
   channels <- c(
-    tx = tempfile(pattern = channel_prefix, fileext = ".tx"),
-    rx = tempfile(pattern = channel_prefix, fileext = ".rx")
+    tx = tempfile(pattern = channel_prefix, fileext = ".tx")
   )
   lapply(channels, FUN = file.create, showWarnings = FALSE)
   on.exit({
@@ -393,21 +392,19 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
   }
   p <- pico_pipe(topic, user = worker_id, host = host, ssh_args = ssh_args)
 
-  rx <- channels[["rx"]]
   tx <- channels[["tx"]]
 
   rx_parent <- function(channel = channels[["tx"]], clear = TRUE) {
     ## Read everything available
     bfr <- readLines(channel, n = 1e6, warn = FALSE)
-    ## Consume communication channel 'rx'?
+    ## Consume communication channel
     if (clear) file.create(channel)
     bfr
   } ## rx_parent()
 
-  tx_parent <- function(msg, channel = channels[["rx"]]) {
+  tx_parent <- function(msg) {
     cat(sprintf("worker_status=%s\n", msg), file = stdout())
     flush(stdout())
-    writeLines(msg, con = channel)
   } ## tx_parent()
 
   ## Tell parent that worker is ready
