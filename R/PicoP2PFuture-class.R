@@ -24,7 +24,14 @@ resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
   
   ## Still running?
   rx <- future[["rx"]]
-  resolved <- !rx$is_alive()
+
+  if (rx$is_alive()) {
+    dispatcher_status <- process_dispatcher_messages(rx, debug = debug)
+    resolved <- FALSE
+  } else {
+    dispatcher_status <- NULL
+    resolved <- TRUE
+  }
 
   channels <- attr(rx, "channels", exact = TRUE)
 
@@ -33,14 +40,7 @@ resolved.PicoP2PFuture <- function(x, .signalEarly = TRUE, ...) {
   ## Update state?
   if (state == "submitted" || state == "running") {
     if (debug) mdebugf("Future state before: %s", commaq(state))
-    from_child <- function() {
-      file <- attr(rx, "channels", exact = TRUE)[["rx"]]
-      if (is.null(file)) return(character(0L))
-      if (!file_test("-f", file)) return(character(0L))
-      readLines(file, n = 1e6, warn = FALSE)
-    } ## from_child()
-
-    bfr <- from_child()
+    bfr <- dispatcher_status
     if (debug) mdebugf("Child process updates: [n=%d] %s", length(bfr), commaq(bfr))
     if ("wait" %in% bfr) state <- "running"
     future[["state"]] <- state
@@ -91,13 +91,8 @@ result.PicoP2PFuture <- function(future, ...) {
   ## Get the results
   response <- rx$get_result()
 
-  ## Relay stdout?
-  out <- rx$read_output_lines()
-  writeLines(out, con = stdout())
-    
-  ## Relay stderr?
-  err <- rx$read_error_lines()
-  writeLines(err, con = stderr())
+  ## Relay output, handle messages
+  dispatcher_status <- process_dispatcher_messages(rx, debug = debug)
 
   ## Finalize the 'callr' process, which includes removing any temporary
   ## files that it created

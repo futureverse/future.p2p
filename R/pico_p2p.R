@@ -342,8 +342,8 @@ pico_p2p_dispatch_future <- function(future) {
     update_parent <- function(msg, ...) {
       rx <- channels[["rx"]]
       if (is.null(rx)) return()
-      msg <- sprintf("%s\n", msg)
-      cat(msg, file = rx, append = TRUE)
+      cat(sprintf("dispatcher_status=%s\n", msg), file = stdout())
+      flush.connection(stdout())
     }
 
     listen_parent <- function(...) {
@@ -521,3 +521,43 @@ pico_p2p_dispatch_future <- function(future) {
   
   invisible(future)
 }
+
+
+process_dispatcher_messages <- function(rx, debug = FALSE) {
+  if (debug && isTRUE(getOption("future.debug"))) {
+    mdebug_push("process_dispatcher_messages() ...")
+    on.exit({
+      mdebugf("dispatcher_status: [n=%d] %s", length(dispatcher_status), commaq((dispatcher_status)))
+      mdebug_pop()
+    })
+  }
+  
+  ## Any updates from dispatcher, e.g. output to be relayed?
+  res <- poll(list(rx), ms = 100)[[1]]
+
+  dispatcher_status <- NULL
+    
+  ## Relay stdout?
+  if ("ready" %in% res[["output"]]) {
+    out <- rx$read_output_lines()
+
+    ## Parse special messages
+    pattern <- "^dispatcher_status="
+    is_special <- grepl(pattern, out)
+    dispatcher_status <- sub(pattern, "", out[is_special])
+    out <- out[!is_special]
+    
+    out <- sprintf("  %s", out)
+    writeLines(out, con = stdout())
+  }
+    
+  ## Relay stderr?
+  if ("ready" %in% res[["error"]]) {
+    err <- rx$read_error_lines()
+    err <- sprintf("  %s", err)
+    writeLines(err, con = stderr())
+  }
+
+  ## Return new dispatcher status, if received
+  dispatcher_status
+} ## process_dispatcher_messages()
