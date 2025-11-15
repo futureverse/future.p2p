@@ -279,17 +279,31 @@ pico_p2p_receive_future <- function(p, via, duration = 60) {
 
 
 #' @importFrom future result
-pico_p2p_send_result <- function(p, future, via, duration = 60) {
+pico_p2p_send_result <- function(p, future, via, to, duration = 60, from = p$user) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("pico_p2p_send_result() ...")
     mdebugf("Future: %s", future_id(future))
+    mdebugf("From: %s", from)
+    mdebugf("To: %s", to)
     mdebugf("Via: %s", via)
     mdebugf("Duration: %g seconds", duration)
     on.exit({
       mdebug_pop()
     })
   }
+
+  ## Update client about incoming result on the message board
+  m <- data.frame(
+    when = now_str(),
+    expires = pico_p2p_time(delta = duration),
+    type = "result",
+    from = from,
+    to = to,
+    future = future_id(future),
+    via = via
+  )
+  m_res <- pico_send_message_dataframe(p, m)
 
   uri <- parse_transfer_uri(via)
   if (uri$protocol == "wormhole") {
@@ -417,7 +431,10 @@ pico_p2p_dispatch_future <- function(future) {
       m <- pico_p2p_next_message(pico) ## This is non-block; may return NULL
 
       ## Skip if message is related to another future than ours
-      if (is.null(m[["future"]]) || m[["future"]] != future_id) next
+      if (is.null(m[["future"]]) || m[["future"]] != future_id) {
+        Sys.sleep(0.1)
+        next
+      }
       
       if (debug) mstr(list(m = m))
       
@@ -470,6 +487,44 @@ pico_p2p_dispatch_future <- function(future) {
 
     ## 5. Wait for and receive FutureResult file
     update_parent("wait")
+    repeat {
+      ## Check for interrupts
+      if ("interrupt" %in% listen_parent()) {
+        if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+        m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+        if (debug) mstr(list(m = m))
+      }
+
+      ## New message from message board?
+      m <- pico_p2p_next_message(pico) ## This is non-block; may return NULL
+
+      ## Skip if message is related to another future than ours
+      if (is.null(m[["future"]]) || m[["future"]] != future_id) {
+        Sys.sleep(0.1)
+        next
+      }
+      
+      if (debug) mstr(list(m = m))
+      
+      if (m[["type"]] == "result") {
+        ## Ignore, if result already expired
+        if (Sys.time() > as.POSIXct(as.numeric(m[["expires"]]))) {
+          if (debug) mdebug("Receiving expired results")
+          ## FIXME: We cannot just ignore the file transfer, because then the worker will
+          ## stall forever. To do that, we need the worker coordinator to interrupt the
+          ## transfer when expired.
+          ## return(list(type = "event", value = "expired"))
+        }
+        if (debug) mdebug("Receiving results")
+        state <- "receive"
+        break
+      }
+
+      Sys.sleep(0.1)
+    } ## repeat()
+
+    state <- "results"
+    update_parent("results")
     path <- file.path(dirname(dirname(file)), "results")
     tryCatch({
       file <- pico_p2p_receive_result(pico, via = via, path = path)

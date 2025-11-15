@@ -235,7 +235,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
       if ("resolved" %in% worker_status) {
         state <- "resolved"
         info("Future %s has been resolved and results will be sent to client %s", sQuote(future), sQuote(client))
-        ## FIXME: Inform client that future has been resolved
+        m0 <- pico_p2p_take_on_future(p, to = client, future = future, duration = duration)
       }
       next
     } else if (state == "resolved") {
@@ -276,7 +276,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
           state <- "working"
             
           ## Tell worker to receive future from client
-          tx_worker(sprintf("download=%s,via=%s", future, via))
+          tx_worker(sprintf("download=%s,via=%s,from=%s", future, via, client))
          
           ## Wait for worker to *start* download future
           repeat {
@@ -306,6 +306,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
         ## because the client did not respect what we support)
         state <<- "waiting"
       } else if (state == "working") {
+        info("Interrupting worker")
         state <<- "interrupt"
         rx$interrupt()
       } else {
@@ -419,11 +420,12 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
     }
 
     ## Download and process future?
-    pattern <- "^download=([^,]+),via=(.*)$"
+    pattern <- "^download=([^,]+),via=([^,]+),from=([^,]+)$"
     if (grepl(pattern, action)) {
       future <- sub(pattern, "\\1", action)
       via <- sub(pattern, "\\2", action)
-      info("download future %s via %s", sQuote(future), sQuote(via))
+      client <- sub(pattern, "\\3", action)
+      info("download future %s via %s from %s", sQuote(future), sQuote(via), sQuote(client))
       stop_if_not(
         nzchar(future), !grepl("[,=]", future),
         nzchar(via), !grepl("[,=]", via)
@@ -440,7 +442,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
 
       info("process future %s", sQuoteLabel(f))
       dt <- system.time({
-        r <- tryCatch(result(f), error = identity)
+        r <- tryCatch({ result(f) }, error = identity)  ## Note, result() handles 'interrupt':s
       })
       dt <- difftime(dt[3], 0)
       info("Future %s resolved after %s", sQuote(future), format(dt))
@@ -448,7 +450,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
       
       info("sending future result %s via %s", sQuote(future), sQuote(via))
       dt <- system.time({
-        res <- pico_p2p_send_result(p, future = f, via = via)
+        res <- pico_p2p_send_result(p, future = f, to = client, via = via)
       })
       dt <- difftime(dt[3], 0)
       info("future result %s sent in %s", sQuote(future), format(dt))
