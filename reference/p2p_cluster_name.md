@@ -5,7 +5,7 @@ Gets the default name of the P2P cluster
 ## Usage
 
 ``` r
-p2p_cluster_name(users = character(0))
+p2p_cluster_name(users = character(0), ...)
 ```
 
 ## Arguments
@@ -14,6 +14,11 @@ p2p_cluster_name(users = character(0))
 
   Users to have access to the cluster. This controls whether the default
   cluster names should be "personal" or "friends".
+
+- ...:
+
+  Passed as-is to
+  [`pico_username()`](https://future.p2p.futureverse.org/reference/pico_username.md).
 
 ## Value
 

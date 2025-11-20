@@ -17,6 +17,12 @@
   created by callr sooner. Previously, the finalizer was only run when
   the future object was removed and garbage collected.
 
+- Package gave errors on “Error in as.POSIXct.numeric(time1) : ‘origin’
+  must be supplied” when using R (\< 4.3.0).
+
+- Package failed to install ‘wormhole-williams’ automatically on ARM7
+  machines like Raspberry Pi.
+
 ## Version 0.3.0
 
 ### Significant Changes

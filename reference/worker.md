@@ -6,7 +6,7 @@ Launches a P2P worker and adds it to a P2P cluster
 
 ``` r
 worker(
-  cluster = p2p_cluster_name(),
+  cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
   host = "pipe.pico.sh",
   ssh_args = NULL,
   duration = 60 * 60

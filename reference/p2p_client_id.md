@@ -5,9 +5,9 @@ Gets the identifier of the current P2P client or P2P worker
 ## Usage
 
 ``` r
-p2p_client_id()
+p2p_client_id(...)
 
-p2p_worker_id()
+p2p_worker_id(...)
 ```
 
 ## Value
