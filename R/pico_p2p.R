@@ -8,7 +8,7 @@ pico_p2p_time <- function(time = Sys.time(), delta = 0) {
 }
 
 now_str <- function(when = pico_p2p_time()) {
-  when <- as.POSIXct(when)
+  when <- as_POSIXct(when)
   format(when, format = "%FT%T")
 }
 
@@ -412,7 +412,7 @@ pico_p2p_dispatch_future <- function(future) {
         update_parent("request")
         m <- pico_p2p_have_future(pico, future = file, duration = duration)
         state <- "request"
-        request_expires <- as.POSIXct(as.numeric(m[["expires"]]))
+        request_expires <- as_POSIXct(as.numeric(m[["expires"]]))
         next
       }
 
@@ -440,7 +440,7 @@ pico_p2p_dispatch_future <- function(future) {
       
       if (state == "request" && m[["type"]] == "offer") {
         ## Ignore, if offer already expired
-        if (Sys.time() > as.POSIXct(as.numeric(m[["expires"]]))) {
+        if (Sys.time() > as_POSIXct(as.numeric(m[["expires"]]))) {
           if (debug) mdebug("Received expired work offer")
           next
         }
@@ -508,7 +508,7 @@ pico_p2p_dispatch_future <- function(future) {
       
       if (m[["type"]] == "result") {
         ## Ignore, if result already expired
-        if (Sys.time() > as.POSIXct(as.numeric(m[["expires"]]))) {
+        if (Sys.time() > as_POSIXct(as.numeric(m[["expires"]]))) {
           if (debug) mdebug("Receiving expired results")
           ## FIXME: We cannot just ignore the file transfer, because then the worker will
           ## stall forever. To do that, we need the worker coordinator to interrupt the

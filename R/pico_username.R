@@ -49,7 +49,7 @@ pico_username <- local({
       if (length(out) < 3) {
         stop(sprintf("pico_username(): Received unexpected results: [n=%s]\n%s", length(out), paste(out, collapse = "\n")))
       }
-      username <<- structure(out[1], id = out[2], created_on = as.POSIXct(sub("T", " ", out[3])), class = "pico_username")
+      username <<- structure(out[1], id = out[2], created_on = as_POSIXct(sub("T", " ", out[3])), class = "pico_username")
     }
 
     username

@@ -109,7 +109,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
   ## List of known requests
   requests <- data.frame(
     future = character(0L),
-    expires = as.POSIXct(NA_real_)[FALSE],
+    expires = as_POSIXct(NA_real_)[FALSE],
     client = character(0L)
   )
   stop_if_not(is.data.frame(requests))
@@ -190,7 +190,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
         if (! m[["future"]] %in% requests[["future"]]) {
           request <- data.frame(
             future = m[["future"]],
-            expires = as.POSIXct(as.numeric(m[["expires"]])),
+            expires = as_POSIXct(as.numeric(m[["expires"]])),
             client = m[["from"]]
           )
           requests <- rbind(requests, request)

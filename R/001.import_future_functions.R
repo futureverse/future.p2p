@@ -25,12 +25,3 @@ future_supports_state_submitted <- local({
     .value
   }
 })
-
-
-## Backports
-#' @rawNamespace if (getRversion() < "4.3.0") S3method(as.POSIXct,numeric)
-if (getRversion() < "4.3.0") {
-  as.POSIXct.numeric <- function(x, tz = "", origin, ...) {
-    .POSIXct(if (missing(origin)) x else as.POSIXct(origin, tz = "GMT", ...) + x, tz)
-  }
-}
