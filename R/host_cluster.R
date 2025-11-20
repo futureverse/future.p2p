@@ -56,7 +56,7 @@ host_cluster <- function(cluster = p2p_cluster_name(users, host = host, ssh_args
   now <- pico_p2p_time()
 
   expires <- pico_p2p_time(delta = duration)
-  duration <- difftime(duration, 0)
+  duration <- difftime2(duration, 0)
 
   info("Launch p2p cluster %s for %d users (%s) until %s (%s)", sQuote(cluster), length(users), commaq(users), format(Sys.time() + duration), format(duration))
   topic <- sprintf("%s/future.p2p", cluster_name)

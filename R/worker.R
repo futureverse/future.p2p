@@ -370,7 +370,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
   now <- pico_p2p_time()
 
   expires <- pico_p2p_time(delta = duration)
-  duration <- difftime(duration, 0)
+  duration <- difftime2(duration, 0)
 
   info("get 'wormhole'")
   bin <- find_wormhole()
@@ -432,7 +432,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
       dt <- system.time({
         res <- pico_p2p_receive_future(p, via = via)
       })
-      dt <- difftime(dt[3], 0)
+      dt <- difftime2(dt[3], 0)
       info("Future %s received in %s", sQuote(future), format(dt))
       
       f <- res[["future"]]
@@ -443,7 +443,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
       dt <- system.time({
         r <- tryCatch({ result(f) }, error = identity)  ## Note, result() handles 'interrupt':s
       })
-      dt <- difftime(dt[3], 0)
+      dt <- difftime2(dt[3], 0)
       info("Future %s resolved after %s", sQuote(future), format(dt))
       tx_parent("resolved")
       
@@ -453,7 +453,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
       dt <- system.time({
         pico_p2p_send_result(p, future = f, to = client, via = via)
       })
-      dt <- difftime(dt[3], 0)
+      dt <- difftime2(dt[3], 0)
       info("future result %s sent in %s", sQuote(future), format(dt))
       tx_parent("ready")
       state <- "ready"

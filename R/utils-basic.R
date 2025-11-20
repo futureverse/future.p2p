@@ -91,6 +91,19 @@ hexpr <- function(expr, trim = TRUE, collapse = "; ", maxHead = 6L, maxTail = 3L
 } # hexpr()
 
 
+## Backporting for R (< 4.3.0)
 as_POSIXct <- function(x, tz = "", origin = as.POSIXct("1970-01-01", tz = "GMT"), ...) {
   as.POSIXct(x, tz = tz, origin = origin, ...)
+}
+
+difftime2 <- function(time1, time2, tz, ..., origin = as.POSIXct("1970-01-01", tz = "GMT")) {
+  if (missing(tz)) {
+    time1 <- as.POSIXct(time1, origin = origin)
+    time2 <- as.POSIXct(time2, origin = origin)
+  } else {
+    time1 <- as.POSIXct(time1, tz = tz, origin = origin)
+    time2 <- as.POSIXct(time2, tz = tz, origin = origin)
+  }
+
+  difftime(time1, time2, ...)
 }
