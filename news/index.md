@@ -2,6 +2,10 @@
 
 ## Version (development version)
 
+- …
+
+## Version 0.4.0
+
 ### New Features
 
 - Add support for canceling and interrupting ‘future.p2p’ futures.
