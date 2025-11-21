@@ -8,7 +8,7 @@ pico_p2p_time <- function(time = Sys.time(), delta = 0) {
 }
 
 now_str <- function(when = pico_p2p_time()) {
-  when <- as.POSIXct(when)
+  when <- as_POSIXct(when)
   format(when, format = "%FT%T")
 }
 
@@ -65,7 +65,7 @@ pico_p2p_wait_for <- function(p, type, futures = NULL, expires = NULL, duration 
   
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
-    mdebugf_push("pico_p2p_wait_for(type = '%s') ...", type)
+    mdebugf_push("pico_p2p_wait_for(type = c(%s)) ...", commaq(type))
     mdebugf("Pooling frequency: %g seconds", delay)
     mdebugf("Waiting for futures: [n=%d] %s", length(futures), commaq(futures))
     mdebugf("Expires: %s", now_str(expires))
@@ -83,7 +83,7 @@ pico_p2p_wait_for <- function(p, type, futures = NULL, expires = NULL, duration 
       return(pico_p2p_expired())
     }
     
-    if (!is.null(m) && m$type == type) {
+    if (!is.null(m) && m$type %in% type) {
       if (is.null(futures) || m$future %in% futures) break
     }
     Sys.sleep(0.1)
@@ -107,7 +107,10 @@ pico_p2p_have_future <- function(p, future, duration = getOption("future.p2p.dur
   
   if (inherits(future, "Future")) {
     file <- tempfile(fileext = ".rds")
-    on.exit(file.remove(file), add = TRUE)
+    on.exit({
+      stop_if_not(is.character(file))
+      file.remove(file)
+    }, add = TRUE)
     saveRDS(future, file = file)
   } else if (is.character(future)) {
     stopifnot(file_test("-f", future))
@@ -134,7 +137,32 @@ pico_p2p_have_future <- function(p, future, duration = getOption("future.p2p.dur
   pico_send_message_dataframe(p, m)
 }
 
-pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user, ...) {
+
+pico_p2p_withdraw_future <- function(p, from = p$user, to, future_id, ...) {
+  debug <- isTRUE(getOption("future.p2p.debug"))
+  if (debug) {
+    mdebug_push("pico_p2p_widthdraw_future() ...")
+    mdebugf("Future: %s", future_id)
+    on.exit({
+      mdebug_pop()
+    })
+  }
+   
+  stopifnot(length(from) == 1L, is.character(from), nzchar(from))
+
+  m <- data.frame(
+    when = now_str(),
+    type = "withdraw",
+    from = from,
+    to = to,
+    future = future_id
+  )
+
+  pico_send_message_dataframe(p, m)
+}
+
+
+pico_p2p_take_on_future <- function(p, to, future, duration = 15, from = p$user, ...) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("pico_p2p_take_on_future() ...")
@@ -142,7 +170,7 @@ pico_p2p_take_on_future <- function(p, to, future, duration = 60, from = p$user,
     mdebugf("Duration: %g seconds", duration)
     on.exit({
       mdebug_pop()
-    })
+    })    
   }
   
   stopifnot(length(future) == 1L, is.character(future), nzchar(future))
@@ -178,7 +206,10 @@ pico_p2p_send_future <- function(p, future, to, via = via_transfer_uri(), durati
   if (inherits(future, "Future")) {
     file <- file.path(tempdir(), sprintf("%s-Future.rds", m$future))
     saveRDS(future, file = file)
-    on.exit(file.remove(file))
+    on.exit({
+      stop_if_not(is.character(file))
+      file.remove(file)
+    }, add = TRUE)
   } else if (is.character(future)) {
     stopifnot(file_test("-f", future))
     file <- future
@@ -225,12 +256,21 @@ pico_p2p_receive_future <- function(p, via, duration = 60) {
   stopifnot(length(via) == 1, is.character(via), !is.na(via), nzchar(via))
   
   uri <- parse_transfer_uri(via)
+  tf <- NULL
   if (uri$protocol == "wormhole") {
     tf <- wormhole_receive(code = sprintf("%s-f", uri$path))
+  } else {
+    stop(FutureError(sprintf("Non-supported future.p2p transfer protocol: %s", sQuote(via))))
   }
+  stop_if_not(is.character(tf))
+
+  on.exit({
+    stop_if_not(is.character(tf))
+    file.remove(tf)
+  }, add = TRUE)
 
   future <- readRDS(tf)
-  on.exit(file.remove(tf))
+  
   list(
     future = future,
     via = via
@@ -239,17 +279,31 @@ pico_p2p_receive_future <- function(p, via, duration = 60) {
 
 
 #' @importFrom future result
-pico_p2p_send_result <- function(p, future, via, duration = 60) {
+pico_p2p_send_result <- function(p, future, via, to, duration = 60, from = p$user) {
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
     mdebug_push("pico_p2p_send_result() ...")
     mdebugf("Future: %s", future_id(future))
+    mdebugf("From: %s", from)
+    mdebugf("To: %s", to)
     mdebugf("Via: %s", via)
     mdebugf("Duration: %g seconds", duration)
     on.exit({
       mdebug_pop()
     })
   }
+
+  ## Update client about incoming result on the message board
+  m <- data.frame(
+    when = now_str(),
+    expires = pico_p2p_time(delta = duration),
+    type = "result",
+    from = from,
+    to = to,
+    future = future_id(future),
+    via = via
+  )
+  m_res <- pico_send_message_dataframe(p, m)
 
   uri <- parse_transfer_uri(via)
   if (uri$protocol == "wormhole") {
@@ -294,51 +348,197 @@ pico_p2p_hosted_clusters <- function(host = "pipe.pico.sh", ssh_args = NULL, tim
 
 
 
+#' @importFrom future FutureInterruptError FutureResult
 #' @importFrom callr r_bg
 #' @importFrom utils file_test
 pico_p2p_dispatch_future <- function(future) {
-  send_future <- function(topic, name, host = host, ssh_args = ssh_args, future_id, file, to, via, duration) {
-    ## Import private pico_nnn() functions, because this function
-    ## is run as-is on the parallel worker
-    import_future.p2p <- function(name, mode = "function", envir = getNamespace("future.p2p"), inherits = FALSE) {
-      get(name, envir = envir, mode = mode, inherits = inherits)
+  send_future <- function(topic, name, host = host, ssh_args = ssh_args, future_id, file, to, via, duration, channels, debug = FALSE) {
+    update_parent <- function(msg, ...) {
+      cat(sprintf("dispatcher_status=%s\n", msg), file = stdout())
+      flush(stdout())
+    }
+
+    listen_parent <- function(...) {
+      tx <- channels[["tx"]]
+      if (is.null(tx)) return(character(0L))
+      bfr <- readLines(tx, n = 1e6, warn = FALSE)
+      bfr
+    }
+
+    ## Check for interrupts
+    if ("interrupt" %in% listen_parent()) {
+      if (debug) mdebug("interrupt before connecting")
+      return(list(type = "event", value = "interrupted"))
     }
     
-    pico_pipe <- import_future.p2p("pico_pipe")
-    pico_p2p_hello <- import_future.p2p("pico_p2p_hello")
-    pico_p2p_have_future <- import_future.p2p("pico_p2p_have_future")
-    pico_p2p_wait_for <- import_future.p2p("pico_p2p_wait_for")
-    pico_p2p_send_future <- import_future.p2p("pico_p2p_send_future")
-    pico_p2p_receive_result <- import_future.p2p("pico_p2p_receive_result")
-   
+    update_parent("connecting")
     pico <- pico_pipe(topic, user = name, host = host, ssh_args = ssh_args)
+    
+    ## Check for interrupts
+    if ("interrupt" %in% listen_parent()) {
+      if (debug) mdebug("interrupt before announcement")
+      return(list(type = "event", value = "interrupted"))
+    }
+    
+    update_parent("announcement")
     m <- pico_p2p_hello(pico, type = "client")
+    ## Check for interrupts
+    if ("interrupt" %in% listen_parent()) {
+      if (debug) mdebug("interrupt after announcement")
+      return(list(type = "event", value = "interrupted"))
+    }
+    
+    update_parent("connected")
 
-    ## 2. Announce future
+    worker <- "<none>"
+
+    ## 2. Announce future and wait for work offer
+    state <- "started"
+    request_expires <- -1
     repeat {
-      m1 <- pico_p2p_have_future(pico, future = file, duration = duration)
-      m2 <- pico_p2p_wait_for(pico, type = "offer", futures = m1[["future"]], expires = m1[["expires"]])
-      if (m2[["type"]] != "expired") break
+      ## Check for interrupts
+      if ("interrupt" %in% listen_parent()) {
+        if (state == "request") {
+          if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+          m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+          if (debug) mstr(list(m = m))
+        } else {
+          if (debug) mdebugf("interrupt ignored (state = %s)", sQuote(state))
+        }
+        return(list(type = "event", value = "interrupted"))
+      }
+
+      if (state == "started") {
+        update_parent("request")
+        m <- pico_p2p_have_future(pico, future = file, duration = duration)
+        state <- "request"
+        request_expires <- as_POSIXct(as.numeric(m[["expires"]]))
+        next
+      }
+
+      ## Has request expired
+      if (state == "request") {
+        ## Ignore, if request already expired
+        if (Sys.time() > request_expires) {
+          if (debug) mdebugf("request expired (state = %s)", sQuote(state))
+          state <- "started"
+          request_expires <- -1
+          next
+        }
+      }
+
+      ## New message from message board?
+      m <- pico_p2p_next_message(pico) ## This is non-block; may return NULL
+
+      ## Skip if message is related to another future than ours
+      if (is.null(m[["future"]]) || m[["future"]] != future_id) {
+        Sys.sleep(0.1)
+        next
+      }
+      
+      if (debug) mstr(list(m = m))
+      
+      if (state == "request" && m[["type"]] == "offer") {
+        ## Ignore, if offer already expired
+        if (Sys.time() > as_POSIXct(as.numeric(m[["expires"]]))) {
+          if (debug) mdebug("Received expired work offer")
+          next
+        }
+        if (debug) mdebug("Received work offer")
+        state <- "offer"
+        break
+      }
+
+      Sys.sleep(0.1)
+    } ## repeat()
+
+    if (debug) {
+      mdebug("Work offer:")
+      mstr(list(state = state, m = m))
     }
 
-    ## 3. Send future to workers
-    worker <- m2[["from"]]
+    ## 3. Send future to worker
+    worker <- m[["from"]]
     stopifnot(is.character(worker), nzchar(worker))
-    m3 <- pico_p2p_send_future(pico, future = file, to = worker, via = via)
 
+    ## Check for interrupts
+    if ("interrupt" %in% listen_parent()) {
+      if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+      m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+      if (debug) mstr(list(m = m))
+      return(list(type = "event", value = "interrupted"))
+    }
+
+    update_parent("send")
+    m <- pico_p2p_send_future(pico, future = file, to = worker, via = via)
+    if (debug) mstr(list(m = m))
+    state <- "processing"
+    
     ## 4. Remove temporary file
     file.remove(file)
 
+    ## Check for interrupts
+    if ("interrupt" %in% listen_parent()) {
+      if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+      m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+      if (debug) mstr(list(m = m))
+      return(list(type = "event", value = "interrupted"))
+    }
+
     ## 5. Wait for and receive FutureResult file
+    update_parent("wait")
+    repeat {
+      ## Check for interrupts
+      if ("interrupt" %in% listen_parent()) {
+        if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+        m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+        if (debug) mstr(list(m = m))
+      }
+
+      ## New message from message board?
+      m <- pico_p2p_next_message(pico) ## This is non-block; may return NULL
+
+      ## Skip if message is related to another future than ours
+      if (is.null(m[["future"]]) || m[["future"]] != future_id) {
+        Sys.sleep(0.1)
+        next
+      }
+      
+      if (debug) mstr(list(m = m))
+      
+      if (m[["type"]] == "result") {
+        ## Ignore, if result already expired
+        if (Sys.time() > as_POSIXct(as.numeric(m[["expires"]]))) {
+          if (debug) mdebug("Receiving expired results")
+          ## FIXME: We cannot just ignore the file transfer, because then the worker will
+          ## stall forever. To do that, we need the worker coordinator to interrupt the
+          ## transfer when expired.
+          ## return(list(type = "event", value = "expired"))
+        }
+        if (debug) mdebug("Receiving results")
+        state <- "receive"
+        break
+      }
+
+      Sys.sleep(0.1)
+    } ## repeat()
+
+    state <- "results"
+    update_parent("results")
     path <- file.path(dirname(dirname(file)), "results")
     tryCatch({
       file <- pico_p2p_receive_result(pico, via = via, path = path)
     }, interrupt = function(int) {
-      cat(file = "foo.log", "interrupted\n")
+      if (debug) mdebugf("interrupt (state = %s)", sQuote(state))
+      m <- pico_p2p_withdraw_future(pico, future_id = future_id, to = worker)
+      if (debug) mstr(list(m = m))
+      return(list(type = "event", value = "interrupted"))
     })
 
-    invisible(file)
-  }
+    update_parent("result")
+
+    list(type = "file", value = file)
+  } ## send_future()
 
   debug <- isTRUE(getOption("future.p2p.debug"))
   if (debug) {
@@ -364,33 +564,83 @@ pico_p2p_dispatch_future <- function(future) {
 
   ## 1. Connect to pico and say hello
   cluster_owner <- dirname(cluster)
-  if (cluster_owner == pico_username()) {
+  if (cluster_owner == pico_username(host = host, ssh_args = ssh_args)) {
     topic <- sprintf("%s/future.p2p", basename(cluster))
   } else {
     topic <- sprintf("%s/future.p2p", cluster)
   }
 
+  future_id <- future_id(future)
+  channel_prefix <- sprintf("%s_%s", .packageName, future_id)
+  channels <- c(
+    tx = tempfile(pattern = channel_prefix, fileext = ".tx")
+  )
+  lapply(channels, FUN = file.create, showWarnings = FALSE)
+  
   args <- list(
     topic = topic,
     name = name,
     host = host,
     ssh_args = ssh_args,
-    future_id = future_id(future),
+    future_id = future_id,
     file = future[["file"]],
+    channels = channels,
     via = via,
-    duration = getOption("future.p2p.duration.request", 10.0)
+    duration = getOption("future.p2p.duration.request", 10.0),
+    debug = debug
   )
   if (debug) {
     mstr(args)
   }
 
-  rx <- r_bg(send_future, args = args, supervise = TRUE)
+  rx <- r_bg(send_future, args = args, supervise = TRUE, package = TRUE)
+  attr(rx, "channels") <- args[["channels"]]
   future[["rx"]] <- rx
 
   future[["pico_via"]] <- via
 
   ## Update future state
-  future[["state"]] <- "running"
+  future[["state"]] <- if (future_supports_state_submitted()) "submitted" else "running"
   
   invisible(future)
 }
+
+
+process_dispatcher_messages <- function(rx, debug = FALSE) {
+  if (debug && isTRUE(getOption("future.debug"))) {
+    mdebug_push("process_dispatcher_messages() ...")
+    on.exit({
+      mdebugf("dispatcher_status: [n=%d] %s", length(dispatcher_status), commaq((dispatcher_status)))
+      mdebug_pop()
+    })
+  }
+  
+  ## Any updates from dispatcher, e.g. output to be relayed?
+  res <- poll(list(rx), ms = 100)[[1]]
+
+  dispatcher_status <- NULL
+    
+  ## Relay stdout?
+  if ("ready" %in% res[["output"]]) {
+    out <- rx$read_output_lines()
+
+    ## Parse special messages
+    pattern <- "^dispatcher_status="
+    is_special <- grepl(pattern, out)
+    dispatcher_status <- sub(pattern, "", out[is_special])
+    out <- out[!is_special]
+    
+    out <- sprintf("  %s", out)
+    writeLines(out, con = stdout())
+  }
+    
+  ## Relay stderr?
+  if ("ready" %in% res[["error"]]) {
+    err <- rx$read_error_lines()
+    err <- sprintf("  %s", err)
+    writeLines(err, con = stderr())
+  }
+
+  ## Return new dispatcher status, if received
+  dispatcher_status
+} ## process_dispatcher_messages()

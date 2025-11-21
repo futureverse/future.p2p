@@ -5,9 +5,9 @@
 \alias{p2p_worker_id}
 \title{Gets the identifier of the current P2P client or P2P worker}
 \usage{
-p2p_client_id()
+p2p_client_id(...)
 
-p2p_worker_id()
+p2p_worker_id(...)
 }
 \value{
 \code{p2p_client_id()} and \code{p2p_worker_id()} return the client and worker

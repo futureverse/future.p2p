@@ -5,7 +5,7 @@
 \title{Hosts a shared P2P cluster}
 \usage{
 host_cluster(
-  cluster = p2p_cluster_name(users),
+  cluster = p2p_cluster_name(users, host = host, ssh_args = ssh_args),
   users = character(0L),
   host = "pipe.pico.sh",
   ssh_args = NULL,
@@ -29,7 +29,7 @@ The default is a personal cluster that only you have access to.}
 Hosts a shared P2P cluster
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Connect to personal P2P cluster, which is automatically launched
 host_cluster(users = c("bob", "carol"))
 \dontshow{\}) # examplesIf}

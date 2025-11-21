@@ -184,20 +184,25 @@ wormhole_call <- function(command = c("send", "receive"), ..., input = NULL, rsh
 }
 
 
-wormhole_filename <- function(sysname = Sys.info()[["sysname"]], arch = R.version[["arch"]]) {
+wormhole_filename <- function(sysname = Sys.info()[["sysname"]], machine = Sys.info()[["machine"]]) {
   sysname <- tolower(sysname)
 
   if (sysname %in% c("linux", "darwin")) {
-    if (arch == "x86_64") arch <- "amd64"
+    if (machine == "x86_64") {
+      machine <- "amd64"
+    } else if (machine == "armv7l") {
+      ## e.g. Raspberry Pi
+      machine <- "arm7"
+    }
     ext <- ""
   } else if (sysname == "windows") {
-    arch <- "386"
+    machine <- "386"
     ext <- ".exe"
   } else {
     stop(sprintf("Unknown system: %s", sysname))
   }
 
-  sprintf("wormhole-william-%s-%s%s", sysname, arch, ext)
+  sprintf("wormhole-william-%s-%s%s", sysname, machine, ext)
 } ## wormhole_filename()
 
 

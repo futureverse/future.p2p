@@ -16,7 +16,7 @@
 #'
 #' @importFrom future resolve plan sequential
 #' @export
-host_cluster <- function(cluster = p2p_cluster_name(users), users = character(0L), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
+host_cluster <- function(cluster = p2p_cluster_name(users, host = host, ssh_args = ssh_args), users = character(0L), host = "pipe.pico.sh", ssh_args = NULL, duration = 14*24*60*60) {
   stopifnot(length(cluster) == 1L, is.character(cluster), !is.na(cluster), nzchar(cluster))
   
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
@@ -24,17 +24,17 @@ host_cluster <- function(cluster = p2p_cluster_name(users), users = character(0L
   if (length(parts) == 1L) {
     okay <- TRUE
     cluster_name <- cluster
-    cluster_owner <- pico_username()
+    cluster_owner <- pico_username(host = host, ssh_args = ssh_args)
     cluster <- sprintf("%s/%s", cluster_owner, cluster_name)
   } else if (length(parts) == 2L) {
     cluster_owner <- parts[1]
-    if (cluster_owner == pico_username()) {
+    if (cluster_owner == pico_username(host = host, ssh_args = ssh_args)) {
       okay <- TRUE
       cluster_name <- parts[2]
     }
   }
   if (!okay) {
-    stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}' or '{name}' where '{owner}' is your Pico username (%s): %s", sQuote(cluster), sQuote(pico_username())))
+    stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}' or '{name}' where '{owner}' is your Pico username (%s): %s", sQuote(cluster), sQuote(pico_username(host = host, ssh_args = ssh_args))))
   }
 
   stopifnot(
@@ -56,7 +56,7 @@ host_cluster <- function(cluster = p2p_cluster_name(users), users = character(0L
   now <- pico_p2p_time()
 
   expires <- pico_p2p_time(delta = duration)
-  duration <- difftime(duration, 0)
+  duration <- difftime2(duration, 0)
 
   info("Launch p2p cluster %s for %d users (%s) until %s (%s)", sQuote(cluster), length(users), commaq(users), format(Sys.time() + duration), format(duration))
   topic <- sprintf("%s/future.p2p", cluster_name)

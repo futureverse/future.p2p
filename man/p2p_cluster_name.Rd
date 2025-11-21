@@ -4,11 +4,13 @@
 \alias{p2p_cluster_name}
 \title{Gets the default name of the P2P cluster}
 \usage{
-p2p_cluster_name(users = character(0))
+p2p_cluster_name(users = character(0), ...)
 }
 \arguments{
 \item{users}{Users to have access to the cluster. This controls whether
 the default cluster names should be "personal" or "friends".}
+
+\item{\ldots}{Passed as-is to \code{\link[=pico_username]{pico_username()}}.}
 }
 \value{
 \code{p2p_cluster_name()} returns R option \code{future.p2p.cluster}, if set.

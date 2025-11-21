@@ -1,6 +1,6 @@
 now <- function(x = Sys.time(), format = "[%H:%M:%OS3] ") {
   ## format(x, format = format) ## slower
-  format(as.POSIXlt(x, tz = ""), format = format)
+  format(as_POSIXct(x, tz = ""), format = format)
 }
 
 debug_indent <- local({

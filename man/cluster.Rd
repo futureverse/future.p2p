@@ -43,7 +43,7 @@ Users who wish to take advantage of the compute power of the
 P2P cluster should use \code{plan(future.p2p::cluster)}.
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Connect to personal P2P cluster, which is automatically launched
 plan(future.p2p::cluster)
 
