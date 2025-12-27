@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,7 +115,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="warning-security-warning">⚠️ Security ⚠️<a class="anchor" aria-label="anchor" href="#warning-security-warning"></a>
+<h2 id="id_️-security-️">⚠️ Security ⚠️<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-security-%EF%B8%8F"></a>
 </h2>
 <p><em>Important warning: Please note that there is nothing preventing a user in your P2P cluster from sending malicious R code to your P2P worker!</em></p>
 <p>For example, a P2P user may submit a future that erases all files on the P2P worker or a future that attempts to read non-encrypted secret files of yours, e.g.</p>
@@ -200,7 +200,7 @@
 <p>it might stall forever. If that happens, press <kbd>Ctrl-C</kbd> to interrupt and retry by disabling the proxy settings using:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="op">&gt;</span> Sys.unsetenv<span class="kw">(</span><span class="st">"http_proxy"</span><span class="kw">)</span></span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="op">&gt;</span> system2<span class="kw">(</span><span class="fu">future.p2p:::find_wormhole()</span><span class="ex">,</span> args = c<span class="er">(</span><span class="st">"send"</span><span class="ex">,</span> <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="kw">))</span></span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="ex">On</span> the other computer, please run: wormhole receive <span class="er">(</span><span class="ex">or</span> wormhole-william recv<span class="kw">)</span>                                                       </span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="ex">On</span> the other computer, please run: wormhole receive <span class="er">(</span><span class="ex">or</span> wormhole-william recv<span class="kw">)</span></span>
 <span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="ex">Wormhole</span> code is: 53-visitor-physique</span></code></pre></div>
 <p>If the latter works for you, launch R by unsetting environment variable <code>http_proxy</code>, e.g.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="ex">{bob}$</span> http_proxy=<span class="st">""</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>

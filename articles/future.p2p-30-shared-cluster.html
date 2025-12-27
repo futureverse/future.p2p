@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,10 +133,10 @@ is almost as easy.</p>
 <h2 id="hosting-a-p2p-cluster">Hosting a P2P cluster<a class="anchor" aria-label="anchor" href="#hosting-a-p2p-cluster"></a>
 </h2>
 <p>Lets assume that P2P users ‘alice’, ‘bob’, ‘carol’, and ‘diana’ wish
-share a P2P cluster and user ‘alice’ agrees to host it. They can do this
-by calling:</p>
+to share a P2P cluster and user ‘alice’ agrees to host it. They can do
+this by calling:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">{alice}$</span> Rscript <span class="at">-e</span> future.p2p::host_cluster <span class="at">--users</span><span class="op">=</span>bob,carol,diana <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
-<p>Hosting a P2P cluster only means that you control who has access -
+<p>Hosting a P2P cluster only means that you control who have access -
 nothing else. For example, in our example, there will be <em>no</em>
 extra traffic going through the computer of ‘alice’.</p>
 </div>

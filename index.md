@@ -8,7 +8,6 @@
 ## TL;DR
 
 ``` r
-
 library(future)
 
 ## Resolve futures via a P2P cluster shared among friends
@@ -32,14 +31,12 @@ P2P worker or a future that attempts to read non-encrypted secret files
 of yours, e.g.
 
 ``` r
-
 f <- future(system("erase-all-user-files"))
 ```
 
 and
 
 ``` r
-
 f <- future(readLines("~/.ssh/id_ed25519"))
 ```
 
@@ -63,7 +60,6 @@ machine where your personal data lives.
 ## Installation
 
 ``` r
-
 install.packages('future.p2p', repos = c('https://futureverse.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
@@ -124,7 +120,6 @@ specifying that we want to parallelize via the P2P cluster.
 For example,
 
 ``` r
-
 library(future)
 plan(future.p2p::cluster, cluster = "alice/friends")
 
@@ -184,7 +179,7 @@ retry by disabling the proxy settings using:
 ``` sh
 > Sys.unsetenv("http_proxy")
 > system2(future.p2p:::find_wormhole(), args = c("send", "--text", "hello"))
-On the other computer, please run: wormhole receive (or wormhole-william recv)                                                       
+On the other computer, please run: wormhole receive (or wormhole-william recv)
 Wormhole code is: 53-visitor-physique
 ```
 

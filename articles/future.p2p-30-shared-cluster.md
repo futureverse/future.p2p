@@ -17,7 +17,7 @@ easy.
 
 ## Hosting a P2P cluster
 
-Lets assume that P2P users ‘alice’, ‘bob’, ‘carol’, and ‘diana’ wish
+Lets assume that P2P users ‘alice’, ‘bob’, ‘carol’, and ‘diana’ wish to
 share a P2P cluster and user ‘alice’ agrees to host it. They can do this
 by calling:
 
@@ -25,7 +25,7 @@ by calling:
 {alice}$ Rscript -e future.p2p::host_cluster --users=bob,carol,diana --cluster=alice/friends
 ```
 
-Hosting a P2P cluster only means that you control who has access -
+Hosting a P2P cluster only means that you control who have access -
 nothing else. For example, in our example, there will be *no* extra
 traffic going through the computer of ‘alice’.
 
@@ -35,7 +35,7 @@ After this, ‘bob’, ‘carol’, ‘diana’, and ‘alice’ have equal acce
 the P2P cluster ‘alice/friends’.
 
 Those who have access can contribute as many workers as they like. To
-launch a P2P worker, call:[^1][^2]
+launch a P2P worker, call:[¹](#fn1)[²](#fn2)
 
 ``` sh
 {bob}$ Rscript -e future.p2p::worker --cluster=alice/friends
@@ -49,7 +49,6 @@ With the P2P set up and P2P workers being up and running, you can run
 your R code on it my setting the future plan. For example,
 
 ``` r
-
 library(future)
 plan(future.p2p::cluster)
 
@@ -59,13 +58,12 @@ print(v)
 ```
 
 will give you the process ID of the P2P worker that took on this
-future.[^3][^4]
+future.[³](#fn3)[⁴](#fn4)
 
 Next, try the Mandelbrot demo of the
 **[future](https://future.futureverse.org)** package;
 
 ``` r
-
 library(future)
 plan(future.p2p::cluster)
 demo("mandelbrot", ask = TRUE)
@@ -73,12 +71,14 @@ demo("mandelbrot", ask = TRUE)
 
 Each tile will be processed by a separate P2P worker.
 
-[^1]: The first time you launch a worker, or configure
+------------------------------------------------------------------------
+
+1.  The first time you launch a worker, or configure
     [`plan()`](https://future.futureverse.org/reference/plan.html) to
     use the P2P cluster, you might find that the \[wormhole-william\]
     executable is installed.
 
-[^2]: If you are on MS Windows, you will get a Windows Security Alert
+2.  If you are on MS Windows, you will get a Windows Security Alert
     asking you to “Allow access” for the Wormhole executable to access
     “public and private networks”. Check and accept both. Details: (i)
     Allow “private” networks if you have other local computers you want
@@ -86,12 +86,12 @@ Each tile will be processed by a separate P2P worker.
     you want to participate in a P2P cluster with computers running
     externally, e.g. your friends computers.
 
-[^3]: The first time you launch a worker, or configure
+3.  The first time you launch a worker, or configure
     [`plan()`](https://future.futureverse.org/reference/plan.html) to
     use the P2P cluster, you might find that the \[wormhole-william\]
     executable is installed.
 
-[^4]: If you are on MS Windows, you will get a Windows Security Alert
+4.  If you are on MS Windows, you will get a Windows Security Alert
     asking you to “Allow access” for the Wormhole executable to access
     “public and private networks”. Check and accept both. Details: (i)
     Allow “private” networks if you have other local computers you want
