@@ -27,7 +27,7 @@ easy.
 ## Hosting a P2P cluster
 
 Lets assume that P2P users 'alice', 'bob', 'carol', and 'diana' wish
-share a P2P cluster and user 'alice' agrees to host it. They can do
+to share a P2P cluster and user 'alice' agrees to host it. They can do
 this by calling:
 
 ```sh
