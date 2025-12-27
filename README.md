@@ -189,7 +189,7 @@ interrupt and retry by disabling the proxy settings using:
 ```sh
 > Sys.unsetenv("http_proxy")
 > system2(future.p2p:::find_wormhole(), args = c("send", "--text", "hello"))
-On the other computer, please run: wormhole receive (or wormhole-william recv)                                                       
+On the other computer, please run: wormhole receive (or wormhole-william recv)
 Wormhole code is: 53-visitor-physique
 ```
 

@@ -34,7 +34,7 @@ this by calling:
 {alice}$ Rscript -e future.p2p::host_cluster --users=bob,carol,diana --cluster=alice/friends
 ```
 
-Hosting a P2P cluster only means that you control who has access -
+Hosting a P2P cluster only means that you control who have access -
 nothing else. For example, in our example, there will be _no_ extra
 traffic going through the computer of 'alice'.
 
