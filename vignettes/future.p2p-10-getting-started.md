@@ -14,9 +14,9 @@ and distributed processing via a peer-to-peer (P2P) compute cluster. A
 P2P cluster can be either _personal_ or _shared_ with others. A
 personal cluster is only accessible by the user who runs it.
 
-This document shows you how the get started. I recommend starting out
+This document shows you how to get started. I recommend starting out
 with a _personal_ P2P cluster just to get a feel for what is
-involved. After that, setting one up among friends, is almost as
+involved. After that, setting one up among friends is almost as
 easy. Regardless, all users need to set up a few things before they
 can join a P2P cluster.
 
@@ -31,12 +31,12 @@ clients to post futures ("tasks") that should be processed and for
 workers to offer their help to process the futures.
 
 The P2P file-transfer backend is how clients and workers transfer
-futures and results between each others.
+futures and results between each other.
 
 Users who wish to join a P2P cluster, needs to create a [pico.sh]
-account, which given them access to the task message board. In
+account, which gives them access to the task message board. In
 contrast, P2P file transfers that take place between clients and
-workers, are anonymous and requires no accounts. 
+workers are anonymous and require no accounts. 
 
 
 ## ⚠️ Security ⚠️
@@ -60,7 +60,7 @@ f <- future(readLines("~/.ssh/id_ed25519"))
 ```
 
 Because of this, it is important that you only join shared P2P
-clusters that you trust, i.e. where you trust all the P2P user and the
+clusters that you trust, i.e. where you trust all the P2P users and the
 user who hosts it such that they do not invite non-trusted or unknown
 users.
 
@@ -86,9 +86,9 @@ If you don't know about SSH keys, the gist is that they allow you to
 SSH without having to enter your password each time. Instead, your
 computer authenticates with the server using secure public-private
 keys. It's a very convenient way of working with SSH. You can read
-more it in the Wikibooks article ['OpenSSH/Cookbook/Public Key
+more about it in the Wikibooks article ['OpenSSH/Cookbook/Public Key
 Authentication'](https://en.wikibooks.org/wiki/OpenSSH%2FCookbook%2FPublic_Key_Authentication),
-which also provides detailed instructions. The gist for creating a SSH
+which also provides detailed instructions. The gist for creating an SSH
 key pair is:
 
 ```sh
@@ -98,7 +98,7 @@ $ ssh-keygen
 and then follow the instructions. Although you can leave the
 passphrase empty, I recommend to set one and let the operating
 system's _SSH agent_ manage authentication. This means that you will
-only have to authenticate once when you log in into your computer,
+only have to authenticate once when you log into your computer,
 instead of at each SSH connection.
 
 

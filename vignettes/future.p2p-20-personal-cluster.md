@@ -10,20 +10,20 @@
 -->
 
 If you have access to different machines, locally or remotely, you can
-set up a "personal" P2P cluster to distribute you R tasks to those
+set up a "personal" P2P cluster to distribute your R tasks to those
 machines using the **[future.p2p]** package.
 
 This document gives instructions on how to set up a _personal_ P2P
 cluster. Setting up a "personal" cluster is very easy. You can either
 set up the `plan()` first or launch your P2P workers first - the order
-does not matter. I find in convenient to launch the P2P workers first.
+does not matter. I find it convenient to launch the P2P workers first.
 To launch workers, log into your different machines and run:[^1][^2]
 
 ```sh
 $ Rscript -e future.p2p::worker
 ```
 
-Launch as many workers as you needed. You can add more later, if
+Launch as many workers as needed. You can add more later, if
 needed.
 
 

@@ -26,7 +26,7 @@ Launches a P2P worker and adds it to a P2P cluster
 \section{Sequential, single-core processing by default}{
 
 A P2P worker runs sequentially (\code{plan(sequential)}) and is configured
-to with a single CPU core to prevent nested parallelization.
+with a single CPU core to prevent nested parallelization.
 }
 
 \examples{

@@ -1,7 +1,7 @@
 #' Connect to a pico pipe
 #'
 #' @param topic (character string) The topic to connect to. If connecting
-#' to another users topic, prefix with their username and a forward slash,
+#' to another user's topic, prefix with their username and a forward slash,
 #' e.g. `alice/topic`.
 #'
 #' @param command (character string) Type of pipe or command.
@@ -126,7 +126,7 @@ pico_receive_message <- function(p, n = 1L, ...) {
 }
 
 
-#' @param pattern (character string; optional) A regular expression so scan for.
+#' @param pattern (character string; optional) A regular expression to scan for.
 #'
 #' @rdname pico_pipe
 pico_receive_message_dataframe <- function(p, ..., pattern = NULL) {

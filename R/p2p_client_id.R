@@ -27,7 +27,7 @@ p2p_cluster_name <- function(users = character(0), ...) {
 #'
 #' @return
 #' `p2p_client_id()` and `p2p_worker_id()` return the client and worker
-#' identifier, which both have format`"{username}@{hostname}:{pid}"`.
+#' identifier, which both have format `"{username}@{hostname}:{pid}"`.
 #'
 #' @keywords internal
 p2p_client_id <- local({

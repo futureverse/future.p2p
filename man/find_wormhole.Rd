@@ -8,7 +8,7 @@ find_wormhole()
 }
 \value{
 The absolute path to the \code{wormhole} executable as a character string.
-Attribute \code{version-string} comprise the \code{wormhole --version} output,
+Attribute \code{version-string} comprises the \code{wormhole --version} output,
 and attributes \code{name} and \code{version} the parsed version string.
 If no executable exists, an error is produced.
 }

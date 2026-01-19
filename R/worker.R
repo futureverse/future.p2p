@@ -12,7 +12,7 @@
 #'
 #' @section Sequential, single-core processing by default:
 #' A P2P worker runs sequentially (`plan(sequential)`) and is configured
-#' to with a single CPU core to prevent nested parallelization.
+#' with a single CPU core to prevent nested parallelization.
 #'
 #' @importFrom processx poll
 #' @importFrom utils head

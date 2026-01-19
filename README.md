@@ -47,7 +47,7 @@ f <- future(readLines("~/.ssh/id_ed25519"))
 ```
 
 Because of this, it is important that you only join shared P2P
-clusters that you trust, i.e. where you trust all the P2P user and the
+clusters that you trust, i.e. where you trust all the P2P users and the
 user who hosts it such that they do not invite non-trusted or unknown
 users.
 
@@ -102,7 +102,7 @@ That's it!
 
 ## Set up a shared P2P cluster
 
-Let's assume P2P users 'alice', 'bob', 'carol', and 'diana' decides to
+Let's assume P2P users 'alice', 'bob', 'carol', and 'diana' decide to
 share a P2P cluster and user 'alice' agrees to host it. Hosting a P2P
 cluster only means that you control who has access - there's no extra
 load added. So, to host, 'alice' calls:
@@ -112,7 +112,7 @@ load added. So, to host, 'alice' calls:
 ```
 
 A future P2P cluster can be hosted from anywhere in the world, and it
-does not have to on a machine where you run your own R analysis.
+does not have to be on a machine where you run your own R analysis.
 
 
 ## Parallelize via P2P cluster (all users)
@@ -120,7 +120,7 @@ does not have to on a machine where you run your own R analysis.
 Any user with access to the 'alice/friends' cluster can use it. In our
 example, this means 'bob', 'carol', 'diana', and 'alice' may use the
 P2P cluster at the same time. Just like with any other future backend,
-we use `plan()` to specifying that we want to parallelize via the P2P
+we use `plan()` to specify that we want to parallelize via the P2P
 cluster.
 
 For example,
@@ -129,7 +129,7 @@ For example,
 library(future)
 plan(future.p2p::cluster, cluster = "alice/friends")
 
-## Evaluate a R expression via the P2P cluster
+## Evaluate an R expression via the P2P cluster
 f <- future(Sys.getpid())
 
 ## Retrieve value

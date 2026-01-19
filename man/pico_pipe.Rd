@@ -33,7 +33,7 @@ pico_hosted_channels(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10)
 }
 \arguments{
 \item{topic}{(character string) The topic to connect to. If connecting
-to another users topic, prefix with their username and a forward slash,
+to another user's topic, prefix with their username and a forward slash,
 e.g. \code{alice/topic}.}
 
 \item{command}{(character string) Type of pipe or command.}
@@ -55,7 +55,7 @@ to the message, otherwise not.}
 
 \item{n}{(integer) Number of messages to read.}
 
-\item{pattern}{(character string; optional) A regular expression so scan for.}
+\item{pattern}{(character string; optional) A regular expression to scan for.}
 
 \item{timeout}{(numeric scalar) Timeout (in seconds).}
 
