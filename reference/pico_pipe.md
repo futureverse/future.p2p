@@ -32,7 +32,7 @@ pico_hosted_channels(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10)
 - topic:
 
   (character string) The topic to connect to. If connecting to another
-  users topic, prefix with their username and a forward slash, e.g.
+  user's topic, prefix with their username and a forward slash, e.g.
   `alice/topic`.
 
 - command:
@@ -74,7 +74,7 @@ pico_hosted_channels(host = "pipe.pico.sh", ssh_args = NULL, timeout = 10)
 
 - pattern:
 
-  (character string; optional) A regular expression so scan for.
+  (character string; optional) A regular expression to scan for.
 
 - timeout:
 

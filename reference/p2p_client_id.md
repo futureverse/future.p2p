@@ -13,4 +13,4 @@ p2p_worker_id(...)
 ## Value
 
 `p2p_client_id()` and `p2p_worker_id()` return the client and worker
-identifier, which both have format`"{username}@{hostname}:{pid}"`.
+identifier, which both have format `"{username}@{hostname}:{pid}"`.

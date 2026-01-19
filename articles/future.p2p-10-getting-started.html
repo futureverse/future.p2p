@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -122,9 +122,9 @@ package implements a future backend for parallel and distributed
 processing via a peer-to-peer (P2P) compute cluster. A P2P cluster can
 be either <em>personal</em> or <em>shared</em> with others. A personal
 cluster is only accessible by the user who runs it.</p>
-<p>This document shows you how the get started. I recommend starting out
+<p>This document shows you how to get started. I recommend starting out
 with a <em>personal</em> P2P cluster just to get a feel for what is
-involved. After that, setting one up among friends, is almost as easy.
+involved. After that, setting one up among friends is almost as easy.
 Regardless, all users need to set up a few things before they can join a
 P2P cluster.</p>
 <p>A P2P cluster consists of:</p>
@@ -136,10 +136,10 @@ P2P cluster.</p>
 clients to post futures (“tasks”) that should be processed and for
 workers to offer their help to process the futures.</p>
 <p>The P2P file-transfer backend is how clients and workers transfer
-futures and results between each others.</p>
-<p>Users who wish to join a P2P cluster, needs to create a <a href="https://pico.sh/" class="external-link">pico.sh</a> account, which given them access to
+futures and results between each other.</p>
+<p>Users who wish to join a P2P cluster, needs to create a <a href="https://pico.sh/" class="external-link">pico.sh</a> account, which gives them access to
 the task message board. In contrast, P2P file transfers that take place
-between clients and workers, are anonymous and requires no accounts.</p>
+between clients and workers are anonymous and require no accounts.</p>
 <div class="section level2">
 <h2 id="security">⚠️ Security ⚠️<a class="anchor" aria-label="anchor" href="#security"></a>
 </h2>
@@ -155,7 +155,7 @@ files of yours, e.g.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/future.html" class="external-link">future</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="st">"~/.ssh/id_ed25519"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Because of this, it is important that you only join shared P2P
-clusters that you trust, i.e. where you trust all the P2P user and the
+clusters that you trust, i.e. where you trust all the P2P users and the
 user who hosts it such that they do not invite non-trusted or unknown
 users.</p>
 <p>There are mechanisms for launching P2P workers in <em>sandboxed</em>
@@ -181,16 +181,16 @@ not accept password logins, which also would not work for
 <p>If you don’t know about SSH keys, the gist is that they allow you to
 SSH without having to enter your password each time. Instead, your
 computer authenticates with the server using secure public-private keys.
-It’s a very convenient way of working with SSH. You can read more it in
-the Wikibooks article <a href="https://en.wikibooks.org/wiki/OpenSSH%2FCookbook%2FPublic_Key_Authentication" class="external-link">‘OpenSSH/Cookbook/Public
+It’s a very convenient way of working with SSH. You can read more about
+it in the Wikibooks article <a href="https://en.wikibooks.org/wiki/OpenSSH%2FCookbook%2FPublic_Key_Authentication" class="external-link">‘OpenSSH/Cookbook/Public
 Key Authentication’</a>, which also provides detailed instructions. The
-gist for creating a SSH key pair is:</p>
+gist for creating an SSH key pair is:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
 <p>and then follow the instructions. Although you can leave the
 passphrase empty, I recommend to set one and let the operating system’s
 <em>SSH agent</em> manage authentication. This means that you will only
-have to authenticate once when you log in into your computer, instead of
-at each SSH connection.</p>
+have to authenticate once when you log into your computer, instead of at
+each SSH connection.</p>
 </div>
 <div class="section level3">
 <h3 id="create-p2p-user-account">2. Create P2P user account<a class="anchor" aria-label="anchor" href="#create-p2p-user-account"></a>

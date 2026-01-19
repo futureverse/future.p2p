@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -118,13 +118,13 @@ Bengtsson</h4>
 %\VignetteEngine{future.p2p::selfonly}
 -->
 <p>If you have access to different machines, locally or remotely, you
-can set up a “personal” P2P cluster to distribute you R tasks to those
+can set up a “personal” P2P cluster to distribute your R tasks to those
 machines using the <strong><a href="https://future.p2p.futureverse.org/">future.p2p</a></strong>
 package.</p>
 <p>This document gives instructions on how to set up a <em>personal</em>
 P2P cluster. Setting up a “personal” cluster is very easy. You can
 either set up the <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan()</a></code> first or launch your P2P workers
-first - the order does not matter. I find in convenient to launch the
+first - the order does not matter. I find it convenient to launch the
 P2P workers first. To launch workers, log into your different machines
 and run:<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;The first time you launch a worker, or configure
 &lt;code&gt;&lt;a href="https://future.futureverse.org/reference/plan.html" class="external-link"&gt;plan()&lt;/a&gt;&lt;/code&gt; to use the P2P cluster, you might find that the
@@ -136,7 +136,7 @@ to participate in the P2P cluster. (ii) Allow “public” networks if you
 want to participate in a P2P cluster with computers running externally,
 e.g. your friends computers.&lt;/p&gt;"><sup>2</sup></a></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">$</span> Rscript <span class="at">-e</span> future.p2p::worker</span></code></pre></div>
-<p>Launch as many workers as you needed. You can add more later, if
+<p>Launch as many workers as needed. You can add more later, if
 needed.</p>
 <p>With your P2P workers set up, you can start using your personal
 cluster, by setting the future plan. For example,</p>

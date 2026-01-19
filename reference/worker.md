@@ -33,7 +33,7 @@ worker(
 
 ## Sequential, single-core processing by default
 
-A P2P worker runs sequentially (`plan(sequential)`) and is configured to
+A P2P worker runs sequentially (`plan(sequential)`) and is configured
 with a single CPU core to prevent nested parallelization.
 
 ## Examples

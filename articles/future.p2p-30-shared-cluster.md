@@ -1,7 +1,7 @@
 # future.p2p: A Shared P2P Cluster among Friends
 
 You and your friends can share your R compute powers with each other,
-regardless where in the world you are located. To do this, one of you
+regardless of where in the world you are located. To do this, one of you
 will host a “friends” P2P cluster by specifying which users should have
 access. After this, each of you can contribute as many workers as you
 like, and each of you can distribute your R processing to this P2P
@@ -17,7 +17,7 @@ easy.
 
 ## Hosting a P2P cluster
 
-Lets assume that P2P users ‘alice’, ‘bob’, ‘carol’, and ‘diana’ wish to
+Let’s assume that P2P users ‘alice’, ‘bob’, ‘carol’, and ‘diana’ wish to
 share a P2P cluster and user ‘alice’ agrees to host it. They can do this
 by calling:
 
@@ -25,7 +25,7 @@ by calling:
 {alice}$ Rscript -e future.p2p::host_cluster --users=bob,carol,diana --cluster=alice/friends
 ```
 
-Hosting a P2P cluster only means that you control who have access -
+Hosting a P2P cluster only means that you control who has access -
 nothing else. For example, in our example, there will be *no* extra
 traffic going through the computer of ‘alice’.
 
@@ -41,7 +41,7 @@ launch a P2P worker, call:[¹](#fn1)[²](#fn2)
 {bob}$ Rscript -e future.p2p::worker --cluster=alice/friends
 ```
 
-Anyone can add more workers more later on.
+Anyone can add more workers later on.
 
 ## Using P2P cluster
 
