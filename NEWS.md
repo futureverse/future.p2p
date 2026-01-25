@@ -1,6 +1,11 @@
 # Version (development version)
 
- * ...
+## Bug Fixes
+
+ * `pico_username()` would fail if the underlying SSH call produce
+   standard-error messages, e.g. `sign_and_send_pubkey: signing failed
+   for RSA "/home/alice/.ssh/id_ed25519" from agent: agent refused
+   operation`.
 
 
 # Version 0.4.0 [2025-11-20]
