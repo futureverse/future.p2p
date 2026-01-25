@@ -51,13 +51,23 @@ clusters that you trust, i.e. where you trust all the P2P users and the
 user who hosts it such that they do not invite non-trusted or unknown
 users.
 
-There are mechanisms for launching P2P workers in _sandboxed_
-environments. For instance, by running P2P workers in a sandboxed
-virtual machine (VM, e.g. [quickemu]), in a sandboxed Linux container
-(e.g. [Apptainer], [Docker] and [Podman]), or via dedicated sandboxing
-tools (e.g. [Bubblewrap], [Firejail], [landrun], and macOS
-`sandbox-exec`), you can mitigate some of the risk of malicious code
-accessing the host machine where your personal data lives.
+**Beta feature**: **future.p2p** (>= 0.5.0) implements a prototype for
+workers to isolate the evaluation of futures in R WebAssembly
+(**[webR]**). It requires the **[rw]** command-line tool, which is
+under development. Although WebAssembly is designed to isolate the
+host system from what WebAssembly executes, **webR** rely on Node.js
+and it is still to be learned exactly how well the host system is
+isolated from the future R code evaluated.
+
+Beyond above R WebAssembly isolation, there are additional mechanisms
+for launching P2P workers in _sandboxed_ environments.  For instance,
+by running P2P workers in a sandboxed virtual machine (VM,
+e.g. [quickemu]), in a sandboxed Linux container (e.g. [Apptainer],
+[Docker] and [Podman]), or via dedicated sandboxing tools
+(e.g. [Bubblewrap], [Firejail], [landrun], and macOS `sandbox-exec`),
+you can mitigate some of the risk of malicious code accessing the host
+machine where your personal data lives.
+
 
 
 ## Installation
@@ -154,6 +164,17 @@ contribute additional ones by repeating the same command one or more
 times.
 
 
+**Beta feature**: **future.p2p** implements a prototype for workers to
+isolate the evaluation of futures in R WebAssembly (**[webR]**). It
+requires the **[rw]** command-line tool, which is under development.
+With **rw** installed, launching the worker with:
+
+```sh
+{bob}$ Rscript -e future.p2p::worker --sandbox=TRUE --cluster=alice/friends
+```
+
+results in the P2P futures to be resolved in R WebAssembly.
+
 
 ## Appendix
 
@@ -204,6 +225,8 @@ variable `http_proxy`, e.g.
 [pico.sh]: https://pico.sh/
 [Magic-Wormhole]: https://magic-wormhole.readthedocs.io/en/latest/
 [wormhole-william]: https://github.com/psanford/wormhole-william
+[webR]: https://github.com/r-wasm/webr/
+[rw]: https://github.com/HenrikBengtsson/rw
 [quickemu]: https://github.com/quickemu-project/quickemu
 [Apptainer]: https://apptainer.org/
 [Docker]: https://www.docker.com/
