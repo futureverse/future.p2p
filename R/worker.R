@@ -6,18 +6,27 @@
 #'
 #' @param duration Duration (in seconds) to offer working on futures.
 #'
+#' @param sandbox If TRUE, the future is resolved in R WebAssembly (webR),
+#' using the external `rw` tool (1).
+#'
+#' @return Nothing.
+#'
 #' @examplesIf interactive()
 #' ## Start a P2P cluster worker
 #' future.p2p::worker()
 #'
 #' @section Sequential, single-core processing by default:
-#' A P2P worker runs sequentially (`plan(sequential)`) and is configured
-#' with a single CPU core to prevent nested parallelization.
+#' A P2P worker runs sequentially and is configured with a single CPU core
+#' to prevent nested parallelization.
+#'
+#' @references
+#' 1. rw: CLI for webR with Sandboxing Features, _under development_,
+#'    <https://github.com/HenrikBengtsson/rw>.
 #'
 #' @importFrom processx poll
 #' @importFrom utils head
 #' @export
-worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60) {
+worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60, sandbox = TRUE) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
@@ -44,6 +53,20 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
 
   info("install 'wormhole', if missing")
   bin <- find_wormhole()
+
+  if (inherits(sandbox, "cmd_arg")) {
+    sandbox <- suppressWarnings(isTRUE(as.logical(sandbox)))
+  }
+
+  if (sandbox) {
+    info("Resolving all futures in a sandboxed environment")
+    ## Assert that 'rw' can be found
+    rw <- find_rw()
+
+    ## Install 'future' package, if missing
+    r_libs <- rw_bootstrap()
+    info(sprintf("Sanboxed package library: %s", sQuote(r_libs)))
+  }
 
   info("assert connection to p2p cluster %s", sQuote(cluster))
   worker_id <- p2p_worker_id()
@@ -76,7 +99,8 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
     host = host,
     ssh_args = ssh_args,
     duration = duration,
-    channels = channels
+    channels = channels,
+    sandbox = sandbox
   )
 
   info("connect worker %s to p2p cluster %s", sQuote(worker_id), sQuote(cluster))
@@ -354,12 +378,12 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
   info("finalize worker process")
   rx$finalize()
   
-  invisible(result)
+  invisible()
 } ## worker()
 
 
-#' @importFrom future resolve plan sequential
-run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
+#' @importFrom future resolve resolved result plan sequential FutureError
+run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels, sandbox = FALSE) {
   old_opts <- options(
     parallelly.availableCores.fallback = 1L,
     future.p2p.info.from = "worker"
@@ -440,7 +464,13 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
 
       info("process future %s", sQuoteLabel(f))
       state <- "processing"
+
       dt <- system.time({
+        if (sandbox) {
+          info("resolving future %s in sandbox", sQuoteLabel(f))
+          f <- rw_resolve_future(f)
+        }
+        
         r <- tryCatch({ result(f) }, error = identity)  ## Note, result() handles 'interrupt':s
       })
       dt <- difftime2(dt[3], 0)
@@ -470,7 +500,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels) {
 
 
 ## Expose function on the CLI
-cli_fcn(worker) <- c("--(cluster)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
+cli_fcn(worker) <- c("--(cluster)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)", "--(sandbox)=(TRUE|FALSE)")
 
 
 future_withdraw <- function(message = "future withdrawn by client", call = NULL, future = NULL) {

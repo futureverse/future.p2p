@@ -1,5 +1,6 @@
 Apptainer
 Bubblewrap
+CLI
 Ctrl
 Firejail
 Futureverse
@@ -9,6 +10,7 @@ POSIXct
 Podman
 RJ
 VM
+WebAssembly
 Wikibooks
 alice
 callr
@@ -23,7 +25,9 @@ multiprocess
 parallelization
 pico
 quickemu
+rw
 sandboxed
 sandboxing
 unsetting
+webR
 william

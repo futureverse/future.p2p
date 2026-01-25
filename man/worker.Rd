@@ -8,7 +8,8 @@ worker(
   cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
   host = "pipe.pico.sh",
   ssh_args = NULL,
-  duration = 60 * 60
+  duration = 60 * 60,
+  sandbox = TRUE
 )
 }
 \arguments{
@@ -19,14 +20,20 @@ worker(
 \item{ssh_args}{(character vector) Optional SSH arguments.}
 
 \item{duration}{Duration (in seconds) to offer working on futures.}
+
+\item{sandbox}{If TRUE, the future is resolved in R WebAssembly (webR),
+using the external \code{rw} tool (1).}
+}
+\value{
+Nothing.
 }
 \description{
 Launches a P2P worker and adds it to a P2P cluster
 }
 \section{Sequential, single-core processing by default}{
 
-A P2P worker runs sequentially (\code{plan(sequential)}) and is configured
-with a single CPU core to prevent nested parallelization.
+A P2P worker runs sequentially and is configured with a single CPU core
+to prevent nested parallelization.
 }
 
 \examples{
@@ -34,4 +41,10 @@ with a single CPU core to prevent nested parallelization.
 ## Start a P2P cluster worker
 future.p2p::worker()
 \dontshow{\}) # examplesIf}
+}
+\references{
+\enumerate{
+\item rw: CLI for webR with Sandboxing Features, \emph{under development},
+\url{https://github.com/HenrikBengtsson/rw}.
+}
 }

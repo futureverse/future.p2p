@@ -1,5 +1,13 @@
 # Version (development version)
 
+## Beta Features
+
+ * Add support for `worker(sandbox = TRUE)`, which make the P2P worker
+   to resolve futures in R WebAssembly (**webR**). This requires that
+   the command-line tool `rw` is installed on the system. See the `rw`
+   tool for how it isolates the host system from the R expression
+   being evaluated in R WebAssembly.
+
 ## Bug Fixes
 
  * `pico_username()` would fail if the underlying SSH call produce
