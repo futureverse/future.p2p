@@ -49,9 +49,9 @@ workers to isolate the evaluation of futures in R WebAssembly
 (**[webR](https://github.com/r-wasm/webr/)**). It requires the
 **[rw](https://github.com/HenrikBengtsson/rw)** command-line tool, which
 is under development. Although WebAssembly is designed to isolate the
-host system from what WebAssembly executes, **webR** rely on Node.js and
-it is still to be learned exactly how well the host system is isolated
-from the future R code evaluated.
+host system from what WebAssembly executes, **webR** relies on Node.js
+and it is still to be learned exactly how well the host system is
+isolated from the future R code evaluated.
 
 Beyond above R WebAssembly isolation, there are additional mechanisms
 for launching P2P workers in *sandboxed* environments. For instance, by
@@ -216,7 +216,7 @@ If the latter works for you, launch R by unsetting environment variable
 ## All functions
 
 - [`cluster()`](https://future.p2p.futureverse.org/reference/cluster.md)
-  : p2p futures
+  : Peer-to-Peer (P2P) futures
 - [`host_cluster()`](https://future.p2p.futureverse.org/reference/host_cluster.md)
   : Hosts a shared P2P cluster
 - [`p2p_cluster_name()`](https://future.p2p.futureverse.org/reference/p2p_cluster_name.md)

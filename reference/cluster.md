@@ -1,4 +1,4 @@
-# p2p futures
+# Peer-to-Peer (P2P) futures
 
 *WARNING: This function must never be called. It may only be used with
 [`future::plan()`](https://future.futureverse.org/reference/plan.html)*
@@ -18,7 +18,7 @@ cluster(
 
 - cluster:
 
-  The p2p cluster to connect to.
+  The P2P cluster to connect to.
 
 - host:
 
@@ -38,7 +38,7 @@ An object of class `PicoP2PFuture`.
 
 ## Details
 
-A 'p2p' future is an asynchronous multiprocess future that will be
+A P2P future is an asynchronous multiprocess future that will be
 evaluated in a background R session.
 
 The Pico P2P future backend relies on Pico (1) to distribute futures

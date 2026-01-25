@@ -3,7 +3,7 @@
 ## All functions
 
 - [`cluster()`](https://future.p2p.futureverse.org/reference/cluster.md)
-  : p2p futures
+  : Peer-to-Peer (P2P) futures
 - [`host_cluster()`](https://future.p2p.futureverse.org/reference/host_cluster.md)
   : Hosts a shared P2P cluster
 - [`p2p_cluster_name()`](https://future.p2p.futureverse.org/reference/p2p_cluster_name.md)

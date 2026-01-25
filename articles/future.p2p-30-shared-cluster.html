@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0-9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -153,7 +153,7 @@ to access “public and private networks”. Check and accept both. Details:
 (i) Allow “private” networks if you have other local computers you want
 to participate in the P2P cluster. (ii) Allow “public” networks if you
 want to participate in a P2P cluster with computers running externally,
-e.g. your friends computers.&lt;/p&gt;"><sup>2</sup></a></p>
+e.g. your friends’ computers.&lt;/p&gt;"><sup>2</sup></a></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>Anyone can add more workers later on.</p>
 <p><strong>Beta feature</strong>: <strong>future.p2p</strong> implements
@@ -169,7 +169,7 @@ installed, launching the worker with:</p>
 <h2 id="using-p2p-cluster">Using P2P cluster<a class="anchor" aria-label="anchor" href="#using-p2p-cluster"></a>
 </h2>
 <p>With the P2P set up and P2P workers being up and running, you can run
-your R code on it my setting the future plan. For example,</p>
+your R code on it by setting the future plan. For example,</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future.p2p</span><span class="fu">::</span><span class="va"><a href="../reference/cluster.html">cluster</a></span><span class="op">)</span></span>
@@ -186,7 +186,7 @@ to access “public and private networks”. Check and accept both. Details:
 (i) Allow “private” networks if you have other local computers you want
 to participate in the P2P cluster. (ii) Allow “public” networks if you
 want to participate in a P2P cluster with computers running externally,
-e.g. your friends computers.&lt;/p&gt;"><sup>4</sup></a></p>
+e.g. your friends’ computers.&lt;/p&gt;"><sup>4</sup></a></p>
 <p>Next, try the Mandelbrot demo of the <strong><a href="https://future.futureverse.org" class="external-link">future</a></strong> package;</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>

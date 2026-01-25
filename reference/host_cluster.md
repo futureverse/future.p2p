@@ -18,7 +18,7 @@ host_cluster(
 
 - cluster:
 
-  (character string) The name of the p2p cluster.
+  (character string) The name of the P2P cluster.
 
 - users:
 

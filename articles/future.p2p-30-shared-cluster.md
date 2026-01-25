@@ -58,7 +58,7 @@ results in the P2P futures to be resolved in R WebAssembly.
 ## Using P2P cluster
 
 With the P2P set up and P2P workers being up and running, you can run
-your R code on it my setting the future plan. For example,
+your R code on it by setting the future plan. For example,
 
 ``` r
 library(future)
@@ -96,7 +96,7 @@ Each tile will be processed by a separate P2P worker.
     Allow “private” networks if you have other local computers you want
     to participate in the P2P cluster. (ii) Allow “public” networks if
     you want to participate in a P2P cluster with computers running
-    externally, e.g. your friends computers.
+    externally, e.g. your friends’ computers.
 
 3.  The first time you launch a worker, or configure
     [`plan()`](https://future.futureverse.org/reference/plan.html) to
@@ -109,4 +109,4 @@ Each tile will be processed by a separate P2P worker.
     Allow “private” networks if you have other local computers you want
     to participate in the P2P cluster. (ii) Allow “public” networks if
     you want to participate in a P2P cluster with computers running
-    externally, e.g. your friends computers.
+    externally, e.g. your friends’ computers.

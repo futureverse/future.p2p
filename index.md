@@ -49,9 +49,9 @@ workers to isolate the evaluation of futures in R WebAssembly
 (**[webR](https://github.com/r-wasm/webr/)**). It requires the
 **[rw](https://github.com/HenrikBengtsson/rw)** command-line tool, which
 is under development. Although WebAssembly is designed to isolate the
-host system from what WebAssembly executes, **webR** rely on Node.js and
-it is still to be learned exactly how well the host system is isolated
-from the future R code evaluated.
+host system from what WebAssembly executes, **webR** relies on Node.js
+and it is still to be learned exactly how well the host system is
+isolated from the future R code evaluated.
 
 Beyond above R WebAssembly isolation, there are additional mechanisms
 for launching P2P workers in *sandboxed* environments. For instance, by

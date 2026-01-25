@@ -18,7 +18,7 @@ worker(
 
 - cluster:
 
-  The p2p cluster to contribute to.
+  The P2P cluster to contribute to.
 
 - host:
 

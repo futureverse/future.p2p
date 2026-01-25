@@ -18,7 +18,7 @@ PicoP2PFutureBackend(
 
 - cluster:
 
-  The p2p cluster to connect to.
+  The P2P cluster to connect to.
 
 - host:
 
