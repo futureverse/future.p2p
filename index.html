@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9101</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,7 +124,8 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/future.html" class="external-link">future</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="st">"~/.ssh/id_ed25519"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Because of this, it is important that you only join shared P2P clusters that you trust, i.e. where you trust all the P2P users and the user who hosts it such that they do not invite non-trusted or unknown users.</p>
-<p>There are mechanisms for launching P2P workers in <em>sandboxed</em> environments. For instance, by running P2P workers in a sandboxed virtual machine (VM, e.g. <a href="https://github.com/quickemu-project/quickemu" class="external-link">quickemu</a>), in a sandboxed Linux container (e.g. <a href="https://apptainer.org/" class="external-link">Apptainer</a>, <a href="https://www.docker.com/" class="external-link">Docker</a> and <a href="https://podman.io/" class="external-link">Podman</a>), or via dedicated sandboxing tools (e.g. <a href="https://github.com/containers/bubblewrap" class="external-link">Bubblewrap</a>, <a href="https://github.com/netblue30/firejail" class="external-link">Firejail</a>, <a href="https://github.com/Zouuup/landrun" class="external-link">landrun</a>, and macOS <code>sandbox-exec</code>), you can mitigate some of the risk of malicious code accessing the host machine where your personal data lives.</p>
+<p><strong>Beta feature</strong>: <strong>future.p2p</strong> (&gt;= 0.5.0) implements a prototype for workers to isolate the evaluation of futures in R WebAssembly (<strong><a href="https://github.com/r-wasm/webr/" class="external-link">webR</a></strong>). It requires the <strong><a href="https://github.com/HenrikBengtsson/rw" class="external-link">rw</a></strong> command-line tool, which is under development. Although WebAssembly is designed to isolate the host system from what WebAssembly executes, <strong>webR</strong> rely on Node.js and it is still to be learned exactly how well the host system is isolated from the future R code evaluated.</p>
+<p>Beyond above R WebAssembly isolation, there are additional mechanisms for launching P2P workers in <em>sandboxed</em> environments. For instance, by running P2P workers in a sandboxed virtual machine (VM, e.g. <a href="https://github.com/quickemu-project/quickemu" class="external-link">quickemu</a>), in a sandboxed Linux container (e.g. <a href="https://apptainer.org/" class="external-link">Apptainer</a>, <a href="https://www.docker.com/" class="external-link">Docker</a> and <a href="https://podman.io/" class="external-link">Podman</a>), or via dedicated sandboxing tools (e.g. <a href="https://github.com/containers/bubblewrap" class="external-link">Bubblewrap</a>, <a href="https://github.com/netblue30/firejail" class="external-link">Firejail</a>, <a href="https://github.com/Zouuup/landrun" class="external-link">landrun</a>, and macOS <code>sandbox-exec</code>), you can mitigate some of the risk of malicious code accessing the host machine where your personal data lives.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -177,6 +178,9 @@
 <p>Without parallel workers, the P2P cluster is useless and will not process any parallel tasks. This is where the peer-to-peer concept comes in, where we contribute our idle compute cycles to the cluster for others to make use of. To contribute your R compute power to the <code>alice/friends</code> cluster, launch a P2P worker as:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>This will contribute one parallel worker to the p2p cluster. You can contribute additional ones by repeating the same command one or more times.</p>
+<p><strong>Beta feature</strong>: <strong>future.p2p</strong> implements a prototype for workers to isolate the evaluation of futures in R WebAssembly (<strong><a href="https://github.com/r-wasm/webr/" class="external-link">webR</a></strong>). It requires the <strong><a href="https://github.com/HenrikBengtsson/rw" class="external-link">rw</a></strong> command-line tool, which is under development. With <strong>rw</strong> installed, launching the worker with:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--sandbox</span><span class="op">=</span>TRUE <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<p>results in the P2P futures to be resolved in R WebAssembly.</p>
 </div>
 <div class="section level2">
 <h2 id="appendix">Appendix<a class="anchor" aria-label="anchor" href="#appendix"></a>
@@ -189,20 +193,20 @@
 <div class="section level3">
 <h3 id="set-up-a-worker-to-connect-to-picosh-via-a-jumphost">Set up a worker to connect to pico.sh via a jumphost<a class="anchor" aria-label="anchor" href="#set-up-a-worker-to-connect-to-picosh-via-a-jumphost"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--ssh_args</span><span class="op">=</span><span class="st">"-J somehost"</span> <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--ssh_args</span><span class="op">=</span><span class="st">"-J somehost"</span> <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="troubleshoot-wormhole">Troubleshoot Wormhole<a class="anchor" aria-label="anchor" href="#troubleshoot-wormhole"></a>
 </h3>
 <p>If you are behind a firewall with a proxy, wormhole might fail to establish an outbound connection. For example, if you try:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">system2</span>(future.p2p<span class="sc">:::</span><span class="fu">find_wormhole</span>(), <span class="at">args =</span> <span class="fu">c</span>(<span class="st">"send"</span>, <span class="st">"--text"</span>, <span class="st">"hello"</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">system2</span>(future.p2p<span class="sc">:::</span><span class="fu">find_wormhole</span>(), <span class="at">args =</span> <span class="fu">c</span>(<span class="st">"send"</span>, <span class="st">"--text"</span>, <span class="st">"hello"</span>))</span></code></pre></div>
 <p>it might stall forever. If that happens, press <kbd>Ctrl-C</kbd> to interrupt and retry by disabling the proxy settings using:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="op">&gt;</span> Sys.unsetenv<span class="kw">(</span><span class="st">"http_proxy"</span><span class="kw">)</span></span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="op">&gt;</span> system2<span class="kw">(</span><span class="fu">future.p2p:::find_wormhole()</span><span class="ex">,</span> args = c<span class="er">(</span><span class="st">"send"</span><span class="ex">,</span> <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="kw">))</span></span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="ex">On</span> the other computer, please run: wormhole receive <span class="er">(</span><span class="ex">or</span> wormhole-william recv<span class="kw">)</span></span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="ex">Wormhole</span> code is: 53-visitor-physique</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="op">&gt;</span> Sys.unsetenv<span class="kw">(</span><span class="st">"http_proxy"</span><span class="kw">)</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="op">&gt;</span> system2<span class="kw">(</span><span class="fu">future.p2p:::find_wormhole()</span><span class="ex">,</span> args = c<span class="er">(</span><span class="st">"send"</span><span class="ex">,</span> <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="kw">))</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="ex">On</span> the other computer, please run: wormhole receive <span class="er">(</span><span class="ex">or</span> wormhole-william recv<span class="kw">)</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="ex">Wormhole</span> code is: 53-visitor-physique</span></code></pre></div>
 <p>If the latter works for you, launch R by unsetting environment variable <code>http_proxy</code>, e.g.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="ex">{bob}$</span> http_proxy=<span class="st">""</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="ex">{bob}$</span> http_proxy=<span class="st">""</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 </div>
 </div>
 </div>

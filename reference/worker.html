@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0-9101</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,7 +81,8 @@
 <span>  cluster <span class="op">=</span> <span class="fu"><a href="p2p_cluster_name.html">p2p_cluster_name</a></span><span class="op">(</span>host <span class="op">=</span> <span class="va">host</span>, ssh_args <span class="op">=</span> <span class="va">ssh_args</span><span class="op">)</span>,</span>
 <span>  host <span class="op">=</span> <span class="st">"pipe.pico.sh"</span>,</span>
 <span>  ssh_args <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  duration <span class="op">=</span> <span class="fl">60</span> <span class="op">*</span> <span class="fl">60</span></span>
+<span>  duration <span class="op">=</span> <span class="fl">60</span> <span class="op">*</span> <span class="fl">60</span>,</span>
+<span>  sandbox <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -104,14 +105,29 @@
 <dt id="arg-duration">duration<a class="anchor" aria-label="anchor" href="#arg-duration"></a></dt>
 <dd><p>Duration (in seconds) to offer working on futures.</p></dd>
 
+
+<dt id="arg-sandbox">sandbox<a class="anchor" aria-label="anchor" href="#arg-sandbox"></a></dt>
+<dd><p>If TRUE, the future is resolved in R WebAssembly (webR),
+using the external <code>rw</code> tool (1).</p></dd>
+
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>Nothing.</p>
+    </div>
     <div class="section level2">
     <h2 id="sequential-single-core-processing-by-default">Sequential, single-core processing by default<a class="anchor" aria-label="anchor" href="#sequential-single-core-processing-by-default"></a></h2>
 
 
-<p>A P2P worker runs sequentially (<code>plan(sequential)</code>) and is configured
-with a single CPU core to prevent nested parallelization.</p>
+<p>A P2P worker runs sequentially and is configured with a single CPU core
+to prevent nested parallelization.</p>
     </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+
+<ol><li><p>rw: CLI for webR with Sandboxing Features, <em>under development</em>,
+<a href="https://github.com/HenrikBengtsson/rw" class="external-link">https://github.com/HenrikBengtsson/rw</a>.</p></li>
+</ol></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
