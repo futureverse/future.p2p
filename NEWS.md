@@ -7,7 +7,7 @@
 
 ## Beta Features
 
- * Add support for `worker(sandbox = TRUE)`, which make the P2P worker
+ * Add support for `worker(sandbox = TRUE)`, which makes the P2P worker
    to resolve futures in R WebAssembly (**webR**). This requires that
    the command-line tool `rw` is installed on the system. See the `rw`
    tool for how it isolates the host system from the R expression
@@ -15,7 +15,7 @@
 
 ## Bug Fixes
 
- * `pico_username()` would fail if the underlying SSH call produce
+ * `pico_username()` would fail if the underlying SSH call produced
    standard-error messages, e.g. `sign_and_send_pubkey: signing failed
    for RSA "/home/alice/.ssh/id_ed25519" from agent: agent refused
    operation`.

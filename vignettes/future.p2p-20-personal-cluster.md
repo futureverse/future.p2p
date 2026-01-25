@@ -65,7 +65,7 @@ needed for _shared_ P2P cluster.
       both. Details: (i) Allow "private" networks if you have other
       local computers you want to participate in the P2P cluster. (ii)
       Allow "public" networks if you want to participate in a P2P
-      cluster with computers running externally, e.g. your friends
+      cluster with computers running externally, e.g. your friends'
       computers.
 
 [future.p2p]: https://future.p2p.futureverse.org/

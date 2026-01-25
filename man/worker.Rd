@@ -13,7 +13,7 @@ worker(
 )
 }
 \arguments{
-\item{cluster}{The p2p cluster to contribute to.}
+\item{cluster}{The P2P cluster to contribute to.}
 
 \item{host}{(character string) The hostname serving the pico service.}
 

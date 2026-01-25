@@ -33,7 +33,7 @@ workers to offer their help to process the futures.
 The P2P file-transfer backend is how clients and workers transfer
 futures and results between each other.
 
-Users who wish to join a P2P cluster, needs to create a [pico.sh]
+Users who wish to join a P2P cluster, need to create a [pico.sh]
 account, which gives them access to the task message board. In
 contrast, P2P file transfers that take place between clients and
 workers are anonymous and require no accounts. 

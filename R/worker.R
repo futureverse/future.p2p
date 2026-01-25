@@ -2,7 +2,7 @@
 #'
 #' @inheritParams pico_pipe
 #'
-#' @param cluster The p2p cluster to contribute to.
+#' @param cluster The P2P cluster to contribute to.
 #'
 #' @param duration Duration (in seconds) to offer working on futures.
 #'
@@ -65,7 +65,7 @@ worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args),
 
     ## Install 'future' package, if missing
     r_libs <- rw_bootstrap()
-    info(sprintf("Sanboxed package library: %s", sQuote(r_libs)))
+    info(sprintf("Sandboxed package library: %s", sQuote(r_libs)))
   }
 
   info("assert connection to p2p cluster %s", sQuote(cluster))

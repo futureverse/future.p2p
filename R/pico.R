@@ -135,7 +135,7 @@ pico_receive_message_dataframe <- function(p, ..., pattern = NULL) {
   ## Filter lines by regular expression?
   if (!is.null(pattern)) msg <- grep(pattern, msg, value = TRUE)
   
-  ## No matching message recieved?
+  ## No matching message received?
   if (length(msg) == 0) return(NULL)
 
   ## Parse as a dataframe
@@ -189,7 +189,7 @@ pico_hosted_channels <- function(host = "pipe.pico.sh", ssh_args = NULL, timeout
         }
       }
       if (proc.time()[3] > t_max) {
-        stop(sprintf("Failed to identity %s channels", host))
+        stop(sprintf("Failed to identify %s channels", host))
       }
       Sys.sleep(0.1)
     }

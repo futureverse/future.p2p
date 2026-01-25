@@ -13,7 +13,7 @@ host_cluster(
 )
 }
 \arguments{
-\item{cluster}{(character string) The name of the p2p cluster.}
+\item{cluster}{(character string) The name of the P2P cluster.}
 
 \item{users}{(character vector) Names of Pico users who should have access,
 in addition to the owner.

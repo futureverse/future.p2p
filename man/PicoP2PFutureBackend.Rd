@@ -12,7 +12,7 @@ PicoP2PFutureBackend(
 )
 }
 \arguments{
-\item{cluster}{The p2p cluster to connect to.}
+\item{cluster}{The P2P cluster to connect to.}
 
 \item{host}{(character string) The hostname serving the pico service.}
 

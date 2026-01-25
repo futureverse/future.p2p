@@ -55,7 +55,7 @@ users.
 workers to isolate the evaluation of futures in R WebAssembly
 (**[webR]**). It requires the **[rw]** command-line tool, which is
 under development. Although WebAssembly is designed to isolate the
-host system from what WebAssembly executes, **webR** rely on Node.js
+host system from what WebAssembly executes, **webR** relies on Node.js
 and it is still to be learned exactly how well the host system is
 isolated from the future R code evaluated.
 

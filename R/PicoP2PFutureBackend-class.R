@@ -1,14 +1,14 @@
-#' p2p futures
+#' Peer-to-Peer (P2P) futures
 #'
 #' _WARNING: This function must never be called.
 #'  It may only be used with [future::plan()]_
 #'
-#' A 'p2p' future is an asynchronous multiprocess
+#' A P2P future is an asynchronous multiprocess
 #' future that will be evaluated in a background R session.
 #'
 #' @inheritParams pico_pipe
 #'
-#' @param cluster The p2p cluster to connect to.
+#' @param cluster The P2P cluster to connect to.
 #'
 #' @param \ldots Not used.
 #'

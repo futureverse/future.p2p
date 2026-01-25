@@ -48,7 +48,7 @@ wormhole_receive <- function(code, path = tempdir(), ..., rsh = NULL) {
   if (debug) {
     mdebug_push("wormhole_receive() ...")
     mdebugf("Secret code: %s", code)
-    mdebugf("Recieve to folder: %s", path)
+    mdebugf("Receive to folder: %s", path)
     on.exit({
       mdebugf("Received files: [n=%d] %s", length(files), commaq(files))
       mdebug_pop()

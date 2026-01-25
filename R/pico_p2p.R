@@ -260,7 +260,7 @@ pico_p2p_receive_future <- function(p, via, duration = 60) {
   if (uri$protocol == "wormhole") {
     tf <- wormhole_receive(code = sprintf("%s-f", uri$path))
   } else {
-    stop(FutureError(sprintf("Non-supported future.p2p transfer protocol: %s", sQuote(via))))
+    stop(FutureError(sprintf("Unsupported future.p2p transfer protocol: %s", sQuote(via))))
   }
   stop_if_not(is.character(tf))
 

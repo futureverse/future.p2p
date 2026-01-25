@@ -2,7 +2,7 @@
 % Please edit documentation in R/PicoP2PFutureBackend-class.R
 \name{cluster}
 \alias{cluster}
-\title{p2p futures}
+\title{Peer-to-Peer (P2P) futures}
 \usage{
 cluster(
   cluster = p2p_cluster_name(),
@@ -12,7 +12,7 @@ cluster(
 )
 }
 \arguments{
-\item{cluster}{The p2p cluster to connect to.}
+\item{cluster}{The P2P cluster to connect to.}
 
 \item{host}{(character string) The hostname serving the pico service.}
 
@@ -28,7 +28,7 @@ An object of class \code{PicoP2PFuture}.
 It may only be used with \code{\link[future:plan]{future::plan()}}}
 }
 \details{
-A 'p2p' future is an asynchronous multiprocess
+A P2P future is an asynchronous multiprocess
 future that will be evaluated in a background R session.
 
 The Pico P2P future backend relies on Pico (1) to
