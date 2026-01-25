@@ -104,4 +104,4 @@ host_cluster <- function(cluster = p2p_cluster_name(users, host = host, ssh_args
 
 
 ## Expose function on the CLI
-cli_fcn(host_cluster) <- c("--(cluster)=(.*)", "--(users)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)")
+cli_fcn(host_cluster) <- list(cli_arg_character("cluster"), cli_arg_character("users"), cli_arg_character("host"), cli_arg_character("ssh_args"), cli_arg_integer("duration"))

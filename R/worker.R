@@ -500,7 +500,7 @@ run_worker <- function(cluster, worker_id, host, ssh_args, duration, channels, s
 
 
 ## Expose function on the CLI
-cli_fcn(worker) <- c("--(cluster)=(.*)", "--(host)=(.*)", "--(ssh_args)=(.*)", "--(duration)=([[:digit:]]+)", "--(sandbox)=(TRUE|FALSE)")
+cli_fcn(worker) <- list(cli_arg_character("cluster"), cli_arg_character("host"), cli_arg_character("ssh_args"), cli_arg_integer("duration"), cli_arg_logical("sandbox"))
 
 
 future_withdraw <- function(message = "future withdrawn by client", call = NULL, future = NULL) {

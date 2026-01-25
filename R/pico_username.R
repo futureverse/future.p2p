@@ -57,7 +57,7 @@ pico_username <- local({
 })
 
 ## Expose function on the CLI
-cli_fcn(pico_username) <- character(0L)
+cli_fcn(pico_username) <- list()
 
 
 #' @export
