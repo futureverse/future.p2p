@@ -26,7 +26,7 @@
 #' @importFrom processx poll
 #' @importFrom utils head
 #' @export
-worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60, sandbox = TRUE) {
+worker <- function(cluster = p2p_cluster_name(host = host, ssh_args = ssh_args), host = "pipe.pico.sh", ssh_args = NULL, duration = 60*60, sandbox = FALSE) {
   parts <- strsplit(cluster, split = "/", fixed = TRUE)[[1]]
   if (length(parts) != 2L) {
     stop(sprintf("Argument 'cluster' must be of format '{owner}/{name}': %s", sQuote(cluster)))
