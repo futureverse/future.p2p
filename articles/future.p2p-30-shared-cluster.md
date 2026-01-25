@@ -44,9 +44,10 @@ launch a P2P worker, call:[¹](#fn1)[²](#fn2)
 Anyone can add more workers later on.
 
 **Beta feature**: **future.p2p** implements a prototype for workers to
-isolate the evaluation of futures in R WebAssembly (**\[webR\]**). It
-requires the **\[rw\]** command-line tool, which is under development.
-With **rw** installed, launching the worker with:
+isolate the evaluation of futures in R WebAssembly
+(**[webR](https://github.com/r-wasm/webr/)**). It requires the
+**[rw](https://github.com/HenrikBengtsson/rw)** command-line tool, which
+is under development. With **rw** installed, launching the worker with:
 
 ``` sh
 {bob}$ Rscript -e future.p2p::worker --sandbox=TRUE --cluster=alice/friends

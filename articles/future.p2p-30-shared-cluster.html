@@ -158,9 +158,10 @@ e.g. your friends computers.&lt;/p&gt;"><sup>2</sup></a></p>
 <p>Anyone can add more workers later on.</p>
 <p><strong>Beta feature</strong>: <strong>future.p2p</strong> implements
 a prototype for workers to isolate the evaluation of futures in R
-WebAssembly (<strong>[webR]</strong>). It requires the
-<strong>[rw]</strong> command-line tool, which is under development.
-With <strong>rw</strong> installed, launching the worker with:</p>
+WebAssembly (<strong><a href="https://github.com/r-wasm/webr/" class="external-link">webR</a></strong>). It requires
+the <strong><a href="https://github.com/HenrikBengtsson/rw" class="external-link">rw</a></strong>
+command-line tool, which is under development. With <strong>rw</strong>
+installed, launching the worker with:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--sandbox</span><span class="op">=</span>TRUE <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>results in the P2P futures to be resolved in R WebAssembly.</p>
 </div>
