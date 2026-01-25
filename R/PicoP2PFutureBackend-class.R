@@ -51,7 +51,7 @@ class(cluster) <- c("pico_p2p", "multiprocess", "future", "function")
 attr(cluster, "init") <- TRUE
 
 
-#' A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole
+#' A Pico P2P future is resolved through Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole
 #'
 #' @inheritParams cluster
 #'

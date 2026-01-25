@@ -37,7 +37,7 @@ pico_username <- local({
         mstr(list(args = args))
       }
 
-      out <- system2("ssh", args = args, stdout = TRUE, stderr = TRUE, timeout = timeout)
+      out <- system2("ssh", args = args, stdout = TRUE, stderr = FALSE, timeout = timeout)
       if (debug) {
         mdebug("SSH result:")
         mstr(list(out = out))
@@ -57,7 +57,7 @@ pico_username <- local({
 })
 
 ## Expose function on the CLI
-cli_fcn(pico_username) <- character(0L)
+cli_fcn(pico_username) <- list()
 
 
 #' @export

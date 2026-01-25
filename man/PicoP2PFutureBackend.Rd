@@ -2,7 +2,7 @@
 % Please edit documentation in R/PicoP2PFutureBackend-class.R
 \name{PicoP2PFutureBackend}
 \alias{PicoP2PFutureBackend}
-\title{A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole}
+\title{A Pico P2P future is resolved through Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole}
 \usage{
 PicoP2PFutureBackend(
   cluster = p2p_cluster_name(),
@@ -24,6 +24,6 @@ PicoP2PFutureBackend(
 A \code{PicoP2PFutureBackend} object
 }
 \description{
-A Pico P2P future is resolved through a Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole
+A Pico P2P future is resolved through Peer-to-Peer (P2P) workers communicating via pico.sh and Wormhole
 }
 \keyword{internal}

@@ -10,7 +10,7 @@
 -->
 
 You and your friends can share your R compute powers with each other,
-regardless where in the world you are located. To do this, one of you
+regardless of where in the world you are located. To do this, one of you
 will host a "friends" P2P cluster by specifying which users should
 have access. After this, each of you can contribute as many workers as
 you like, and each of you can distribute your R processing to this P2P
@@ -26,8 +26,8 @@ easy.
 
 ## Hosting a P2P cluster
 
-Lets assume that P2P users 'alice', 'bob', 'carol', and 'diana' wish
-share a P2P cluster and user 'alice' agrees to host it. They can do
+Let's assume that P2P users 'alice', 'bob', 'carol', and 'diana' wish
+to share a P2P cluster and user 'alice' agrees to host it. They can do
 this by calling:
 
 ```sh
@@ -51,7 +51,19 @@ launch a P2P worker, call:[^1][^2]
 {bob}$ Rscript -e future.p2p::worker --cluster=alice/friends
 ```
 
-Anyone can add more workers more later on.
+Anyone can add more workers later on.
+
+**Beta feature**: **future.p2p** implements a prototype for workers to
+isolate the evaluation of futures in R WebAssembly (**[webR]**). It
+requires the **[rw]** command-line tool, which is under development.
+With **rw** installed, launching the worker with:
+
+```sh
+{bob}$ Rscript -e future.p2p::worker --sandbox=TRUE --cluster=alice/friends
+```
+
+results in the P2P futures to be resolved in R WebAssembly.
+
 
 
 ## Using P2P cluster
@@ -96,3 +108,5 @@ Each tile will be processed by a separate P2P worker.
 
 [future.p2p]: https://future.p2p.futureverse.org/
 [future]: https://future.futureverse.org
+[webR]: https://github.com/r-wasm/webr/
+[rw]: https://github.com/HenrikBengtsson/rw

@@ -11,7 +11,7 @@ p2p_worker_id(...)
 }
 \value{
 \code{p2p_client_id()} and \code{p2p_worker_id()} return the client and worker
-identifier, which both have format\code{"{username}@{hostname}:{pid}"}.
+identifier, which both have format \code{"{username}@{hostname}:{pid}"}.
 }
 \description{
 Gets the identifier of the current P2P client or P2P worker

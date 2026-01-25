@@ -47,17 +47,27 @@ f <- future(readLines("~/.ssh/id_ed25519"))
 ```
 
 Because of this, it is important that you only join shared P2P
-clusters that you trust, i.e. where you trust all the P2P user and the
+clusters that you trust, i.e. where you trust all the P2P users and the
 user who hosts it such that they do not invite non-trusted or unknown
 users.
 
-There are mechanisms for launching P2P workers in _sandboxed_
-environments. For instance, by running P2P workers in a sandboxed
-virtual machine (VM, e.g. [quickemu]), in a sandboxed Linux container
-(e.g. [Apptainer], [Docker] and [Podman]), or via dedicated sandboxing
-tools (e.g. [Bubblewrap], [Firejail], [landrun], and macOS
-`sandbox-exec`), you can mitigate some of the risk of malicious code
-accessing the host machine where your personal data lives.
+**Beta feature**: **future.p2p** (>= 0.5.0) implements a prototype for
+workers to isolate the evaluation of futures in R WebAssembly
+(**[webR]**). It requires the **[rw]** command-line tool, which is
+under development. Although WebAssembly is designed to isolate the
+host system from what WebAssembly executes, **webR** rely on Node.js
+and it is still to be learned exactly how well the host system is
+isolated from the future R code evaluated.
+
+Beyond above R WebAssembly isolation, there are additional mechanisms
+for launching P2P workers in _sandboxed_ environments.  For instance,
+by running P2P workers in a sandboxed virtual machine (VM,
+e.g. [quickemu]), in a sandboxed Linux container (e.g. [Apptainer],
+[Docker] and [Podman]), or via dedicated sandboxing tools
+(e.g. [Bubblewrap], [Firejail], [landrun], and macOS `sandbox-exec`),
+you can mitigate some of the risk of malicious code accessing the host
+machine where your personal data lives.
+
 
 
 ## Installation
@@ -102,7 +112,7 @@ That's it!
 
 ## Set up a shared P2P cluster
 
-Let's assume P2P users 'alice', 'bob', 'carol', and 'diana' decides to
+Let's assume P2P users 'alice', 'bob', 'carol', and 'diana' decide to
 share a P2P cluster and user 'alice' agrees to host it. Hosting a P2P
 cluster only means that you control who has access - there's no extra
 load added. So, to host, 'alice' calls:
@@ -112,7 +122,7 @@ load added. So, to host, 'alice' calls:
 ```
 
 A future P2P cluster can be hosted from anywhere in the world, and it
-does not have to on a machine where you run your own R analysis.
+does not have to be on a machine where you run your own R analysis.
 
 
 ## Parallelize via P2P cluster (all users)
@@ -120,7 +130,7 @@ does not have to on a machine where you run your own R analysis.
 Any user with access to the 'alice/friends' cluster can use it. In our
 example, this means 'bob', 'carol', 'diana', and 'alice' may use the
 P2P cluster at the same time. Just like with any other future backend,
-we use `plan()` to specifying that we want to parallelize via the P2P
+we use `plan()` to specify that we want to parallelize via the P2P
 cluster.
 
 For example,
@@ -129,7 +139,7 @@ For example,
 library(future)
 plan(future.p2p::cluster, cluster = "alice/friends")
 
-## Evaluate a R expression via the P2P cluster
+## Evaluate an R expression via the P2P cluster
 f <- future(Sys.getpid())
 
 ## Retrieve value
@@ -153,6 +163,17 @@ This will contribute one parallel worker to the p2p cluster. You can
 contribute additional ones by repeating the same command one or more
 times.
 
+
+**Beta feature**: **future.p2p** implements a prototype for workers to
+isolate the evaluation of futures in R WebAssembly (**[webR]**). It
+requires the **[rw]** command-line tool, which is under development.
+With **rw** installed, launching the worker with:
+
+```sh
+{bob}$ Rscript -e future.p2p::worker --sandbox=TRUE --cluster=alice/friends
+```
+
+results in the P2P futures to be resolved in R WebAssembly.
 
 
 ## Appendix
@@ -189,7 +210,7 @@ interrupt and retry by disabling the proxy settings using:
 ```sh
 > Sys.unsetenv("http_proxy")
 > system2(future.p2p:::find_wormhole(), args = c("send", "--text", "hello"))
-On the other computer, please run: wormhole receive (or wormhole-william recv)                                                       
+On the other computer, please run: wormhole receive (or wormhole-william recv)
 Wormhole code is: 53-visitor-physique
 ```
 
@@ -204,6 +225,8 @@ variable `http_proxy`, e.g.
 [pico.sh]: https://pico.sh/
 [Magic-Wormhole]: https://magic-wormhole.readthedocs.io/en/latest/
 [wormhole-william]: https://github.com/psanford/wormhole-william
+[webR]: https://github.com/r-wasm/webr/
+[rw]: https://github.com/HenrikBengtsson/rw
 [quickemu]: https://github.com/quickemu-project/quickemu
 [Apptainer]: https://apptainer.org/
 [Docker]: https://www.docker.com/
