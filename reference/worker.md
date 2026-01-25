@@ -10,7 +10,7 @@ worker(
   host = "pipe.pico.sh",
   ssh_args = NULL,
   duration = 60 * 60,
-  sandbox = TRUE
+  sandbox = FALSE
 )
 ```
 
