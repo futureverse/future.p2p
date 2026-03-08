@@ -1,8 +1,8 @@
 # Options used by future.p2p
 
 Below are the R options and environment variables that are used by the
-future.p2p package.  
-  
+future.p2p package.\
+\
 *WARNING: Note that the names and the default values of these options
 may change in future versions of the package. Please use with care until
 further notice.*

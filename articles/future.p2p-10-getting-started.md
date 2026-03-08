@@ -40,12 +40,14 @@ P2P worker or a future that attempts to read non-encrypted secret files
 of yours, e.g.
 
 ``` r
+
 f <- future(system("erase-all-user-files"))
 ```
 
 and
 
 ``` r
+
 f <- future(readLines("~/.ssh/id_ed25519"))
 ```
 

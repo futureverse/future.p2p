@@ -49,7 +49,7 @@ to prevent nested parallelization.
 ## References
 
 1.  rw: CLI for webR with Sandboxing Features, *under development*,
-    <https://github.com/HenrikBengtsson/rw>.
+    <https://github.com/futureverse/rw>.
 
 ## Examples
 

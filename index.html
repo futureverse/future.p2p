@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0-9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0-9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,7 +115,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="id_️-security-️">⚠️ Security ⚠️<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-security-%EF%B8%8F"></a>
+<h2 id="warning-security-warning">⚠️ Security ⚠️<a class="anchor" aria-label="anchor" href="#warning-security-warning"></a>
 </h2>
 <p><em>Important warning: Please note that there is nothing preventing a user in your P2P cluster from sending malicious R code to your P2P worker!</em></p>
 <p>For example, a P2P user may submit a future that erases all files on the P2P worker or a future that attempts to read non-encrypted secret files of yours, e.g.</p>
@@ -125,7 +125,7 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/future.html" class="external-link">future</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="st">"~/.ssh/id_ed25519"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Because of this, it is important that you only join shared P2P clusters that you trust, i.e. where you trust all the P2P users and the user who hosts it such that they do not invite non-trusted or unknown users.</p>
-<p><strong>Beta feature</strong>: <strong>future.p2p</strong> (&gt;= 0.5.0) implements a prototype for workers to isolate the evaluation of futures in R WebAssembly (<strong><a href="https://github.com/r-wasm/webr/" class="external-link">webR</a></strong>). It requires the <strong><a href="https://github.com/HenrikBengtsson/rw" class="external-link">rw</a></strong> command-line tool, which is under development. Although WebAssembly is designed to isolate the host system from what WebAssembly executes, <strong>webR</strong> relies on Node.js and it is still to be learned exactly how well the host system is isolated from the future R code evaluated.</p>
+<p><strong>Beta feature</strong>: <strong>future.p2p</strong> (&gt;= 0.5.0) implements a prototype for workers to isolate the evaluation of futures in R WebAssembly (<strong><a href="https://github.com/r-wasm/webr/" class="external-link">webR</a></strong>). It requires the <strong><a href="https://github.com/futureverse/rw" class="external-link">rw</a></strong> command-line tool, which is under development. Although WebAssembly is designed to isolate the host system from what WebAssembly executes, <strong>webR</strong> relies on Node.js and it is still to be learned exactly how well the host system is isolated from the future R code evaluated.</p>
 <p>Beyond above R WebAssembly isolation, there are additional mechanisms for launching P2P workers in <em>sandboxed</em> environments. For instance, by running P2P workers in a sandboxed virtual machine (VM, e.g. <a href="https://github.com/quickemu-project/quickemu" class="external-link">quickemu</a>), in a sandboxed Linux container (e.g. <a href="https://apptainer.org/" class="external-link">Apptainer</a>, <a href="https://www.docker.com/" class="external-link">Docker</a> and <a href="https://podman.io/" class="external-link">Podman</a>), or via dedicated sandboxing tools (e.g. <a href="https://github.com/containers/bubblewrap" class="external-link">Bubblewrap</a>, <a href="https://github.com/netblue30/firejail" class="external-link">Firejail</a>, <a href="https://github.com/Zouuup/landrun" class="external-link">landrun</a>, and macOS <code>sandbox-exec</code>), you can mitigate some of the risk of malicious code accessing the host machine where your personal data lives.</p>
 </div>
 <div class="section level2">
@@ -179,7 +179,7 @@
 <p>Without parallel workers, the P2P cluster is useless and will not process any parallel tasks. This is where the peer-to-peer concept comes in, where we contribute our idle compute cycles to the cluster for others to make use of. To contribute your R compute power to the <code>alice/friends</code> cluster, launch a P2P worker as:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>This will contribute one parallel worker to the p2p cluster. You can contribute additional ones by repeating the same command one or more times.</p>
-<p><strong>Beta feature</strong>: <strong>future.p2p</strong> implements a prototype for workers to isolate the evaluation of futures in R WebAssembly (<strong><a href="https://github.com/r-wasm/webr/" class="external-link">webR</a></strong>). It requires the <strong><a href="https://github.com/HenrikBengtsson/rw" class="external-link">rw</a></strong> command-line tool, which is under development. With <strong>rw</strong> installed, launching the worker with:</p>
+<p><strong>Beta feature</strong>: <strong>future.p2p</strong> implements a prototype for workers to isolate the evaluation of futures in R WebAssembly (<strong><a href="https://github.com/r-wasm/webr/" class="external-link">webR</a></strong>). It requires the <strong><a href="https://github.com/futureverse/rw" class="external-link">rw</a></strong> command-line tool, which is under development. With <strong>rw</strong> installed, launching the worker with:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--sandbox</span><span class="op">=</span>TRUE <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>results in the P2P futures to be resolved in R WebAssembly.</p>
 </div>

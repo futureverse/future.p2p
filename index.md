@@ -2,12 +2,13 @@
 
 *- Share R compute among friends across the world*
 
-  
-  
+\
+\
 
 ## TL;DR
 
 ``` r
+
 library(future)
 
 ## Resolve futures via a P2P cluster shared among friends
@@ -31,12 +32,14 @@ P2P worker or a future that attempts to read non-encrypted secret files
 of yours, e.g.
 
 ``` r
+
 f <- future(system("erase-all-user-files"))
 ```
 
 and
 
 ``` r
+
 f <- future(readLines("~/.ssh/id_ed25519"))
 ```
 
@@ -47,11 +50,11 @@ hosts it such that they do not invite non-trusted or unknown users.
 **Beta feature**: **future.p2p** (\>= 0.5.0) implements a prototype for
 workers to isolate the evaluation of futures in R WebAssembly
 (**[webR](https://github.com/r-wasm/webr/)**). It requires the
-**[rw](https://github.com/HenrikBengtsson/rw)** command-line tool, which
-is under development. Although WebAssembly is designed to isolate the
-host system from what WebAssembly executes, **webR** relies on Node.js
-and it is still to be learned exactly how well the host system is
-isolated from the future R code evaluated.
+**[rw](https://github.com/futureverse/rw)** command-line tool, which is
+under development. Although WebAssembly is designed to isolate the host
+system from what WebAssembly executes, **webR** relies on Node.js and it
+is still to be learned exactly how well the host system is isolated from
+the future R code evaluated.
 
 Beyond above R WebAssembly isolation, there are additional mechanisms
 for launching P2P workers in *sandboxed* environments. For instance, by
@@ -69,6 +72,7 @@ machine where your personal data lives.
 ## Installation
 
 ``` r
+
 install.packages('future.p2p', repos = c('https://futureverse.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
@@ -129,6 +133,7 @@ specify that we want to parallelize via the P2P cluster.
 For example,
 
 ``` r
+
 library(future)
 plan(future.p2p::cluster, cluster = "alice/friends")
 
@@ -159,8 +164,8 @@ times.
 **Beta feature**: **future.p2p** implements a prototype for workers to
 isolate the evaluation of futures in R WebAssembly
 (**[webR](https://github.com/r-wasm/webr/)**). It requires the
-**[rw](https://github.com/HenrikBengtsson/rw)** command-line tool, which
-is under development. With **rw** installed, launching the worker with:
+**[rw](https://github.com/futureverse/rw)** command-line tool, which is
+under development. With **rw** installed, launching the worker with:
 
 ``` sh
 {bob}$ Rscript -e future.p2p::worker --sandbox=TRUE --cluster=alice/friends
