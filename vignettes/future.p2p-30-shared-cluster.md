@@ -109,4 +109,4 @@ Each tile will be processed by a separate P2P worker.
 [future.p2p]: https://future.p2p.futureverse.org/
 [future]: https://future.futureverse.org
 [webR]: https://github.com/r-wasm/webr/
-[rw]: https://github.com/HenrikBengtsson/rw
+[rw]: https://github.com/futureverse/rw

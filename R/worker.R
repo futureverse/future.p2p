@@ -21,7 +21,7 @@
 #'
 #' @references
 #' 1. rw: CLI for webR with Sandboxing Features, _under development_,
-#'    <https://github.com/HenrikBengtsson/rw>.
+#'    <https://github.com/futureverse/rw>.
 #'
 #' @importFrom processx poll
 #' @importFrom utils head

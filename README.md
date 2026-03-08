@@ -226,7 +226,7 @@ variable `http_proxy`, e.g.
 [Magic-Wormhole]: https://magic-wormhole.readthedocs.io/en/latest/
 [wormhole-william]: https://github.com/psanford/wormhole-william
 [webR]: https://github.com/r-wasm/webr/
-[rw]: https://github.com/HenrikBengtsson/rw
+[rw]: https://github.com/futureverse/rw
 [quickemu]: https://github.com/quickemu-project/quickemu
 [Apptainer]: https://apptainer.org/
 [Docker]: https://www.docker.com/

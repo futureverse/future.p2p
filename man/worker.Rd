@@ -45,6 +45,6 @@ future.p2p::worker()
 \references{
 \enumerate{
 \item rw: CLI for webR with Sandboxing Features, \emph{under development},
-\url{https://github.com/HenrikBengtsson/rw}.
+\url{https://github.com/futureverse/rw}.
 }
 }
