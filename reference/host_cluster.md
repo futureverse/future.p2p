@@ -38,6 +38,10 @@ host_cluster(
 
   Duration (in seconds) to offer this cluster.
 
+## Value
+
+Returns nothing.
+
 ## Examples
 
 ``` r

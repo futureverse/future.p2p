@@ -2,7 +2,9 @@
 
 ## Version (development version)
 
-- …
+### Significant Changes
+
+- Changed the package license to permissive Apache License (\>= 2).
 
 ## Version 0.5.0
 
