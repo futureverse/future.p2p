@@ -1,6 +1,6 @@
 # Changelog
 
-## Version (development version)
+## Version 0.6.0
 
 ### Significant Changes
 
