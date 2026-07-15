@@ -45,14 +45,13 @@
 #' # See debug messages
 #' options(future.p2p.debug = TRUE)
 #'
-#' @aliases
-#' future.p2p.options
+#' @aliases future.p2p.options
 #'
-#' future.p2p.debug
-#' future.p2p.wormhole
+#' @aliases future.p2p.debug
+#' @aliases future.p2p.wormhole
 #'
-#' R_FUTURE_P2P_DEBUG
-#' R_FUTURE_P2P_WORMHOLE
+#' @aliases R_FUTURE_P2P_DEBUG
+#' @aliases R_FUTURE_P2P_WORMHOLE
 #'
 #' @name zzz-future.p2p.options 
 NULL

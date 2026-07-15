@@ -25,6 +25,9 @@ The default is a personal cluster that only you have access to.}
 
 \item{duration}{Duration (in seconds) to offer this cluster.}
 }
+\value{
+Returns nothing.
+}
 \description{
 Hosts a shared P2P cluster
 }

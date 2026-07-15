@@ -10,6 +10,9 @@
 #'
 #' @param duration Duration (in seconds) to offer this cluster.
 #'
+#' @return
+#' Returns nothing.
+#' 
 #' @examplesIf interactive()
 #' # Connect to personal P2P cluster, which is automatically launched
 #' host_cluster(users = c("bob", "carol"))
