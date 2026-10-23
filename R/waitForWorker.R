@@ -52,7 +52,7 @@ waitForWorker <- function(type,
     await()
 
     iter <- iter + 1L
-    dt <- difftime2(Sys.time(), t0)
+    dt <- difftime2(Sys.time(), t0, units = "secs")
   }
 
   if (!finished) {
