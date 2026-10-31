@@ -17,29 +17,35 @@ export(p2p_cluster_name)
 export(pico_username)
 export(worker)
 importFrom(callr,r_bg)
-importFrom(future,Future)
-importFrom(future,FutureBackend)
-importFrom(future,FutureError)
-importFrom(future,FutureInterruptError)
-importFrom(future,FutureResult)
-importFrom(future,UnexpectedFutureResultError)
-importFrom(future,future)
-importFrom(future,interruptFuture)
-importFrom(future,launchFuture)
-importFrom(future,nbrOfFreeWorkers)
-importFrom(future,nbrOfWorkers)
-importFrom(future,plan)
-importFrom(future,reset)
-importFrom(future,resolve)
-importFrom(future,resolved)
-importFrom(future,result)
-importFrom(future,run)
-importFrom(future,sequential)
-importFrom(processx,poll)
-importFrom(processx,process)
-importFrom(utils,capture.output)
-importFrom(utils,download.file)
-importFrom(utils,file_test)
-importFrom(utils,head)
-importFrom(utils,packageVersion)
-importFrom(utils,str)
+importFrom(future,
+  Future,
+  FutureBackend,
+  FutureError,
+  FutureInterruptError,
+  FutureResult,
+  UnexpectedFutureResultError,
+  future,
+  interruptFuture,
+  launchFuture,
+  nbrOfFreeWorkers,
+  nbrOfWorkers,
+  plan,
+  reset,
+  resolve,
+  resolved,
+  result,
+  run,
+  sequential
+)
+importFrom(processx,
+  poll,
+  process
+)
+importFrom(utils,
+  capture.output,
+  download.file,
+  file_test,
+  head,
+  packageVersion,
+  str
+)
