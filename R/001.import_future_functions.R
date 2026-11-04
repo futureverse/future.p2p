@@ -1,27 +1,13 @@
-## To be imported from 'future', if available
-FutureRegistry <- NULL
-assertOwner <- NULL
-sQuoteLabel <- NULL
+## Private functions imported from 'future'
+FutureRegistry <- import_future("FutureRegistry")
+assertOwner <- import_future("assertOwner")
+sQuoteLabel <- import_future("sQuoteLabel")
+session_uuid <- import_future("session_uuid")
+
+## An environment must be imported when the package is loaded, otherwise
+## we would get a copy and not share the state with 'future'
 .debug <- NULL
-session_uuid <- NULL
 
-## Import private functions from 'future'
-#' @importFrom utils packageVersion
 import_future_functions <- function() {
-  FutureRegistry <<- import_future("FutureRegistry")
-  assertOwner <<- import_future("assertOwner")
-  sQuoteLabel <<- import_future("sQuoteLabel")
-  session_uuid <<- import_future("session_uuid")
-
-  .debug <<- import_future(".debug", mode = "environment", default = new.env(parent = emptyenv()))
+  .debug <<- import_future(".debug", mode = "environment")
 }
-
-
-#' @importFrom utils packageVersion
-future_supports_state_submitted <- local({
-  .value <- NA
-  function() {
-    if (is.na(.value)) .value <<- (packageVersion("future") > "1.67.0")
-    .value
-  }
-})
