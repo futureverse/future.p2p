@@ -600,7 +600,7 @@ pico_p2p_dispatch_future <- function(future) {
   future[["pico_via"]] <- via
 
   ## Update future state
-  future[["state"]] <- if (future_supports_state_submitted()) "submitted" else "running"
+  future[["state"]] <- "submitted"
   
   invisible(future)
 }
