@@ -73,6 +73,7 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), host = "pipe.pico
 
   ## Argument 'workers' will most likely be removed at some point
   workers <- args[["workers"]]
+  args[["workers"]] <- NULL
   if (is.null(workers)) {
     workers <- availablePicoP2PWorkers()
   } else if (is.function(workers)) {
@@ -87,18 +88,22 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), host = "pipe.pico
   }
 
   name <- p2p_client_id()
-  core <- FutureBackend(
-    cluster = cluster,
-    name = name,
-    host = host,
-    ssh_args = ssh_args,
-    reg = "workers-pico-p2p",
-    workers = workers,
-    ...,
-    timeout = getOption("future.wait.timeout", 30 * 24 * 60 * 60),
-    delta = getOption("future.wait.interval", 0.2),
-    alpha = getOption("future.wait.alpha", 1.01)
-  )
+  core <- do.call(FutureBackend, args = c(
+    list(
+      cluster = cluster,
+      name = name,
+      host = host,
+      ssh_args = ssh_args,
+      reg = "workers-pico-p2p",
+      workers = workers
+    ),
+    args,
+    list(
+      timeout = getOption("future.wait.timeout", 30 * 24 * 60 * 60),
+      delta = getOption("future.wait.interval", 0.2),
+      alpha = getOption("future.wait.alpha", 1.01)
+    )
+  ))
   core[["futureClasses"]] <- c("PicoP2PFuture", core[["futureClasses"]])
   core <- structure(core, class = c("PicoP2PFutureBackend", "MultiprocessFutureBackend", "FutureBackend", class(core)))
 
