@@ -94,7 +94,10 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), host = "pipe.pico
     ssh_args = ssh_args,
     reg = "workers-pico-p2p",
     workers = workers,
-    ...
+    ...,
+    timeout = getOption("future.wait.timeout", 30 * 24 * 60 * 60),
+    delta = getOption("future.wait.interval", 0.2),
+    alpha = getOption("future.wait.alpha", 1.01)
   )
   core[["futureClasses"]] <- c("PicoP2PFuture", core[["futureClasses"]])
   core <- structure(core, class = c("PicoP2PFutureBackend", "MultiprocessFutureBackend", "FutureBackend", class(core)))
@@ -223,11 +226,6 @@ availablePicoP2PWorkers <- function() {
   nworkers <- 10L
   nworkers <- max(1L, nworkers, na.rm = TRUE)
   as.integer(nworkers)
-}
-
-
-## FIXME: To be implemented
-waitForWorker <- function(...) {
 }
 
 
