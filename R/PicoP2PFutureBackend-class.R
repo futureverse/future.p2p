@@ -105,7 +105,7 @@ PicoP2PFutureBackend <- function(cluster = p2p_cluster_name(), host = "pipe.pico
     )
   ))
   core[["futureClasses"]] <- c("PicoP2PFuture", core[["futureClasses"]])
-  core <- structure(core, class = c("PicoP2PFutureBackend", "MultiprocessFutureBackend", "FutureBackend", class(core)))
+  core <- structure(core, class = c("PicoP2PFutureBackend", "MultiprocessFutureBackend", class(core)))
 
   if (!p2p_can_connect(cluster, name = name, host = host, ssh_args = ssh_args)) {
     stop(sprintf("Cannot connect to P2P cluster %s - make sure they have given you (%s) access", sQuote(cluster), sQuote(pico_username(host = host, ssh_args = ssh_args))))
