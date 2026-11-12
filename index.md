@@ -7,20 +7,18 @@
 
 ## TL;DR
 
-``` r
-
-library(future)
-
-## Resolve futures via a P2P cluster shared among friends
-plan(future.p2p::cluster, cluster = "alice/friends")
-
-## Create future
-f <- future(Sys.getpid())
-  
-## Get results
-v <- value(f)
-print(v)
-```
+\
+[`library`](https://rdrr.io/r/base/library.html)`(`[`future`](https://future.futureverse.org)`)`\
+\
+`## Resolve futures via a P2P cluster shared among friends`\
+[`plan`](https://future.futureverse.org/reference/plan.html)`(``future.p2p``::`[`cluster`](https://future.p2p.futureverse.org/reference/cluster.md)`, cluster ``=`` ``"alice/friends"``)`\
+\
+`## Create future`\
+`f`` ``<-`` `[`future`](https://future.futureverse.org/reference/future.html)`(`[`Sys.getpid`](https://rdrr.io/r/base/Sys.getpid.html)`(``)``)`\
+`  `\
+`## Get results`\
+`v`` ``<-`` `[`value`](https://future.futureverse.org/reference/value.html)`(``f``)`\
+[`print`](https://rdrr.io/r/base/print.html)`(``v``)`
 
 ## ⚠️ Security ⚠️
 
@@ -31,17 +29,13 @@ For example, a P2P user may submit a future that erases all files on the
 P2P worker or a future that attempts to read non-encrypted secret files
 of yours, e.g.
 
-``` r
-
-f <- future(system("erase-all-user-files"))
-```
+\
+`f`` ``<-`` `[`future`](https://future.futureverse.org/reference/future.html)`(`[`system`](https://rdrr.io/r/base/system.html)`(``"erase-all-user-files"``)``)`
 
 and
 
-``` r
-
-f <- future(readLines("~/.ssh/id_ed25519"))
-```
+\
+`f`` ``<-`` `[`future`](https://future.futureverse.org/reference/future.html)`(`[`readLines`](https://rdrr.io/r/base/readLines.html)`(``"~/.ssh/id_ed25519"``)``)`
 
 Because of this, it is important that you only join shared P2P clusters
 that you trust, i.e. where you trust all the P2P users and the user who
@@ -71,10 +65,8 @@ machine where your personal data lives.
 
 ## Installation
 
-``` r
-
-install.packages('future.p2p', repos = c('https://futureverse.r-universe.dev', 'https://cloud.r-project.org'))
-```
+\
+[`install.packages`](https://rdrr.io/r/utils/install.packages.html)`(``'future.p2p'``, repos ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``'https://futureverse.r-universe.dev'``, ``'https://cloud.r-project.org'``)``)`
 
 ## Getting started
 
@@ -132,18 +124,16 @@ specify that we want to parallelize via the P2P cluster.
 
 For example,
 
-``` r
-
-library(future)
-plan(future.p2p::cluster, cluster = "alice/friends")
-
-## Evaluate an R expression via the P2P cluster
-f <- future(Sys.getpid())
-
-## Retrieve value
-v <- value(f)
-print(v)
-```
+\
+[`library`](https://rdrr.io/r/base/library.html)`(`[`future`](https://future.futureverse.org)`)`\
+[`plan`](https://future.futureverse.org/reference/plan.html)`(``future.p2p``::`[`cluster`](https://future.p2p.futureverse.org/reference/cluster.md)`, cluster ``=`` ``"alice/friends"``)`\
+\
+`## Evaluate an R expression via the P2P cluster`\
+`f`` ``<-`` `[`future`](https://future.futureverse.org/reference/future.html)`(`[`Sys.getpid`](https://rdrr.io/r/base/Sys.getpid.html)`(``)``)`\
+\
+`## Retrieve value`\
+`v`` ``<-`` `[`value`](https://future.futureverse.org/reference/value.html)`(``f``)`\
+[`print`](https://rdrr.io/r/base/print.html)`(``v``)`
 
 ## Share your compute power with your friends (any user)
 
@@ -195,19 +185,17 @@ workers on one system and harness their compute power from another.
 If you are behind a firewall with a proxy, wormhole might fail to
 establish an outbound connection. For example, if you try:
 
-``` r
-> system2(future.p2p:::find_wormhole(), args = c("send", "--text", "hello"))
-```
+\
+[`system2`](https://rdrr.io/r/base/system2.html)`(``future.p2p``:::`[`find_wormhole`](https://future.p2p.futureverse.org/reference/find_wormhole.md)`(``)``, args ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"send"``, ``"--text"``, ``"hello"``)``)`
 
 it might stall forever. If that happens, press Ctrl-C to interrupt and
 retry by disabling the proxy settings using:
 
-``` sh
-> Sys.unsetenv("http_proxy")
-> system2(future.p2p:::find_wormhole(), args = c("send", "--text", "hello"))
-On the other computer, please run: wormhole receive (or wormhole-william recv)
-Wormhole code is: 53-visitor-physique
-```
+\
+[`Sys.unsetenv`](https://rdrr.io/r/base/Sys.setenv.html)`(``"http_proxy"``)`\
+[`system2`](https://rdrr.io/r/base/system2.html)`(``future.p2p``:::`[`find_wormhole`](https://future.p2p.futureverse.org/reference/find_wormhole.md)`(``)``, args ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"send"``, ``"--text"``, ``"hello"``)``)`\
+`#> On the other computer, please run: wormhole receive (or wormhole-william recv)`\
+`#> Wormhole code is: 53-visitor-physique`
 
 If the latter works for you, launch R by unsetting environment variable
 `http_proxy`, e.g.

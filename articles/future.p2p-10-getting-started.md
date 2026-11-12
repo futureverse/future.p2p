@@ -39,17 +39,13 @@ For example, a P2P user may submit a future that erases all files on the
 P2P worker or a future that attempts to read non-encrypted secret files
 of yours, e.g.
 
-``` r
-
-f <- future(system("erase-all-user-files"))
-```
+\
+`f`` ``<-`` `[`future`](https://future.futureverse.org/reference/future.html)`(`[`system`](https://rdrr.io/r/base/system.html)`(``"erase-all-user-files"``)``)`
 
 and
 
-``` r
-
-f <- future(readLines("~/.ssh/id_ed25519"))
-```
+\
+`f`` ``<-`` `[`future`](https://future.futureverse.org/reference/future.html)`(`[`readLines`](https://rdrr.io/r/base/readLines.html)`(``"~/.ssh/id_ed25519"``)``)`
 
 Because of this, it is important that you only join shared P2P clusters
 that you trust, i.e. where you trust all the P2P users and the user who

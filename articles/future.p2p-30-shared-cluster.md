@@ -60,15 +60,13 @@ results in the P2P futures to be resolved in R WebAssembly.
 With the P2P set up and P2P workers being up and running, you can run
 your R code on it by setting the future plan. For example,
 
-``` r
-
-library(future)
-plan(future.p2p::cluster)
-
-f <- future(Sys.getpid())
-v <- value(f)
-print(v)
-```
+\
+[`library`](https://rdrr.io/r/base/library.html)`(`[`future`](https://future.futureverse.org)`)`\
+[`plan`](https://future.futureverse.org/reference/plan.html)`(``future.p2p``::`[`cluster`](https://future.p2p.futureverse.org/reference/cluster.md)`)`\
+\
+`f`` ``<-`` `[`future`](https://future.futureverse.org/reference/future.html)`(`[`Sys.getpid`](https://rdrr.io/r/base/Sys.getpid.html)`(``)``)`\
+`v`` ``<-`` `[`value`](https://future.futureverse.org/reference/value.html)`(``f``)`\
+[`print`](https://rdrr.io/r/base/print.html)`(``v``)`
 
 will give you the process ID of the P2P worker that took on this
 future.[^3][^4]
@@ -76,12 +74,10 @@ future.[^3][^4]
 Next, try the Mandelbrot demo of the
 **[future](https://future.futureverse.org)** package;
 
-``` r
-
-library(future)
-plan(future.p2p::cluster)
-demo("mandelbrot", ask = TRUE)
-```
+\
+[`library`](https://rdrr.io/r/base/library.html)`(`[`future`](https://future.futureverse.org)`)`\
+[`plan`](https://future.futureverse.org/reference/plan.html)`(``future.p2p``::`[`cluster`](https://future.p2p.futureverse.org/reference/cluster.md)`)`\
+[`demo`](https://rdrr.io/r/utils/demo.html)`(``"mandelbrot"``, ask ``=`` ``TRUE``)`
 
 Each tile will be processed by a separate P2P worker.
 

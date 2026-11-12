@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0-9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0-9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -202,12 +202,14 @@
 <h3 id="troubleshoot-wormhole">Troubleshoot Wormhole<a class="anchor" aria-label="anchor" href="#troubleshoot-wormhole"></a>
 </h3>
 <p>If you are behind a firewall with a proxy, wormhole might fail to establish an outbound connection. For example, if you try:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">system2</span>(future.p2p<span class="sc">:::</span><span class="fu">find_wormhole</span>(), <span class="at">args =</span> <span class="fu">c</span>(<span class="st">"send"</span>, <span class="st">"--text"</span>, <span class="st">"hello"</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="fu">future.p2p</span><span class="fu">:::</span><span class="fu"><a href="reference/find_wormhole.html">find_wormhole</a></span><span class="op">(</span><span class="op">)</span>, args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"send"</span>, <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>it might stall forever. If that happens, press <kbd>Ctrl-C</kbd> to interrupt and retry by disabling the proxy settings using:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="op">&gt;</span> Sys.unsetenv<span class="kw">(</span><span class="st">"http_proxy"</span><span class="kw">)</span></span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="op">&gt;</span> system2<span class="kw">(</span><span class="fu">future.p2p:::find_wormhole()</span><span class="ex">,</span> args = c<span class="er">(</span><span class="st">"send"</span><span class="ex">,</span> <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="kw">))</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="ex">On</span> the other computer, please run: wormhole receive <span class="er">(</span><span class="ex">or</span> wormhole-william recv<span class="kw">)</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="ex">Wormhole</span> code is: 53-visitor-physique</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.unsetenv</a></span><span class="op">(</span><span class="st">"http_proxy"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="fu">future.p2p</span><span class="fu">:::</span><span class="fu"><a href="reference/find_wormhole.html">find_wormhole</a></span><span class="op">(</span><span class="op">)</span>, args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"send"</span>, <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; On the other computer, please run: wormhole receive (or wormhole-william recv)</span></span>
+<span><span class="co">#&gt; Wormhole code is: 53-visitor-physique</span></span></code></pre></div>
 <p>If the latter works for you, launch R by unsetting environment variable <code>http_proxy</code>, e.g.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="ex">{bob}$</span> http_proxy=<span class="st">""</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 </div>
