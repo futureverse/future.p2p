@@ -1,7 +1,16 @@
 Package: future.p2p
-Title: A Peer-to-Peer Compute Cluster via Futureverse
+Title: Parallel Future Backend for Peer-to-Peer Clusters using 'pico.sh'
 Version: 0.6.0-9007
-Description: Implementation of the 'Future' API <doi:10.32614/RJ-2021-048> that resolves futures on a peer-to-peer ('P2P') compute environment. By using this future backend, you and your friends can share your spare compute resources with each other.
+Description: Implementation of the Future API <doi:10.32614/RJ-2021-048>
+    that resolves futures on a peer-to-peer ('P2P') cluster, where you and
+    your friends share your spare compute resources with each other. The
+    backend is fully compliant with the Future API, as validated by the
+    'future.tests' conformance test suite, meaning that code using futures
+    gives identical results and behaves the same regardless of which future
+    backend is used. A common use is to parallelize existing map-reduce
+    calls via the 'futurize' package <doi:10.48550/arXiv.2601.17578>, e.g.
+    'plan(future.p2p::cluster)' followed by 'lapply(xs, fcn) |> futurize()'
+    or 'purrr::map(xs, fcn) |> futurize()'.
 Imports:
     future (>= 1.80.0),
     processx,

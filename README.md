@@ -3,7 +3,7 @@
 </div>
 
 
-# future.p2p: A Peer-to-Peer Compute Cluster in R <img border="0" src="man/figures/world-p2p-network-three-users.png" width="150px" align="right"/>
+# future.p2p: Parallel Future Backend for Peer-to-Peer Clusters using 'pico.sh' <img border="0" src="man/figures/world-p2p-network-three-users.png" width="150px" align="right"/>
 
 _- Share R compute among friends across the world_
 
