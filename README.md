@@ -1,30 +1,62 @@
+
+
 <div id="badges"><!-- pkgdown markup -->
-<a href="https://github.com/futureverse/future.p2p/actions?query=workflow%3AR-CMD-check"><img border="0" src="https://github.com/futureverse/future.p2p/actions/workflows/R-CMD-check.yaml/badge.svg?branch=develop" alt="R CMD check status"/></a>  <a href="https://app.codecov.io/gh/futureverse/future.p2p"><img border="0" src="https://codecov.io/gh/futureverse/future.p2p/branch/develop/graph/badge.svg" alt="Coverage Status"/></a> 
+ <a href="https://github.com/futureverse/future.p2p/actions?query=workflow%3AR-CMD-check"><img border="0" src="https://github.com/futureverse/future.p2p/actions/workflows/R-CMD-check.yaml/badge.svg?branch=develop" alt="R CMD check status"/></a>     <a href="https://app.codecov.io/gh/futureverse/future.p2p"><img border="0" src="https://codecov.io/gh/futureverse/future.p2p/branch/develop/graph/badge.svg" alt="Coverage Status"/></a> <a href="https://futureverse.r-universe.dev/future.p2p"><img border="0" src="https://futureverse.r-universe.dev/badges/future.p2p" alt="R-universe version"/></a>
 </div>
 
+# future.p2p: Parallel Future Backend for Peer-to-Peer Clusters using 'pico.sh' 
 
-# future.p2p: Parallel Future Backend for Peer-to-Peer Clusters using 'pico.sh' <img border="0" src="man/figures/world-p2p-network-three-users.png" width="150px" align="right"/>
+<img border="0" src="man/figures/world-p2p-network-three-users.png" width="150px" align="right"/>
 
 _- Share R compute among friends across the world_
 
 <br>
 <br>
 
-## TL;DR
+## Introduction
+
+The **future.p2p** package is a backend for the **[future]**
+framework, also known as the [Futureverse]. The Futureverse makes it
+easy to parallelize existing R code - often with only a minor change
+of code. Most users interact with it via higher-level packages such
+as **[futurize]**, **[future.apply]**, **[furrr]**, and
+**[doFuture]**, and you choose _where_ and _how_ the code runs by
+setting a future backend with `plan()`. This package adds the
+`cluster` backend, which runs futures on a peer-to-peer (P2P) cluster
+of R workers that you and your friends contribute, from anywhere in
+the world.
 
 ```r
-library(future)
+library(futurize)
+plan(future.p2p::cluster, cluster = "alice/friends")  # parallelize via a P2P cluster
 
-## Resolve futures via a P2P cluster shared among friends
-plan(future.p2p::cluster, cluster = "alice/friends")
+# A slow function
+slow_fcn <- function(x) {
+  Sys.sleep(1.0)
+  x^2
+}
 
-## Create future
-f <- future(Sys.getpid())
-  
-## Get results
-v <- value(f)
-print(v)
+# Example data
+xs <- 1:10
+
+# Sequential and parallel base R apply
+ys <- lapply(xs, slow_fcn)
+ys <- lapply(xs, slow_fcn) |> futurize()
+
+# Sequential and parallel purrr map
+library(purrr)
+ys <- xs |> map(slow_fcn)
+ys <- xs |> map(slow_fcn) |> futurize()
+
+# Sequential and parallel foreach calls
+library(foreach)
+ys <- foreach(x = xs) %do% slow_fcn(x)
+ys <- foreach(x = xs) %do% slow_fcn(x) |> futurize()
 ```
+
+The only thing that differs from using [any other future backend](https://www.futureverse.org/backends.html) is
+the `plan()` call. The code does not have to change, it gives
+identical results, and it behaves exactly the same.
 
 ## ⚠️ Security ⚠️
 
@@ -67,14 +99,6 @@ e.g. [quickemu]), in a sandboxed Linux container (e.g. [Apptainer],
 (e.g. [Bubblewrap], [Firejail], [landrun], and macOS `sandbox-exec`),
 you can mitigate some of the risk of malicious code accessing the host
 machine where your personal data lives.
-
-
-
-## Installation
-
-```r
-install.packages('future.p2p', repos = c('https://futureverse.r-universe.dev', 'https://cloud.r-project.org'))
-```
 
 
 ## Getting started
@@ -221,7 +245,12 @@ variable `http_proxy`, e.g.
 {bob}$ http_proxy="" Rscript -e future.p2p::worker --cluster=alice/friends
 ```
 
-
+[Futureverse]: https://www.futureverse.org
+[future]: https://future.futureverse.org
+[future.apply]: https://future.apply.futureverse.org
+[furrr]: https://furrr.futureverse.org
+[doFuture]: https://doFuture.futureverse.org
+[futurize]: https://futurize.futureverse.org
 [pico.sh]: https://pico.sh/
 [Magic-Wormhole]: https://magic-wormhole.readthedocs.io/en/latest/
 [wormhole-william]: https://github.com/psanford/wormhole-william
@@ -234,3 +263,22 @@ variable `http_proxy`, e.g.
 [Bubblewrap]: https://github.com/containers/bubblewrap
 [Firejail]: https://github.com/netblue30/firejail
 [landrun]: https://github.com/Zouuup/landrun
+
+## Installation
+
+```r
+install.packages("future.p2p", repos = c("https://futureverse.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+
+### Pre-release version
+
+To install the pre-release version, use:
+
+```r
+install.packages("future.p2p", repos = c("https://futureverse-devel.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+
+<!-- pkgdown-drop-below -->
+
