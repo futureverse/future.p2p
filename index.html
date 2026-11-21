@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>A Peer-to-Peer Compute Cluster via Futureverse • future.p2p</title>
+<title>Parallel Future Backend for Peer-to-Peer Clusters using pico.sh • future.p2p</title>
 <script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="A Peer-to-Peer Compute Cluster via Futureverse">
-<meta name="description" content="Implementation of the Future API &lt;doi:10.32614/RJ-2021-048&gt; that resolves futures on a peer-to-peer (P2P) compute environment. By using this future backend, you and your friends can share your spare compute resources with each other.">
-<meta property="og:description" content="Implementation of the Future API &lt;doi:10.32614/RJ-2021-048&gt; that resolves futures on a peer-to-peer (P2P) compute environment. By using this future backend, you and your friends can share your spare compute resources with each other.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Parallel Future Backend for Peer-to-Peer Clusters using pico.sh">
+<meta name="description" content="Implementation of the Future API &lt;doi:10.32614/RJ-2021-048&gt; that resolves futures on a peer-to-peer (P2P) cluster, where you and your friends share your spare compute resources with each other. The backend is fully compliant with the Future API, as validated by the future.tests conformance test suite, meaning that code using futures gives identical results and behaves the same regardless of which future backend is used. A common use is to parallelize existing map-reduce calls via the futurize package &lt;doi:10.48550/arXiv.2601.17578&gt;, e.g. plan(future.p2p::cluster) followed by lapply(xs, fcn) |&gt; futurize() or purrr::map(xs, fcn) |&gt; futurize().">
+<meta property="og:description" content="Implementation of the Future API &lt;doi:10.32614/RJ-2021-048&gt; that resolves futures on a peer-to-peer (P2P) cluster, where you and your friends share your spare compute resources with each other. The backend is fully compliant with the Future API, as validated by the future.tests conformance test suite, meaning that code using futures gives identical results and behaves the same regardless of which future backend is used. A common use is to parallelize existing map-reduce calls via the futurize package &lt;doi:10.48550/arXiv.2601.17578&gt;, e.g. plan(future.p2p::cluster) followed by lapply(xs, fcn) |&gt; futurize() or purrr::map(xs, fcn) |&gt; futurize().">
 <!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-SB3EQSD9FR"></script><script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">future.p2p</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0-9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0-9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,25 +96,42 @@
 <div class="row">
   <main id="main" class="col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="futurep2p-a-peer-to-peer-compute-cluster-in-r-">future.p2p: A Peer-to-Peer Compute Cluster in R <img border="0" src="reference/figures/world-p2p-network-three-users.png" width="150px" align="right"><a class="anchor" aria-label="anchor" href="#futurep2p-a-peer-to-peer-compute-cluster-in-r-"></a>
+<div class="page-header"><h1 id="futurep2p-parallel-future-backend-for-peer-to-peer-clusters-using-picosh">future.p2p: Parallel Future Backend for Peer-to-Peer Clusters using ‘pico.sh’<a class="anchor" aria-label="anchor" href="#futurep2p-parallel-future-backend-for-peer-to-peer-clusters-using-picosh"></a>
 </h1></div>
+<p><img border="0" src="reference/figures/world-p2p-network-three-users.png" width="150px" align="right"></p>
 <p><em>- Share R compute among friends across the world</em></p>
 <p><br><br></p>
 <div class="section level2">
-<h2 id="tldr">TL;DR<a class="anchor" aria-label="anchor" href="#tldr"></a>
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
+<p>The <strong>future.p2p</strong> package is a backend for the <strong><a href="https://future.futureverse.org" class="external-link">future</a></strong> framework, also known as the <a href="https://www.futureverse.org" class="external-link">Futureverse</a>. The Futureverse makes it easy to parallelize existing R code - often with only a minor change of code. Most users interact with it via higher-level packages such as <strong><a href="https://futurize.futureverse.org" class="external-link">futurize</a></strong>, <strong><a href="https://future.apply.futureverse.org" class="external-link">future.apply</a></strong>, <strong><a href="https://furrr.futureverse.org" class="external-link">furrr</a></strong>, and <strong><a href="https://doFuture.futureverse.org" class="external-link">doFuture</a></strong>, and you choose <em>where</em> and <em>how</em> the code runs by setting a future backend with <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan()</a></code>. This package adds the <code>cluster</code> backend, which runs futures on a peer-to-peer (P2P) cluster of R workers that you and your friends contribute, from anywhere in the world.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://futurize.futureverse.org" class="external-link">futurize</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future.p2p</span><span class="fu">::</span><span class="va"><a href="reference/cluster.html">cluster</a></span>, cluster <span class="op">=</span> <span class="st">"alice/friends"</span><span class="op">)</span>  <span class="co"># parallelize via a P2P cluster</span></span>
 <span></span>
-<span><span class="co">## Resolve futures via a P2P cluster shared among friends</span></span>
-<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future.p2p</span><span class="fu">::</span><span class="va"><a href="reference/cluster.html">cluster</a></span>, cluster <span class="op">=</span> <span class="st">"alice/friends"</span><span class="op">)</span></span>
+<span><span class="co"># A slow function</span></span>
+<span><span class="va">slow_fcn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="fl">1.0</span><span class="op">)</span></span>
+<span>  <span class="va">x</span><span class="op">^</span><span class="fl">2</span></span>
+<span><span class="op">}</span></span>
 <span></span>
-<span><span class="co">## Create future</span></span>
-<span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/future.html" class="external-link">future</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getpid.html" class="external-link">Sys.getpid</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span><span class="co">## Get results</span></span>
-<span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://future.futureverse.org/reference/value.html" class="external-link">value</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Example data</span></span>
+<span><span class="va">xs</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span></span>
+<span></span>
+<span><span class="co"># Sequential and parallel base R apply</span></span>
+<span><span class="va">ys</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">xs</span>, <span class="va">slow_fcn</span><span class="op">)</span></span>
+<span><span class="va">ys</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">xs</span>, <span class="va">slow_fcn</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://futurize.futureverse.org/reference/futurize.html" class="external-link">futurize</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Sequential and parallel purrr map</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
+<span><span class="va">ys</span> <span class="op">&lt;-</span> <span class="va">xs</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">slow_fcn</span><span class="op">)</span></span>
+<span><span class="va">ys</span> <span class="op">&lt;-</span> <span class="va">xs</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">slow_fcn</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://futurize.futureverse.org/reference/futurize.html" class="external-link">futurize</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Sequential and parallel foreach calls</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RevolutionAnalytics/foreach" class="external-link">foreach</a></span><span class="op">)</span></span>
+<span><span class="va">ys</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">foreach</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">xs</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">%do%</a></span> <span class="fu">slow_fcn</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span><span class="va">ys</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">foreach</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">xs</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">%do%</a></span> <span class="fu">slow_fcn</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://futurize.futureverse.org/reference/futurize.html" class="external-link">futurize</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The only thing that differs from using <a href="https://www.futureverse.org/backends.html" class="external-link">any other future backend</a> is the <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan()</a></code> call. The code does not have to change, it gives identical results, and it behaves exactly the same.</p>
 </div>
 <div class="section level2">
 <h2 id="warning-security-warning">⚠️ Security ⚠️<a class="anchor" aria-label="anchor" href="#warning-security-warning"></a>
@@ -131,12 +148,6 @@
 <p>Beyond above R WebAssembly isolation, there are additional mechanisms for launching P2P workers in <em>sandboxed</em> environments. For instance, by running P2P workers in a sandboxed virtual machine (VM, e.g. <a href="https://github.com/quickemu-project/quickemu" class="external-link">quickemu</a>), in a sandboxed Linux container (e.g. <a href="https://apptainer.org/" class="external-link">Apptainer</a>, <a href="https://www.docker.com/" class="external-link">Docker</a> and <a href="https://podman.io/" class="external-link">Podman</a>), or via dedicated sandboxing tools (e.g. <a href="https://github.com/containers/bubblewrap" class="external-link">Bubblewrap</a>, <a href="https://github.com/netblue30/firejail" class="external-link">Firejail</a>, <a href="https://github.com/Zouuup/landrun" class="external-link">landrun</a>, and macOS <code>sandbox-exec</code>), you can mitigate some of the risk of malicious code accessing the host machine where your personal data lives.</p>
 </div>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'future.p2p'</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'https://futureverse.r-universe.dev'</span>, <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
 <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
 <p>In order to join a future P2P cluster, you must:</p>
@@ -145,18 +156,18 @@
 <li><p>have a <em><a href="https://pico.sh/" class="external-link">pico.sh</a> account</em>.</p></li>
 </ol>
 <p>See the ‘Getting Started’ vignette for how to set this up, but the gist for creating an SSH key pair if you already don’t have one is to:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">$</span> ssh-keygen</span></code></pre></div>
 <p>With the key pair create a <a href="https://pico.sh/" class="external-link">pico.sh</a> account by logging into their server:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">$</span> ssh pico.sh</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">$</span> ssh pico.sh</span></code></pre></div>
 <p>Choose your pico.sh username, which will also be your P2P cluster username, and click <kbd>ENTER</kbd>. Finally, verify SSH access to <code>pipe.pico.sh</code> (sic!);</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">$</span> ssh pipe.pico.sh</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">$</span> ssh pipe.pico.sh</span></code></pre></div>
 <p>That’s it!</p>
 </div>
 <div class="section level2">
 <h2 id="set-up-a-shared-p2p-cluster">Set up a shared P2P cluster<a class="anchor" aria-label="anchor" href="#set-up-a-shared-p2p-cluster"></a>
 </h2>
 <p>Let’s assume P2P users ‘alice’, ‘bob’, ‘carol’, and ‘diana’ decide to share a P2P cluster and user ‘alice’ agrees to host it. Hosting a P2P cluster only means that you control who has access - there’s no extra load added. So, to host, ‘alice’ calls:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ex">{alice}$</span> Rscript <span class="at">-e</span> future.p2p::host_cluster <span class="at">--users</span><span class="op">=</span>bob,carol,diana <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">{alice}$</span> Rscript <span class="at">-e</span> future.p2p::host_cluster <span class="at">--users</span><span class="op">=</span>bob,carol,diana <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>A future P2P cluster can be hosted from anywhere in the world, and it does not have to be on a machine where you run your own R analysis.</p>
 </div>
 <div class="section level2">
@@ -164,7 +175,7 @@
 </h2>
 <p>Any user with access to the ‘alice/friends’ cluster can use it. In our example, this means ‘bob’, ‘carol’, ‘diana’, and ‘alice’ may use the P2P cluster at the same time. Just like with any other future backend, we use <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan()</a></code> to specify that we want to parallelize via the P2P cluster.</p>
 <p>For example,</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future.p2p</span><span class="fu">::</span><span class="va"><a href="reference/cluster.html">cluster</a></span>, cluster <span class="op">=</span> <span class="st">"alice/friends"</span><span class="op">)</span></span>
 <span></span>
@@ -179,10 +190,10 @@
 <h2 id="share-your-compute-power-with-your-friends-any-user">Share your compute power with your friends (any user)<a class="anchor" aria-label="anchor" href="#share-your-compute-power-with-your-friends-any-user"></a>
 </h2>
 <p>Without parallel workers, the P2P cluster is useless and will not process any parallel tasks. This is where the peer-to-peer concept comes in, where we contribute our idle compute cycles to the cluster for others to make use of. To contribute your R compute power to the <code>alice/friends</code> cluster, launch a P2P worker as:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>This will contribute one parallel worker to the p2p cluster. You can contribute additional ones by repeating the same command one or more times.</p>
 <p><strong>Beta feature</strong>: <strong>future.p2p</strong> implements a prototype for workers to isolate the evaluation of futures in R WebAssembly (<strong><a href="https://github.com/r-wasm/webr/" class="external-link">webR</a></strong>). It requires the <strong><a href="https://github.com/futureverse/rw" class="external-link">rw</a></strong> command-line tool, which is under development. With <strong>rw</strong> installed, launching the worker with:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--sandbox</span><span class="op">=</span>TRUE <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--sandbox</span><span class="op">=</span>TRUE <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 <p>results in the P2P futures to be resolved in R WebAssembly.</p>
 </div>
 <div class="section level2">
@@ -196,22 +207,35 @@
 <div class="section level3">
 <h3 id="set-up-a-worker-to-connect-to-picosh-via-a-jumphost">Set up a worker to connect to pico.sh via a jumphost<a class="anchor" aria-label="anchor" href="#set-up-a-worker-to-connect-to-picosh-via-a-jumphost"></a>
 </h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--ssh_args</span><span class="op">=</span><span class="st">"-J somehost"</span> <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">{bob}$</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--ssh_args</span><span class="op">=</span><span class="st">"-J somehost"</span> <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="troubleshoot-wormhole">Troubleshoot Wormhole<a class="anchor" aria-label="anchor" href="#troubleshoot-wormhole"></a>
 </h3>
 <p>If you are behind a firewall with a proxy, wormhole might fail to establish an outbound connection. For example, if you try:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="fu">future.p2p</span><span class="fu">:::</span><span class="fu"><a href="reference/find_wormhole.html">find_wormhole</a></span><span class="op">(</span><span class="op">)</span>, args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"send"</span>, <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>it might stall forever. If that happens, press <kbd>Ctrl-C</kbd> to interrupt and retry by disabling the proxy settings using:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.unsetenv</a></span><span class="op">(</span><span class="st">"http_proxy"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="fu">future.p2p</span><span class="fu">:::</span><span class="fu"><a href="reference/find_wormhole.html">find_wormhole</a></span><span class="op">(</span><span class="op">)</span>, args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"send"</span>, <span class="st">"--text"</span>, <span class="st">"hello"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; On the other computer, please run: wormhole receive (or wormhole-william recv)</span></span>
 <span><span class="co">#&gt; Wormhole code is: 53-visitor-physique</span></span></code></pre></div>
 <p>If the latter works for you, launch R by unsetting environment variable <code>http_proxy</code>, e.g.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="ex">{bob}$</span> http_proxy=<span class="st">""</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="ex">{bob}$</span> http_proxy=<span class="st">""</span> Rscript <span class="at">-e</span> future.p2p::worker <span class="at">--cluster</span><span class="op">=</span>alice/friends</span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"future.p2p"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://futureverse.r-universe.dev"</span>, <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="pre-release-version">Pre-release version<a class="anchor" aria-label="anchor" href="#pre-release-version"></a>
+</h3>
+<p>To install the pre-release version, use:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"future.p2p"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://futureverse-devel.r-universe.dev"</span>, <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -261,6 +285,7 @@
 <ul class="list-unstyled">
 <li><a href="https://github.com/futureverse/future.p2p/actions?query=workflow%3AR-CMD-check" class="external-link"><img border="0" src="https://github.com/futureverse/future.p2p/actions/workflows/R-CMD-check.yaml/badge.svg?branch=develop" alt="R CMD check status"></a></li>
 <li><a href="https://app.codecov.io/gh/futureverse/future.p2p" class="external-link"><img border="0" src="https://codecov.io/gh/futureverse/future.p2p/branch/develop/graph/badge.svg" alt="Coverage Status"></a></li>
+<li><a href="https://futureverse.r-universe.dev/future.p2p" class="external-link"><img border="0" src="https://futureverse.r-universe.dev/badges/future.p2p" alt="R-universe version"></a></li>
 </ul>
 </div>
 

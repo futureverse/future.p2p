@@ -10,14 +10,14 @@
 Source:
 [`DESCRIPTION`](https://github.com/futureverse/future.p2p/blob/HEAD/DESCRIPTION)
 
-Bengtsson H (2026). *future.p2p: A Peer-to-Peer Compute Cluster via
-Futureverse*. R package version 0.6.0-9006,
+Bengtsson H (2026). *future.p2p: Parallel Future Backend for
+Peer-to-Peer Clusters using 'pico.sh'*. R package version 0.6.0-9007,
 <https://future.p2p.futureverse.org/>.
 
 @Manual{,\
-  title = {future.p2p: A Peer-to-Peer Compute Cluster via Futureverse},\
+  title = {future.p2p: Parallel Future Backend for Peer-to-Peer Clusters using 'pico.sh'},\
   author = {Henrik Bengtsson},\
   year = {2026},\
-  note = {R package version 0.6.0-9006},\
+  note = {R package version 0.6.0-9007},\
   url = {https://future.p2p.futureverse.org/},\
 }
